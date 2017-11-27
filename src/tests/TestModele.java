@@ -11,12 +11,14 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import modele.Groupe;
-import modele.Message;
 import modele.LacunaireException;
+import modele.Message;
 import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
@@ -44,6 +46,9 @@ public class TestModele {
 		groupes.add(new Groupe(10, "dfg"));
 		
 		groupes.add(g);
+
+		Utilisateur michel = new Utilisateur("mmm111m", "MACRIN", "Michel");
+		Utilisateur monique = new Utilisateur("mmm222m", "MONTECRISTO", "Monique");
 		
 		try {
 			g.addTicketsConnus(
@@ -51,9 +56,14 @@ public class TestModele {
 					new Ticket(154, "ticket2", 0, new Date())
 					);
 			
-			messages.add(new Message(4, new Utilisateur(1, "Michel"), "Coucou", df.parse("26/05/2017 15:20:12"), StatutDeLecture.LU, StatutDeLecture.LU));
-			messages.add(new Message(4, new Utilisateur(2, "Monique"), "Coucou à toi", df.parse("26/05/2017 15:24:51"), StatutDeLecture.RECU, StatutDeLecture.LU));
-			messages.add(new Message(4, new Utilisateur(1, "Michel"), "Merci (en retard)", df.parse("02/06/2017 01:17:18"), StatutDeLecture.RECU, StatutDeLecture.RECU));
+			NavigableMap<Utilisateur,StatutDeLecture> statuts = new TreeMap<>();
+			statuts.put(michel, StatutDeLecture.LU);
+			statuts.put(monique, StatutDeLecture.LU);
+			
+			messages.add(new Message(4, michel, "Coucou", df.parse("26/05/2017 15:20:12"), statuts));
+			messages.add(new Message(4, monique, "Coucou à toi", df.parse("26/05/2017 15:24:51"), statuts));
+			statuts.put(monique, StatutDeLecture.RECU);
+			messages.add(new Message(4, michel, "Merci (en retard)", df.parse("02/06/2017 01:17:18"), statuts));
 			
 			g.addTicketConnu(new Ticket(5, "mon ticket", messages, new Date(), new Date()));
 		}

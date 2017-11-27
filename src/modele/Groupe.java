@@ -101,10 +101,10 @@ public class Groupe extends AbstractIdentifiable implements Comparable<Groupe> {
 	
 	
 	@Override
-	public int compareTo(Groupe arg0) {
-		int cmp = getNom().compareTo(arg0.getNom());
+	public int compareTo(Groupe autre) {
+		int cmp = getNom().compareTo(autre.getNom());
 		if (cmp == 0)
-			cmp = getIdentifiantUnique() - arg0.getIdentifiantUnique();
+			cmp = new IdentifiableComparator().compare(this, autre);
 		return cmp;
 	}
 	
@@ -112,7 +112,7 @@ public class Groupe extends AbstractIdentifiable implements Comparable<Groupe> {
 	
 	@Override
 	public int hashCode() {
-		return 47 * getNom().hashCode() * getIdentifiantUnique();
+		return 47 * getNom().hashCode() * getIdentifiantUnique().hashCode();
 	}
 	
 	

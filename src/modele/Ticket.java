@@ -116,25 +116,24 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	 * Met a jour la variable privée nbMessagesNonLus
 	 * Le ticket DOIT être complet
 	 */
-	private void updateNbMessagesNonLus() {
-		// Java 8
-		// nbMessagesNonLus = (int) messages.stream().filter(m -> m.getStatutUtilisateur()!=StatutDeLecture.LU).count();
+	public void updateNbMessagesNonLus(Utilisateur user) {
+		if (!estComplet())
+			throw new LacunaireException("updatNbMessageNonLus doit être appelé sur un ticket complet");
+		
 		int nbNonLus = 0;
 		for (Message m: messages)
-			if (m.getStatutUtilisateur()!=StatutDeLecture.LU)
+			if (m.getStatuts().get(user)!=StatutDeLecture.LU)
 				++nbNonLus;
 		nbMessagesNonLus = nbNonLus;
 	}
 
 	/**
 	 * Obtenir le nombre de messages non lus
+	 * Ce nombre peut être recalculé avec updateNbMessagesNonLus, 
+	 * si le ticket n'est pas incomplet
 	 * @return Le nombre de messages non lus
-	 *   estComplet -> nombre de messages stockés non lus
-	 *  !estComplet -> nombre transmis lors de l'instanciation
 	 */
 	public int getNbMessagesNonLus() {
-		if (estComplet())
-			updateNbMessagesNonLus();
 		return nbMessagesNonLus;
 	}
 
@@ -190,7 +189,7 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	public int compareTo(Ticket autre) {
 		int cmp = dateDernierMessage.compareTo(autre.getDateDernierMessage());
 		if (cmp == 0)
-			cmp = getIdentifiantUnique() - autre.getIdentifiantUnique();
+			cmp = new IdentifiableComparator().compare(this, autre);
 		return cmp;
 	}
 	
