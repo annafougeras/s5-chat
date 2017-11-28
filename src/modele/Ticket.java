@@ -7,6 +7,7 @@
  */
 package modele;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.NavigableSet;
@@ -15,8 +16,9 @@ import java.util.TreeSet;
 /**
  * 
  */
-public class Ticket extends AbstractPotentiellementLacunaire implements Comparable<Ticket> {
+public class Ticket extends AbstractPotentiellementLacunaire implements Comparable<Ticket>, Serializable {
 	
+	private static final long serialVersionUID = -288563539327011854L;
 	private String titre;
 	private NavigableSet<Message> messages;
 	private int nbMessagesNonLus = 0;
@@ -46,12 +48,12 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	 * @param dateCreation Date de création du ticket
 	 */
 	public Ticket(int uniqueId, String titre, NavigableSet<Message> messages, 
-			Date dateCreation, Date dateDernierMessage) {
+			Date dateCreation) {
 		super(uniqueId, true);
 		setTitre(titre);
 		this.messages = messages;
 		setDateCreation(dateCreation);
-		setDateDernierMessage(dateDernierMessage);
+		updateDateDernierMessage();
 	}
 	
 	
@@ -131,6 +133,9 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	 * Obtenir le nombre de messages non lus
 	 * Ce nombre peut être recalculé avec updateNbMessagesNonLus, 
 	 * si le ticket n'est pas incomplet
+	 * 
+	 * Note : cette valeure concerne les message non lus d'un utilisateur 
+	 * (et non pas de tout le groupe). Est-ce ce qu'on souhaite ?
 	 * @return Le nombre de messages non lus
 	 */
 	public int getNbMessagesNonLus() {

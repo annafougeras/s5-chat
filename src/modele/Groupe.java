@@ -7,6 +7,7 @@
  */
 package modele;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.NavigableSet;
 import java.util.TreeSet;
@@ -14,8 +15,9 @@ import java.util.TreeSet;
 /**
  * 
  */
-public class Groupe extends AbstractIdentifiable implements Comparable<Groupe> {
+public class Groupe extends AbstractIdentifiable implements Comparable<Groupe>, Serializable {
 
+	private static final long serialVersionUID = 4918240433945463710L;
 	private String nom;
 	private NavigableSet<Ticket> ticketsConnus;
 

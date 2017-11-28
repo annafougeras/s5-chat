@@ -7,6 +7,8 @@
  */
 package tests;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -65,7 +67,7 @@ public class TestModele {
 			statuts.put(monique, StatutDeLecture.RECU);
 			messages.add(new Message(4, michel, "Merci (en retard)", df.parse("02/06/2017 01:17:18"), statuts));
 			
-			g.addTicketConnu(new Ticket(5, "mon ticket", messages, new Date(), new Date()));
+			g.addTicketConnu(new Ticket(5, "mon ticket", messages, df.parse("26/5/2017 15:20:11")));
 		}
 		catch (ParseException e){
 			e.printStackTrace();
@@ -98,6 +100,17 @@ public class TestModele {
 			}
 		}
 			
+		
+		try (ObjectOutputStream oos = new ObjectOutputStream(System.out)){
+			oos.writeObject(g);
+		}
+		catch (IOException e){
+			System.err.println("\n\n" + e + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		
 	}
+	
 
 }
