@@ -19,7 +19,7 @@ public class IdentifiableComparator implements Comparator<Identifiable> {
 	 */
 	@Override
 	public int compare(Identifiable arg0, Identifiable arg1) {
-		return arg0.getIdentifiantUnique() - arg1.getIdentifiantUnique();
+		return arg0.getIdentifiantUnique().compareTo(arg1.getIdentifiantUnique());
 	}
 
 }

@@ -15,8 +15,14 @@ public interface Identifiable {
 	
 	/**
 	 * Obtenir l'identifiant unique d'un objet
-	 * @return Entier unique au sein de la classe
+	 * @return Chaine de caractère unique au sein de la classe
 	 */
-	public int getIdentifiantUnique();
+	public String getIdentifiantUnique();
 
+	
+	/**
+	 * Obtenir l'identifiant unique d'un objet sous forme numérique
+	 * @return Nombre entier unique au sein de la classe
+	 */
+	public int getIdentifiantNumeriqueUnique();
 }

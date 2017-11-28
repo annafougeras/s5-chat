@@ -7,6 +7,7 @@
  */
 package modele;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.NavigableSet;
@@ -15,8 +16,9 @@ import java.util.TreeSet;
 /**
  * 
  */
-public class Ticket extends AbstractPotentiellementLacunaire implements Comparable<Ticket> {
+public class Ticket extends AbstractPotentiellementLacunaire implements Comparable<Ticket>, Serializable {
 	
+	private static final long serialVersionUID = -288563539327011854L;
 	private String titre;
 	private NavigableSet<Message> messages;
 	private int nbMessagesNonLus = 0;
@@ -46,12 +48,12 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	 * @param dateCreation Date de création du ticket
 	 */
 	public Ticket(int uniqueId, String titre, NavigableSet<Message> messages, 
-			Date dateCreation, Date dateDernierMessage) {
+			Date dateCreation) {
 		super(uniqueId, true);
 		setTitre(titre);
 		this.messages = messages;
 		setDateCreation(dateCreation);
-		setDateDernierMessage(dateDernierMessage);
+		updateDateDernierMessage();
 	}
 	
 	
@@ -116,25 +118,27 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	 * Met a jour la variable privée nbMessagesNonLus
 	 * Le ticket DOIT être complet
 	 */
-	private void updateNbMessagesNonLus() {
-		// Java 8
-		// nbMessagesNonLus = (int) messages.stream().filter(m -> m.getStatutUtilisateur()!=StatutDeLecture.LU).count();
+	public void updateNbMessagesNonLus(Utilisateur user) {
+		if (!estComplet())
+			throw new LacunaireException("updatNbMessageNonLus doit être appelé sur un ticket complet");
+		
 		int nbNonLus = 0;
 		for (Message m: messages)
-			if (m.getStatutUtilisateur()!=StatutDeLecture.LU)
+			if (m.getStatuts().get(user)!=StatutDeLecture.LU)
 				++nbNonLus;
 		nbMessagesNonLus = nbNonLus;
 	}
 
 	/**
 	 * Obtenir le nombre de messages non lus
+	 * Ce nombre peut être recalculé avec updateNbMessagesNonLus, 
+	 * si le ticket n'est pas incomplet
+	 * 
+	 * Note : cette valeure concerne les message non lus d'un utilisateur 
+	 * (et non pas de tout le groupe). Est-ce ce qu'on souhaite ?
 	 * @return Le nombre de messages non lus
-	 *   estComplet -> nombre de messages stockés non lus
-	 *  !estComplet -> nombre transmis lors de l'instanciation
 	 */
 	public int getNbMessagesNonLus() {
-		if (estComplet())
-			updateNbMessagesNonLus();
 		return nbMessagesNonLus;
 	}
 
@@ -190,7 +194,7 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	public int compareTo(Ticket autre) {
 		int cmp = dateDernierMessage.compareTo(autre.getDateDernierMessage());
 		if (cmp == 0)
-			cmp = getIdentifiantUnique() - autre.getIdentifiantUnique();
+			cmp = new IdentifiableComparator().compare(this, autre);
 		return cmp;
 	}
 	

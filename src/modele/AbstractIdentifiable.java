@@ -12,21 +12,34 @@ package modele;
  */
 public class AbstractIdentifiable implements Identifiable {
 	
-	private int uniqueId; 
+	private String uniqueId; 
+	private int uniqueNumId;
 	
 	/**
 	 * @param uniqueId Identifiant unique (au sein de la classe)
 	 */
-	public AbstractIdentifiable(int uniqueId) {
+	public AbstractIdentifiable(Integer uniqueId) {
+		this.uniqueId = uniqueId.toString();
+		this.uniqueNumId = uniqueId;
+	}
+	
+	/**
+	 * @param uniqueId Identifiant unique (au sein de la classe)
+	 */
+	public AbstractIdentifiable(String uniqueId) {
 		this.uniqueId = uniqueId;
+		this.uniqueNumId = uniqueId.hashCode();
 	}
 
-	/* (non-Javadoc)
-	 * @see modele.Identifiable#getIdentifiantUnique()
-	 */
+	
 	@Override
-	public int getIdentifiantUnique() {
+	public String getIdentifiantUnique() {
 		return uniqueId;
+	}
+
+	@Override
+	public int getIdentifiantNumeriqueUnique() {
+		return uniqueNumId;
 	}
 	
 
@@ -51,7 +64,7 @@ public class AbstractIdentifiable implements Identifiable {
 	 * @param aConcatener Objets à toStringuer avec l'identifiant
 	 * @return Un beau 'toString'
 	 */
-	public String toString(String... aConcatener) {
+	protected String toString(String... aConcatener) {
 		StringBuilder str = new StringBuilder();
 		str.append(getClass().getCanonicalName());
 		str.append(" id=" + getIdentifiantUnique());
