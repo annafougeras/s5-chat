@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `ticket` (
 -- table `user`
 CREATE TABLE IF NOT EXISTS `user` (
   `id_user` int(8) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `password_user` varchar(32) NOT NULL,
+  `password_user` varchar(64) NOT NULL,
   `nickname_user` varchar(32) NOT NULL,
   `nom_user` varchar(32) NOT NULL,
   `prenom_user` varchar(32) NOT NULL
