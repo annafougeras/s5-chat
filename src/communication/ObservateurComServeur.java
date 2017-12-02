@@ -14,7 +14,7 @@ package communication;
  * 
  * @see ControleurComServeur
  */
-public interface ObservateurComServeur {
+public interface ObservateurComServeur<MSG extends ComMessage> {
 	
 	/**
 	 * Le contrôleur demande si les identifiants sont valides
@@ -29,7 +29,7 @@ public interface ObservateurComServeur {
 	 * @param client Adresse du client émetteur du message
 	 * @param message
 	 */
-	public void ctrlCom_informer(ComAdresse client, ComMessage message);
+	public void ctrlCom_informer(ComAdresse client, MSG message);
 	
 	/**
 	 * Recevoir une requête du réseau (avec réponse)
@@ -37,6 +37,6 @@ public interface ObservateurComServeur {
 	 * @param requete Requête
 	 * @return Réponse
 	 */
-	public ComMessage ctrlCom_recevoir(ComAdresse client, ComMessage requete);
+	public ComMessage ctrlCom_recevoir(ComAdresse client, MSG requete);
 
 }

@@ -15,7 +15,7 @@ import java.io.IOException;
  * @see ControleurComServeur
  * @see ObservateurComClient
  */
-public interface ControleurComClient {
+public interface ControleurComClient<MSG> {
 	
 	/**
 	 * Etablir une connexion avec un serveur distant.
@@ -52,8 +52,9 @@ public interface ControleurComClient {
 	/**
 	 * Envoyer un message (sans réponse) au serveur
 	 * @param message Le message à envoyer
+	 * @throws ComException 
 	 */
-	public void informer(ComMessage message);
+	public void informer(MSG message) throws ComException;
 	
 	/**
 	 * Envoyer une requête au serveur 
@@ -62,7 +63,7 @@ public interface ControleurComClient {
 	 * @param question La requête à envoyer
 	 * @see ObservateurComClient
 	 */
-	public void demander(ComMessage question);
+	public void demander(MSG question);
 	
 	/**
 	 * Envoyer une requête au serveur. Blaquant
@@ -71,12 +72,12 @@ public interface ControleurComClient {
 	 * @return Réponse du serveur
 	 * @see ObservateurComClient
 	 */
-	public ComMessage demanderBloquant(ComMessage question) throws ComException;
+	public MSG demanderBloquant(MSG question) throws ComException;
 	
 	/**
 	 * Doit être appelé pour fermer proprement le contrôleur
 	 * @throws IOException 
 	 */
-	public void deconnecter() throws IOException;
+	public void deconnecter() throws ComException;
 
 }

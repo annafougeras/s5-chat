@@ -18,7 +18,7 @@ import java.util.Set;
  * @see ControleurComClient
  * @see ObservateurComServeur
  */
-public interface ControleurComServeur {
+public interface ControleurComServeur<MSG> {
 	
 	/**
 	 * Branchement au réseau
@@ -30,20 +30,20 @@ public interface ControleurComServeur {
 	/**
 	 * Débranchement du réseau
 	 */
-	public void stop() throws IOException;
+	public void stop() throws ComException;
 	
 	/**
 	 * Envoyer un message à un client
 	 * @param message Message à envoyer
 	 * @param destinataire Adresse du client
 	 */
-	public void informer(ComMessage message, ComAdresse destinataire);
+	public void informer(MSG message, ComAdresse destinataire);
 	
 	/**
 	 * Envoyer un message à tous les clients connectés
 	 * @param message Message à envoyer
 	 */
-	public void informerTous(ComMessage message);
+	public void informerTous(MSG message);
 	
 	/**
 	 * Envoyer une requête à un client.
@@ -53,7 +53,7 @@ public interface ControleurComServeur {
 	 * 
 	 * @see ObservateurComServeur
 	 */
-	public void demander(ComMessage message, ComAdresse destinataire);
+	public void demander(MSG message, ComAdresse destinataire);
 
 	/**
 	 * Envoyer une requête à tous les clients connectés
@@ -62,14 +62,14 @@ public interface ControleurComServeur {
 	 * 
 	 * @see ObservateurComServeur
 	 */
-	public void demanderTous(ComMessage message);
+	public void demanderTous(MSG message);
 	
 	/**
 	 * Déconnecter un client
 	 * @param client Le client à déconnecter
 	 * @throws IOException
 	 */
-	public void deconnecter(ComAdresse client) throws ComException;
+	public void deconnecter(ComAdresse client);
 	
 	/**
 	 * Donne l'ensemble de tous les clients

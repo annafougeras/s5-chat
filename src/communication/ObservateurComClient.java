@@ -13,7 +13,7 @@ package communication;
  * 
  * Les méthodes définies permettent de recevoir les informations d'un contrôleur client.
  */
-public interface ObservateurComClient {
+public interface ObservateurComClient<MSG> {
 	
 	/**
 	 * L'appel informe l'utilisateur du contrôleur com du succès/échec 
@@ -27,6 +27,6 @@ public interface ObservateurComClient {
 	 * Recevoir un message du contrôleur réseau
 	 * @param message Le message reçu par le contrôleur
 	 */
-	public void ctrlCom_recevoir(ComMessage message);
+	public void ctrlCom_recevoir(MSG message);
 
 }

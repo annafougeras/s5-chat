@@ -6,6 +6,6 @@
  *         N° étudiant 20 40 32 63
  */
 /**
- * Controleur de communication sur TCP
+ * Controleur de communication authntifié sur TCP. La sécurité des données N'EST PAS ASSURÉE.
  */
 package communication;
