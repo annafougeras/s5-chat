@@ -1,6 +1,12 @@
 # s5-chat
 
+### Installation
 
+Rien à installer pour l'instant
+
+### Documentation
+
+La documentation est disponible [sur cette page](http://pomeret.free.fr/s5doc).
 
 ### Makefile
 
@@ -32,5 +38,8 @@ Base de donnée :
 
 Tests :
 
-	# Communicateur réseau
+	# Communicateur réseau générique
 	make test_communication
+	
+	# Communicateur réseau spécifique
+	make test_S5com

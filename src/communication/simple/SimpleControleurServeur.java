@@ -11,6 +11,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -258,7 +259,7 @@ public class SimpleControleurServeur extends AbstractSimpleControleur
 								"Aucune action attachée au type "+message.getTypeMessage());
 					}
 					
-				} catch (EOFException e){
+				} catch (EOFException | SocketException e){
 					System.err.println("Contrôleur: flux fermé brutalement ");
 					essaisRestants = 0;
 				} catch (ComException.TypeMessageException | ClassCastException e){

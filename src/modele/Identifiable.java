@@ -7,11 +7,13 @@
  */
 package modele;
 
+import java.io.Serializable;
+
 /**
  * Offre la garantie qu'un objet présente un identifiant
  * numérique (unique au sein de sa classe
  */
-public interface Identifiable {
+public interface Identifiable extends Serializable {
 	
 	/**
 	 * Obtenir l'identifiant unique d'un objet

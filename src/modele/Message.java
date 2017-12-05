@@ -7,7 +7,6 @@
  */
 package modele;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -15,7 +14,7 @@ import java.util.NavigableMap;
 /**
  * Message émis par un Utilisateur sur un Ticket
  */
-public class Message extends AbstractIdentifiable implements Comparable<Message>, Serializable {
+public class Message extends AbstractIdentifiable implements Comparable<Message> {
 
 	private static final long serialVersionUID = 7293458972472166742L;
 	private String texte = null;

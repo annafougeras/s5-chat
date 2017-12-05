@@ -7,12 +7,11 @@
  */
 package modele;
 
-import java.io.Serializable;
 
 /**
  * 
  */
-public class Utilisateur extends AbstractIdentifiable implements Comparable<Utilisateur>, Serializable {
+public class Utilisateur extends AbstractIdentifiable implements Comparable<Utilisateur> {
 
 	private static final long serialVersionUID = 6393296873908620109L;
 	private String nom;

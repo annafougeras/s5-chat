@@ -18,6 +18,8 @@ import communication.ComAdresse;
 public class SimpleAdresse implements ComAdresse, Comparable<ComAdresse>{
 	
 	
+	private static final long serialVersionUID = 5287678589020201154L;
+
 	public static SimpleAdresse distante(Socket socket){
 		return new SimpleAdresse(
 				socket.getInetAddress().getHostAddress(),

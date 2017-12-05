@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import communication.ComAdresse;
 import communication.ComMessage;
@@ -31,7 +32,9 @@ public abstract class AbstractSimpleControleur {
 	 */
 	protected static class FluxObjets {
 		protected ObjectInputStream ois;
+		protected boolean oisDispo;
 		protected ObjectOutputStream oos;
+		protected boolean oosDispo;
 		
 		public String toString(){
 			return "[" + ois + ";" + oos + "]";
@@ -74,6 +77,7 @@ public abstract class AbstractSimpleControleur {
 				);
 
 		flux.ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+		
 		SimpleMessage bonjour = null;
 		bonjour = recevoirMessage(flux.ois, SimpleAdresse.distante(socket));
 		if (bonjour == null || bonjour.getTypeMessage() != SimpleTypeMessage.BONJOUR)
@@ -82,8 +86,33 @@ public abstract class AbstractSimpleControleur {
 		fluxObjets.put(socket, flux);
 		if (verbeux)
 			System.out.println("Contrôleur: Flux ouverts depuis et vers " + SimpleAdresse.distante(socket));
+		
+		flux.oosDispo = true;
+		flux.oisDispo = true;
+		
 		return flux;
 	}
+	
+	protected void fermerFlux() {
+		for (Entry<Socket,FluxObjets> entree: fluxObjets.entrySet()){
+			FluxObjets flux = entree.getValue();
+			try {
+				flux.ois.close();
+			} catch (IOException e) {
+				System.err.println("Flux ois déjà fermé");
+				e.printStackTrace();
+			}
+			try {
+				flux.oos.close();
+			} catch (IOException e) {
+				System.err.println("Flux oos déjà fermé");
+				e.printStackTrace();
+			}
+			fluxObjets.remove(entree.getKey());
+		}
+	}
+	
+	
 	
 	private void envoyerMessage(ObjectOutputStream oos, ComMessage msg, ComAdresse dest) throws IOException {
 		oos.writeObject(msg);
@@ -99,7 +128,17 @@ public abstract class AbstractSimpleControleur {
 	 * @throws IOException
 	 */
 	protected void envoyerMessage(Socket socket, ComMessage msg) throws IOException {
+		FluxObjets flux = fluxObjets.get(socket);
+		while (!flux.oosDispo){
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		flux.oosDispo = false;
 		envoyerMessage(fluxObjets.get(socket).oos, msg, SimpleAdresse.distante(socket));
+		flux.oosDispo = true;
 	}
 	
 	
@@ -110,6 +149,9 @@ public abstract class AbstractSimpleControleur {
 		try {
 			msg = (SimpleMessage) ois.readObject();
 		} catch (ClassNotFoundException e) {
+			msg = new SimpleMessageInvalide();
+		} catch (InternalError e){
+			e.printStackTrace();
 			msg = new SimpleMessageInvalide();
 		}
 		if (verbeux)
@@ -124,7 +166,18 @@ public abstract class AbstractSimpleControleur {
 	 * @throws IOException
 	 */
 	protected SimpleMessage recevoirMessage(Socket socket) throws IOException{
-		return recevoirMessage(fluxObjets.get(socket).ois, SimpleAdresse.distante(socket));
+		FluxObjets flux = fluxObjets.get(socket);
+		while (!flux.oisDispo){
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		flux.oisDispo = false;
+		SimpleMessage msg = recevoirMessage(fluxObjets.get(socket).ois, SimpleAdresse.distante(socket));
+		flux.oisDispo = true;
+		return msg;
 	}
 	
 	
