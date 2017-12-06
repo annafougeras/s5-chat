@@ -13,6 +13,7 @@ package modele;
 public abstract class AbstractPotentiellementLacunaire extends AbstractIdentifiable implements PotentiellementLacunaire {
 
 	
+	private static final long serialVersionUID = 7448983757082548846L;
 	private boolean complet;
 	
 	/**

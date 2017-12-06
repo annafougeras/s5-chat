@@ -7,7 +7,6 @@
  */
 package modele;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.NavigableSet;
@@ -16,7 +15,7 @@ import java.util.TreeSet;
 /**
  * 
  */
-public class Ticket extends AbstractPotentiellementLacunaire implements Comparable<Ticket>, Serializable {
+public class Ticket extends AbstractPotentiellementLacunaire implements Comparable<Ticket> {
 	
 	private static final long serialVersionUID = -288563539327011854L;
 	private String titre;
@@ -167,9 +166,10 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	}
 	
 	private void updateDateDernierMessage() {
-		NavigableSet<Message> set = new TreeSet<>();
-		set.addAll(messages);
-		dateDernierMessage = set.last().getDateEmission();
+		if (messages.size() == 0)
+			dateDernierMessage = dateCreation;
+		else
+			dateDernierMessage = messages.last().getDateEmission();
 	}
 
 	/**

@@ -7,11 +7,13 @@
  */
 package communication;
 
+import java.io.Serializable;
+
 
 /**
  * Adresse réseau d'un contrôleur client ou serveur
  */
-public interface ComAdresse extends Comparable<ComAdresse>{
+public interface ComAdresse extends Comparable<ComAdresse>, Serializable {
 	
 
 	/**

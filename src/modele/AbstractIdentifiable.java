@@ -7,11 +7,13 @@
  */
 package modele;
 
+
 /**
  * Objet implémentant les méthodes de l'interface Identifiable
  */
 public class AbstractIdentifiable implements Identifiable {
 	
+	private static final long serialVersionUID = 8106224962616711981L;
 	private String uniqueId; 
 	private int uniqueNumId;
 	
