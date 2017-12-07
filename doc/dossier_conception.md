@@ -114,6 +114,15 @@ Diagramme de classe :
 
 ### 3.2. Communication réseau
 
+Idée générale :
+
+![organisation du réseau](reseau/reseau.png  "Organisation du réseau")
+
+Communication sur TCP : 
+
+![Communication](reseau/com_reseau.png  "Communication")
+
+
 La communication réseau est assurée par trois packages :
 
 #### 3.2.a. Package *communication*
@@ -181,4 +190,11 @@ Implémentation de contrôleurs spécifiques aux applications client :
 
  - Fermeture du dépot : code source (lundi 15/01)
  - Soutenance (mercredi 17/01)
+
+
+### Planning
+
+J'ai surtout rempli ma partie, et j'ai mis au pif pour vous...
+
+![Planning](planning.png  "Planning")
 
