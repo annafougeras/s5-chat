@@ -1,0 +1,91 @@
+@startuml
+/' 
+	Classes 
+'/
+package app {
+	class ClientApp {
+		+{static}void main(String[] args)
+	}
+	note "Crée un ICtrlVue \npuis les vues" as N1
+	ClientApp .. N1
+	
+}
+package vue {
+	class ConnectionScreen [[java:vue.ConnectionScreen]] {
+		-javax.swing.JButton connectionButton
+		-javax.swing.JTextField identifiantTextField
+		-javax.swing.JPasswordField passwordPasswordField
+		+ConnectionScreen(App app, ICtrlVue controlleur)
+		-void connectionButtonActionPerformed(ActionEvent evt)
+	}
+	
+	class MainScreen [[java:vue.MainScreen]] {
+		-javax.swing.JButton addTicket
+		-javax.swing.JButton addMessage
+		-javax.swing.JList<String> listMessage
+		-javax.swing.JTree treeTicket
+		-...
+		+MainScreen(App app, ICtrlVue controlleur)
+		-void addTicketActionPerformed(ActionEvent evt)	
+		-void addMessageActionPerformed(ActionEvent evt)
+		
+	}
+	class "javax.swing.JFrame" as javax_swing_JFrame [[java:javax.swing.JFrame]] {
+	}
+	
+	class AddPanel [[java:vue.AddPanel]] {
+		-javax.swing.JButton annulerButton
+		-javax.swing.JButton creerButton
+		-javax.swing.JComboBox<String> groupes
+		-javax.swing.JTextArea content
+		-javax.swing.JTextField title
+		+AddPanel()
+		-void creerButtonActionPerformed(ActionEvent evt)
+		-void annulerButtonActionPerformed(ActionEvent evt)
+	}
+	class "javax.swing.JPanel" as javax_swing_JPanel [[java:javax.swing.JPanel]] {
+	}
+}
+
+package controleur {	
+	interface ICtrlVue {
+		+Map<Groupe, Ticket> getTickets(Utilisateur owner)
+		+Map<Message, Map<Utilisateur, StatutDeLecture> \n getMessages(Ticket ticket)
+		+void addTicket(Groupe groupe, String content, String title)
+		+void addMessage(Ticket ticket, String message)
+		+boolean connecter(String idUser, String password)
+	}
+	
+	class CtrlVue {
+	}
+}
+
+package communication {
+	interface ControleurComClient [[java:communication.ControleurComClient]] {
+	}
+}
+
+/' 
+	Relations 
+'/
+javax_swing_JFrame <|-- ConnectionScreen
+javax_swing_JFrame <|-- MainScreen
+javax_swing_JPanel <|-- AddPanel
+
+ICtrlVue <|.. CtrlVue
+
+MainScreen -up-> ClientApp
+ConnectionScreen -up-> ClientApp
+
+MainScreen -down-> ICtrlVue
+ConnectionScreen -down-> ICtrlVue
+
+MainScreen .up.> AddPanel
+
+CtrlVue --> ControleurComClient
+
+ICtrlVue --() Observable 
+MainScreen --() Observer  
+
+@enduml
+
