@@ -148,7 +148,28 @@ Implémentation de contrôleurs spécifiques aux applications client :
  - Transmission de Set < Groupe >  et de Ticket
 
 
+### 3.3. IHM et Controleur de l'application client
 
+Diagramme de classe :
+![Diagramme de classe](class_diagram_vue.png  "Diagramme de classe")
+
+Maquettes de l'IHM :
+Ecran de connexion :
+![](connexion.png)
+Ouverture de l'application :
+![](opening_screen.png)
+Création d'un nouveau ticket :
+![](new_ticket.png)
+Après la création du ticket :
+![](ticket_added.png)
+Déroulement du groupe "INFO 3A Groupe 1" :
+![](tickets_groupe.png)
+Ouverture d'un ticket contenant plusieurs messages :
+![](conversation_groupe.png)
+Ajout d'un message sur ce ticket :
+![](conversation_groupe_new.png)
+Détails d'un message :
+![](liste_lus.png)
 
 
 ## 4. Calendrier
