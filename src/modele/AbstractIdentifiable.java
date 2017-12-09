@@ -16,6 +16,7 @@ public class AbstractIdentifiable implements Identifiable {
 	private static final long serialVersionUID = 8106224962616711981L;
 	private String uniqueId; 
 	private int uniqueNumId;
+	private Identifiable parent = null;
 	
 	/**
 	 * @param uniqueId Identifiant unique (au sein de la classe)
@@ -32,6 +33,22 @@ public class AbstractIdentifiable implements Identifiable {
 		this.uniqueId = uniqueId;
 		this.uniqueNumId = uniqueId.hashCode();
 	}
+	
+	/**
+	 * @param uniqueId Identifiant unique (au sein de la classe)
+	 */
+	public AbstractIdentifiable(Integer uniqueId, Identifiable parent) {
+		this(uniqueId);
+		this.parent = parent;
+	}
+	
+	/**
+	 * @param uniqueId Identifiant unique (au sein de la classe)
+	 */
+	public AbstractIdentifiable(String uniqueId, Identifiable parent) {
+		this(uniqueId);
+		this.parent = parent;
+	}
 
 	
 	@Override
@@ -43,6 +60,18 @@ public class AbstractIdentifiable implements Identifiable {
 	public int getIdentifiantNumeriqueUnique() {
 		return uniqueNumId;
 	}
+	
+	@Override
+	public Identifiable getParent(){
+		return parent;
+	}
+	
+	@Override
+	public void setParent(Identifiable parent){
+		this.parent = parent;
+	}
+	
+	
 	
 
 	

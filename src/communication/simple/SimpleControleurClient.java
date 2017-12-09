@@ -199,7 +199,7 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 					if (essaisRestants < 0)
 						throw new ComException.TypeMessageException("Le message n'est pas une requête", e);
 					else{
-						System.out.println("Echec assertion : " + e.getMessage() + " : essai supplémentaire");
+						System.err.println("Echec assertion : " + e.getMessage() + " : essai supplémentaire");
 						e.printStackTrace();
 					}
 				} catch (IOException e){
@@ -210,7 +210,8 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 						System.out.println("Echec IO : " + e.getMessage() + " : essai supplémentaire");
 				}
 			}
-			System.out.println(reponse);
+			if (verbeux)
+				System.out.println(reponse);
 			return reponse;
 		}
 		

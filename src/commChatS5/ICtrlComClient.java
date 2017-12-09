@@ -10,6 +10,7 @@ package commChatS5;
 import java.util.Set;
 
 import modele.Groupe;
+import modele.Identifiable;
 import modele.Ticket;
 
 /**
@@ -40,7 +41,7 @@ public interface ICtrlComClient {
 	 * @param idTicket Identifiant unique du ticket
 	 * @return Le ticket demandé
 	 */
-	public Ticket demanderTicketBloquant(int idTicket);
+	public Ticket demanderTicketBloquant(Identifiable idTicket);
 	
 	/**
 	 * Demander un ticket en mode non bloquant.
@@ -49,7 +50,7 @@ public interface ICtrlComClient {
 	 * 
 	 * @see S5Client
 	 */
-	public void demanderTicket(int idTicket);
+	public void demanderTicket(Identifiable idTicket);
 	
 	
 	
@@ -66,6 +67,27 @@ public interface ICtrlComClient {
 	 * @see S5Client
 	 */
 	public void demanderTousLesGroupes();
+	
+	
+	
+	
+	
+	/**
+	 * Création d'un nouveau ticket
+	 * @param groupe Groupe destinataire du ticket
+	 * @param titre Titre du ticket
+	 * @param premierMessage Contenu du premier message
+	 */
+	public void creerTicket(Identifiable groupe, String titre, String premierMessage);
+	
+	/**
+	 * Création d'un nouveau message
+	 * @param ticket Ticket sur lequel le message est posté
+	 * @param message Contenu du message
+	 */
+	public void creerMessage(Identifiable ticket, String message);
+	
+	
 	
 	
 	

@@ -10,6 +10,7 @@ package commChatS5;
 import java.util.Set;
 
 import modele.Groupe;
+import modele.Message;
 import modele.Ticket;
 
 /**
@@ -34,6 +35,12 @@ public interface S5Client {
 	 * @param accuseConnexion VRAI si la connexion est acceptée
 	 */
 	public void recevoir(boolean accuseConnexion);
+	
+	/**
+	 * Recevoir un nouveau message
+	 * @param messageRecu
+	 */
+	public void recevoir(Message messageRecu);
 	
 	/**
 	 * Recevoir un message invalide

@@ -27,4 +27,18 @@ public interface Identifiable extends Serializable {
 	 * @return Nombre entier unique au sein de la classe
 	 */
 	public int getIdentifiantNumeriqueUnique();
+	
+	
+	/**
+	 * Obtenir le parent de cet objet identifiable
+	 * @return Le parent de cet objet, ou null
+	 */
+	public Identifiable getParent();
+	
+	
+	/**
+	 * Définir le parent de cet objet identifiable
+	 * @param parent Le parent de cet objet
+	 */
+	public void setParent(Identifiable parent);
 }

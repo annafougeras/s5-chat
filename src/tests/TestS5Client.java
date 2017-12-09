@@ -12,6 +12,8 @@ import java.util.Scanner;
 import java.util.Set;
 
 import modele.Groupe;
+import modele.KeyIdentifiable;
+import modele.Message;
 import modele.Ticket;
 
 import commChatS5.CtrlComClient;
@@ -54,13 +56,16 @@ public class TestS5Client {
 		 */
 		public void scenarioTestBloquant(){
 			System.out.println("\n## Mode bloquant");
-			
+			System.out.println(" > Connexion");
 			boolean b = controleur.etablirConnexionBloquant(
 					new Identifiants("nom", "pass")
 					);
 			System.out.println("Connexion : " + b);
-			System.out.println(controleur.demanderTousLesGroupesBloquant());
-			System.out.println(controleur.demanderTicketBloquant(1));
+			System.out.println(" > Tous les groupes");
+			for (Iterator<Groupe> iter = controleur.demanderTousLesGroupesBloquant().iterator();iter.hasNext();)
+				System.out.println(iter.next());
+			System.out.println(" > Ticket 1");
+			System.out.println(controleur.demanderTicketBloquant(new KeyIdentifiable(1)));
 			controleur.deconnecter();
 		}
 
@@ -79,8 +84,18 @@ public class TestS5Client {
 		 * Scénario en mode non bloquant, suite
 		 */
 		public void scenarioTest(){
+			System.out.println(" > Demande tous les groupes");
 			controleur.demanderTousLesGroupes();
-			controleur.demanderTicket(1);
+			System.out.println(" > Demande le ticket 1");
+			controleur.demanderTicket(new KeyIdentifiable(1));
+			System.out.println(" > Création d'un ticket");
+			controleur.creerTicket(
+					new KeyIdentifiable(5), 
+					"Bonjour",
+					"Premier message du ticket"
+					);
+			System.out.println(" > Création d'un message");
+			controleur.creerMessage(new KeyIdentifiable(10), "Nouveau message !");
 		}
 		
 
@@ -93,7 +108,7 @@ public class TestS5Client {
 		public void recevoir(Set<Groupe> listeDesGroupes) {
 			System.out.println("Tous les groupes reçus : ");
 			for (Iterator<Groupe> iter = listeDesGroupes.iterator(); iter.hasNext();){
-				System.out.println(iter.next() + ", ");
+				System.out.println(iter.next());
 			}
 		}
 
@@ -101,6 +116,14 @@ public class TestS5Client {
 		public void recevoir(boolean accuseConnexion) {
 			System.out.println("Accusé connexion reçu : " + accuseConnexion);
 			this.scenarioTest();
+		}
+		
+		@Override
+		public void recevoir(Message message){
+			System.out.println("Message reçu sur le ticket " + 
+					message.getParent() + 
+					" : " + message
+					);
 		}
 
 		@Override

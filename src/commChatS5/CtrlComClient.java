@@ -10,6 +10,8 @@ package commChatS5;
 import java.util.Set;
 
 import modele.Groupe;
+import modele.Identifiable;
+import modele.Message;
 import modele.Ticket;
 
 import communication.ComAdresse;
@@ -63,7 +65,7 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 
 
 	@Override
-	public Ticket demanderTicketBloquant(int idTicket) {
+	public Ticket demanderTicketBloquant(Identifiable idTicket) {
 		SimpleMessage reponse;
 		try {
 			reponse = controleur.demanderBloquant(
@@ -89,7 +91,7 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 
 
 	@Override
-	public void demanderTicket(int idTicket) {
+	public void demanderTicket(Identifiable idTicket) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(TypeMessage.REQUETE_TICKET, idTicket));
 	}
@@ -134,6 +136,29 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 	public void deconnecter() {
 		controleur.deconnecter();
 	}
+	@Override
+	public void creerTicket(Identifiable groupe, String titre,
+			String premierMessage) {
+		controleur.demander(new SimpleMessageDemande(
+				TypeMessage.REQUETE_NOUVEAU_TICKET,
+				groupe,
+				titre,
+				premierMessage
+				));
+	}
+
+
+
+
+	@Override
+	public void creerMessage(Identifiable ticket, String message) {
+		controleur.demander(new SimpleMessageDemande(
+				TypeMessage.REQUETE_NOUVEAU_MESSAGE,
+				ticket,
+				message
+				));
+	}
+
 
 	
 	
@@ -142,6 +167,8 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 	
 	
 	
+	
+	// Méthodes du contrôleur générique
 
 
 	@Override
@@ -162,14 +189,23 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 				throw new ComException.TypeMessageException("Le message reçu est de type " + message.getTypeMessage());
 			type = (TypeMessage) args[0];
 			switch (type){
+			
 			case INFORME_LISTE_GROUPE:
 				observateur.recevoir((Set<Groupe>) args[1]);
 				break;
+			
 			case INFORME_TICKET:
 				observateur.recevoir((Ticket) args[1]);
 				break;
+			
+			case INFORME_MESSAGE:
+				observateur.recevoir((Message) args[1]);
+				break;
+			
 			default:
 				observateur.recevoir((Object) args);
+				break;
+				
 			}
 		} catch (ComException.TypeMessageException e){
 			System.err.println(e.getMessage());
@@ -180,6 +216,9 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 		}
 		
 	}
+
+
+
 
 
 

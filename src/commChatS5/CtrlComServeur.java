@@ -8,6 +8,11 @@
 package commChatS5;
 
 import java.io.Serializable;
+import java.util.Set;
+
+import modele.Identifiable;
+import modele.Message;
+import modele.Ticket;
 
 import communication.ComAdresse;
 import communication.ComException;
@@ -41,6 +46,62 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 	}
 	
 	
+	
+	
+	
+	
+	@Override
+	public void start() {
+		try {
+			controleur.start(port);
+		} catch (ComException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void stop() {
+		try {
+			controleur.stop();
+		} catch (ComException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	@Override
+	public Set<ComAdresse> getClientsConnectes() {
+		return controleur.tousLesClients();
+	}
+
+
+	@Override
+	public void informer(ComAdresse client, Ticket nouveauTicket) {
+		SimpleMessage message = new SimpleMessage.SimpleMessageInformation(
+				TypeMessage.INFORME_TICKET,
+				nouveauTicket);
+		controleur.informer(message, client);
+	}
+
+
+	@Override
+	public void informer(ComAdresse client, Message nouveauMessage, Identifiable referenceTicket) {
+		SimpleMessage message = new SimpleMessage.SimpleMessageInformation(
+				TypeMessage.INFORME_MESSAGE,
+				nouveauMessage,
+				referenceTicket);
+		controleur.informer(message, client);
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	// Méthodes du contrôleur générique
+
 	@Override
 	public boolean ctrlCom_validerConnexion(ComAdresse client,
 			ComIdentification identifiants) {
@@ -65,44 +126,56 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 			Object args[] = requete.getArgs();
 			TypeMessage type = (TypeMessage) args[0];
 			switch (type){
+			
 			case REQUETE_LISTE_GROUPE:
 				reponse = new SimpleMessage.SimpleMessageInformation(
 						TypeMessage.INFORME_LISTE_GROUPE,
 						(Serializable) observateur.demandeTousLesGroupes(client)
 						);
 				break;
+			
 			case REQUETE_TICKET:
 				reponse = new SimpleMessage.SimpleMessageInformation(
 						TypeMessage.INFORME_TICKET,
-						observateur.demandeTicket(client, (Integer) args[1])
+						observateur.demandeTicket(client, (Identifiable) args[1])
 						);
 				break;
+			
+			case REQUETE_NOUVEAU_MESSAGE:
+				Identifiable idTicket = (Identifiable) args[1];
+				String contenuMessage = (String) args[2];
+				reponse = new SimpleMessage.SimpleMessageInformation(
+						TypeMessage.INFORME_MESSAGE,
+						observateur.creationMessage(client, idTicket, contenuMessage)
+						);
+				break;
+			
+			case REQUETE_NOUVEAU_TICKET:
+				Identifiable idGroupe = (Identifiable) args[1];
+				String titreTicket = (String) args[2];
+				String contenuPremierMessage = (String) args[2];
+				reponse = new SimpleMessage.SimpleMessageInformation(
+						TypeMessage.INFORME_TICKET,
+						observateur.creationTicket(client, idGroupe, titreTicket, contenuPremierMessage)
+						);
+				break;
+			
 			default:
 				reponse = new SimpleMessage.SimpleMessageInformation(TypeMessage.INCONNU);
+				break;
+				
 			}
 		} catch (ClassCastException | IndexOutOfBoundsException | NullPointerException e){
+			System.err.println(e.getMessage());
 			reponse = new SimpleMessage.SimpleMessageInformation(TypeMessage.INCONNU);
 		}
 		return reponse;
 	}
-
-	@Override
-	public void start() {
-		try {
-			controleur.start(port);
-		} catch (ComException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void stop() {
-		try {
-			controleur.stop();
-		} catch (ComException e) {
-			e.printStackTrace();
-		}
-	}
-
+	
+	
+	
+	
+	
+	
 
 }
