@@ -1,0 +1,47 @@
+@startuml
+/' 
+	Classes 
+'/
+package app {
+	class AdminApp {
+		+{static}void main(String[] args)
+	}
+	note "Crée un ICtrlAdmin \npuis les vues" as N1
+	AdminApp .. N1
+}
+package vue {
+	class AdminScreen {
+		+AdminScreen(App app, ICtrlAdmin controlleur)
+	}
+	class "javax.swing.JFrame" as javax_swing_JFrame [[java:javax.swing.JFrame]] {
+	}
+}
+
+package controleur {	
+	interface ICtrlAdmin {
+		+List<Groupe> getGroupes()
+		+void createGroupe(String nom)
+		+void createUser(String nom, String prenom)	
+	}
+	
+	class CtrlAdmin {
+	}
+}
+
+
+/' 
+	Relations 
+'/
+javax_swing_JFrame <|-- AdminScreen
+
+ICtrlAdmin <|.. CtrlAdmin
+
+AdminScreen -up-> AdminApp
+
+AdminScreen -down-> ICtrlAdmin
+
+ICtrlAdmin --() Observable 
+AdminScreen --() Observer  
+
+@enduml
+

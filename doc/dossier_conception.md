@@ -171,6 +171,20 @@ Ajout d'un message sur ce ticket :
 Détails d'un message :
 ![](liste_lus.png)
 
+### 3.4. IHM et Controleur de l'interface administrateur
+
+Diagramme de classe :
+![Diagramme de classe](class_diagram_admin.png  "Diagramme de classe")
+
+Maquettes de l'IHM :
+Onglet des groupes :
+![](liste_groupes.png)
+Onglet des utilisateurs :
+![](liste_users.png)
+Détails d'un groupe :
+![](infos_groupe.png)
+Détails d'un utilisateur :
+![](infos_user.png)
 
 ## 4. Calendrier
 
