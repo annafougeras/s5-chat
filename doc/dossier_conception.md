@@ -74,7 +74,7 @@ Le serveur utilisera une base de données
 
 
 
-## 2. Analyse
+## 2. Analyse
 
 Analyse du problème
 
@@ -87,7 +87,9 @@ L'information peut être modélisée ainsi :
 Maintenant on peut travailler :-)
 
 
-## 3. Axes de développement
+
+
+## 3. Axes de développement
 
 L'application sera écrite en Java. La base de donnée utilisera le SGDB mySQL.
 
