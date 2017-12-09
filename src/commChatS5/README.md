@@ -31,6 +31,6 @@ Ce diagramme illustre l'utilisation des contrôleurs avec les classes
  - tests.TestS5Client.Client
  - tests.TestS5Serveur.Serveur
 
-![Class Diagram](../../doc/class_diagram_S5com.png) 
+![Class Diagram](../../doc/reseau/class_diagram_S5com.png) 
 
 Il est complètement illisible, isn't it ?
