@@ -154,22 +154,22 @@ Diagramme de classe :
 ![Diagramme de classe](class_diagram_vue.png  "Diagramme de classe")
 
 Maquettes de l'IHM :
-Ecran de connexion :
-![](maquettes/connexion.png)
-Ouverture de l'application :
-![](maquettes/opening_screen.png)
-Création d'un nouveau ticket :
-![](maquettes/new_ticket.png)
-Après la création du ticket :
-![](maquettes/ticket_added.png)
-Déroulement du groupe "INFO 3A Groupe 1" :
-![](maquettes/tickets_groupe.png)
-Ouverture d'un ticket contenant plusieurs messages :
-![](maquettes/conversation_groupe.png)
-Ajout d'un message sur ce ticket :
-![](maquettes/conversation_groupe_new.png)
-Détails d'un message :
-![](maquettes/liste_lus.png)
+Ecran de connexion :  
+![](maquettes/connexion.png)  
+Ouverture de l'application :  
+![](maquettes/opening_screen.png)  
+Création d'un nouveau ticket :  
+![](maquettes/new_ticket.png)  
+Après la création du ticket :  
+![](maquettes/ticket_added.png)  
+Déroulement du groupe "INFO 3A Groupe 1" :  
+![](maquettes/tickets_groupe.png)  
+Ouverture d'un ticket contenant plusieurs messages :  
+![](maquettes/conversation_groupe.png)  
+Ajout d'un message sur ce ticket :  
+![](maquettes/conversation_groupe_new.png)  
+Détails d'un message :  
+![](maquettes/liste_lus.png)  
 
 ### 3.4. IHM et Controleur de l'interface administrateur
 
@@ -177,14 +177,14 @@ Diagramme de classe :
 ![Diagramme de classe](class_diagram_admin.png  "Diagramme de classe")
 
 Maquettes de l'IHM :
-Onglet des groupes :
-![](maquettes/liste_groupes.png)
-Onglet des utilisateurs :
-![](maquettes/liste_users.png)
-Détails d'un groupe :
-![](maquettes/infos_groupe.png)
-Détails d'un utilisateur :
-![](maquettes/infos_user.png)
+Onglet des groupes :  
+![](maquettes/liste_groupes.png)  
+Onglet des utilisateurs :  
+![](maquettes/liste_users.png)  
+Détails d'un groupe :  
+![](maquettes/infos_groupe.png)  
+Détails d'un utilisateur :  
+![](maquettes/infos_user.png)  
 
 ## 4. Calendrier
 
