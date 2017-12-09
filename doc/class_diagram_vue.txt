@@ -60,8 +60,10 @@ package controleur {
 	}
 }
 
-package communication {
-	interface ControleurComClient [[java:communication.ControleurComClient]] {
+package commS5 {
+	interface ICtrlComClient [[java:commChatS5.ICtrlComClient]] {
+	}
+	interface S5Client [[java:commChatS5.S5Client]] {
 	}
 }
 
@@ -82,9 +84,10 @@ ConnectionScreen -down-> ICtrlVue
 
 MainScreen .up.> AddPanel
 
-CtrlVue --> ControleurComClient
+CtrlVue --> ICtrlComClient
+ICtrlVue --|> S5Client 
 
-ICtrlVue --() Observable 
+ICtrlVue -() Observable 
 MainScreen --() Observer  
 
 @enduml
