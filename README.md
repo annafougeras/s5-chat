@@ -23,7 +23,11 @@ Création de jars :
 
 Documentation :
 
+	# Documentation
 	make doc
+	
+	# Documentation (visibilité private -> public)
+	make doc_private
 	
 Base de donnée :
 
