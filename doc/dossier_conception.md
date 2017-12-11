@@ -162,6 +162,22 @@ Prévu pour être réutilisé dans d'autres logiciels : ne dépend pas du modèl
 
 Implémentations concrètes des interfaces définies dans le package *communication*.
 
+Echange de messages contenant un tableau (array) d'objets sérializables.
+
+Le premier élément du tableau est un énuméré indiquant le rôle du message (message d'accueil, établissement de connexion, réponse, requête, information).
+
+Son but est de savoir comment *caster* les autres éléments si besoin.
+
+	public enum SimpleTypeMessage implements Serializable {
+		BONJOUR,
+		IDENTIFICATION, 
+		CONFIRM_IDENTIFICATION,
+		INFORME,
+		DEMANDE,
+		INVALIDE;
+	}
+
+
 
 #### 3.2.c. Package *commChatS5*
 
@@ -184,7 +200,29 @@ Les interfaces suivantes permettent aux applications client, admin et serveur d'
  - S5Admin : méthodes qu'utilise un CtrlComAdmin pour informer l'appli admin
  - S5Serveur : méthodes qu'utilise un CtrlComServeur pour produire les réponses aux requêtes des clients / admin
 
+Le package utilise *communication.simple*, et donc SimpleMessage pour communiquer : on envoie des tableaux d'objets sérializable. 
 
+Le premier élément du tableau n'est pas visible, et le reste de ce tableau est utilisé de la même manière que précédemment : 
+
+ - Un énuméré indiquant le type de message (demande de ticket, demande de la liste des groupes, réponse, etc.)
+ - Eventuelles informations (id du ticket demandé, ticket, liste des groupes, etc.). 
+
+L'énuméré sert, une fois encore, à savoir comment *caster* les autres cases du tableau.
+
+	public enum TypeMessage {
+		REQUETE_LISTE_GROUPE,
+		REQUETE_TICKET,
+		REQUETE_NOUVEAU_TICKET,
+		REQUETE_NOUVEAU_MESSAGE,
+	
+		INFORME_LISTE_GROUPE,
+		INFORME_TICKET,
+		INFORME_MESSAGE,
+		
+		[...]
+		
+		INCONNU;
+	}
 
 
 ### 3.3. IHM et Controleur de l'application client
