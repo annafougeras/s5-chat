@@ -6,6 +6,7 @@
 package controleur;
 
 import commChatS5.S5Client;
+import java.util.NavigableSet;
 import modele.Groupe;
 import modele.Ticket;
 
@@ -14,6 +15,12 @@ import modele.Ticket;
  * @author Vincent Fougeras
  */
 public interface ICtrlVue extends S5Client {
+    
+    /**
+     * Retourne le modèle actuel de l'application
+     * @return le modèle actuel de l'application
+     */
+    public NavigableSet<Groupe> getModel();
     
     /**
      * Récupère tous les tickets auquel a accès l'utilisateur

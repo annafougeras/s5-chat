@@ -7,14 +7,15 @@ package controleur;
 
 import commChatS5.ICtrlComClient;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.swing.JFrame;
 import modele.Groupe;
 import modele.Message;
 import modele.Ticket;
+import vue.BaseScreen;
 import vue.ConnectionScreen;
 import vue.MainScreen;
 
@@ -25,7 +26,7 @@ import vue.MainScreen;
 public class CtrlVue extends Observable implements ICtrlVue {
 
     ICtrlComClient ctrlComClient;
-    JFrame currentScreen;
+    BaseScreen currentScreen;
     NavigableSet<Groupe> groupes;
     
     public CtrlVue(/*ComAdresse serverAddr*/){
@@ -40,8 +41,13 @@ public class CtrlVue extends Observable implements ICtrlVue {
             }
         });
         
+        NavigableSet<Ticket> tickets = new TreeSet<Ticket>();
+        tickets.add(new Ticket(222, "Un ticket", 3, new Date()));
+        groupes.add(new Groupe(111, "Info 3A", tickets));
+        
         // Crée la vue
         currentScreen = new ConnectionScreen(this);
+        this.addObserver(currentScreen);
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -53,6 +59,12 @@ public class CtrlVue extends Observable implements ICtrlVue {
     /* 
         Méthodes de ICtrlVue
     */
+    
+    @Override
+    public NavigableSet<Groupe> getModel(){
+        return this.groupes;
+    }
+    
     @Override
     public void getTickets() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -98,11 +110,12 @@ public class CtrlVue extends Observable implements ICtrlVue {
     }
     
         
-    private void changeScreen(final JFrame newScreen){ // Peut être ne faire que des panel dans un seul JFrame ?
+    private void changeScreen(final BaseScreen newScreen){ // Peut être ne faire que des panel dans un seul JFrame ?
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 currentScreen.setVisible(false);
+                deleteObserver(currentScreen);
             }
         }); 
         
@@ -110,6 +123,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
             @Override
             public void run() {
                 currentScreen = newScreen;
+                addObserver(currentScreen);
                 currentScreen.setVisible(true);
             }
         });
@@ -119,10 +133,13 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     /* 
         Méthodes de S5Client
+        A faire : mettre à jour le modèle (groupes), puis notifier la vue
     */
     @Override
     public void recevoir(Ticket ticketRecu) {
         throw new UnsupportedOperationException("Not supported yet.");
+        
+        //this.notifyObservers();
     }
 
     @Override

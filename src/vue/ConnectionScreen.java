@@ -14,15 +14,13 @@ import java.util.Observer;
  *
  * @author Vincent Fougeras
  */
-public class ConnectionScreen extends javax.swing.JFrame implements Observer {
-    
-    ICtrlVue ctrlVue;
-    
+public class ConnectionScreen extends BaseScreen {
+        
     /**
      * Creates new form ConnectionScreen
      */
     public ConnectionScreen(ICtrlVue ctrlVue) {
-        this.ctrlVue = ctrlVue;
+        super(ctrlVue);
         initComponents();
     }
 
@@ -131,6 +129,7 @@ public class ConnectionScreen extends javax.swing.JFrame implements Observer {
 
     @Override
     public void update(Observable o, Object o1) {
+        // Nothing to update ?
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

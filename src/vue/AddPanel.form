@@ -38,7 +38,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="groupes">
+        <Component class="javax.swing.JComboBox" name="groupeComboBox">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="4">
@@ -53,7 +53,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="groupesActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="groupeComboBoxActionPerformed"/>
           </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
@@ -74,14 +74,14 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JTextField" name="title">
+        <Component class="javax.swing.JTextField" name="titleTextField">
           <Properties>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[200, 25]"/>
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="titleActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="titleTextFieldActionPerformed"/>
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -89,9 +89,10 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JTextArea" name="jTextArea1">
+        <Component class="javax.swing.JTextArea" name="contentTextArea">
           <Properties>
             <Property name="columns" type="int" value="20"/>
+            <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
@@ -99,6 +100,9 @@
                   <Color PropertyName="color" blue="33" green="33" red="33" type="rgb"/>
                 </LineBorder>
               </Border>
+            </Property>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[142, 92]"/>
             </Property>
           </Properties>
           <Constraints>
@@ -308,11 +312,11 @@
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="13_groupes">
-              <CodeVariable name="groupes" type="8194" declaredType="javax.swing.JComboBox"/>
+            <CodeExpression id="13_groupeComboBox">
+              <CodeVariable name="groupeComboBox" type="8194" declaredType="javax.swing.JComboBox"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
-                  <ComponentRef name="groupes"/>
+                  <ComponentRef name="groupeComboBox"/>
                 </ExpressionProvider>
               </ExpressionOrigin>
             </CodeExpression>
@@ -463,11 +467,11 @@
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="24_title">
-              <CodeVariable name="title" type="8194" declaredType="javax.swing.JTextField"/>
+            <CodeExpression id="24_titleTextField">
+              <CodeVariable name="titleTextField" type="8194" declaredType="javax.swing.JTextField"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
-                  <ComponentRef name="title"/>
+                  <ComponentRef name="titleTextField"/>
                 </ExpressionProvider>
               </ExpressionOrigin>
             </CodeExpression>
@@ -545,11 +549,11 @@
             <CodeMethod name="add" class="java.awt.Container" parameterTypes="java.awt.Component, java.lang.Object"/>
           </StatementProvider>
           <Parameters>
-            <CodeExpression id="30_jTextArea1">
-              <CodeVariable name="jTextArea1" type="8194" declaredType="javax.swing.JTextArea"/>
+            <CodeExpression id="30_contentTextArea">
+              <CodeVariable name="contentTextArea" type="8194" declaredType="javax.swing.JTextArea"/>
               <ExpressionOrigin>
                 <ExpressionProvider type="ComponentRef">
-                  <ComponentRef name="jTextArea1"/>
+                  <ComponentRef name="contentTextArea"/>
                 </ExpressionProvider>
               </ExpressionOrigin>
             </CodeExpression>
@@ -746,6 +750,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Cr&#xe9;er le ticket"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="creerButtonActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.Box$Filler" name="filler1">
           <Properties>

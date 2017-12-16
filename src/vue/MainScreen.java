@@ -6,25 +6,26 @@
 package vue;
 
 import controleur.ICtrlVue;
+import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JDialog;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import modele.Groupe;
+import modele.Ticket;
 
 /**
  *
  * @author Vincent Fougeras
  */
-public class MainScreen extends javax.swing.JFrame implements Observer {
-
-    ICtrlVue ctrlVue;
+public class MainScreen extends BaseScreen {
 
     /**
      * Creates new form MainScreen
      */
     public MainScreen(ICtrlVue ctrlVue) {
-        this.ctrlVue = ctrlVue;
+        super(ctrlVue);
         initComponents();
     }
     
@@ -64,14 +65,15 @@ public class MainScreen extends javax.swing.JFrame implements Observer {
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
         envoyerButton = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        messageList = new javax.swing.JList<>();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
-        addTicket = new javax.swing.JButton();
+        ticketTree = new javax.swing.JTree(new GroupeTreeModel(this.ctrlVue.getModel()));
+        addTicketButton = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         deconnectionMenuItem = new javax.swing.JMenuItem();
@@ -85,29 +87,26 @@ public class MainScreen extends javax.swing.JFrame implements Observer {
         jPanel2.setMinimumSize(new java.awt.Dimension(500, 23));
         jPanel2.setLayout(new java.awt.BorderLayout(5, 0));
 
-        jTextField1.setText("jTextField1");
-        jTextField1.setAlignmentX(0.0F);
-        jTextField1.setMinimumSize(new java.awt.Dimension(50, 20));
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jTextField1, java.awt.BorderLayout.CENTER);
-
         envoyerButton.setText("Envoyer");
         jPanel2.add(envoyerButton, java.awt.BorderLayout.LINE_END);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setLineWrap(true);
+        jTextArea1.setRows(2);
+        jScrollPane3.setViewportView(jTextArea1);
+
+        jPanel2.add(jScrollPane3, java.awt.BorderLayout.CENTER);
 
         jPanel1.add(jPanel2, java.awt.BorderLayout.PAGE_END);
 
         jScrollPane2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+        messageList.setModel(new javax.swing.AbstractListModel<String>() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
-        jScrollPane2.setViewportView(jList1);
+        jScrollPane2.setViewportView(messageList);
 
         scrollDown(jScrollPane2);
 
@@ -119,24 +118,26 @@ public class MainScreen extends javax.swing.JFrame implements Observer {
 
         jScrollPane1.setMinimumSize(new java.awt.Dimension(200, 23));
 
-        jTree1.setMaximumSize(null);
-        jScrollPane1.setViewportView(jTree1);
+        ticketTree.setMaximumSize(null);
+        jScrollPane1.setViewportView(ticketTree);
+        ticketTree.setRootVisible(false);
+        ticketTree.setShowsRootHandles(true);
 
         jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        addTicket.setText("+ Ajouter un ticket");
-        addTicket.addActionListener(new java.awt.event.ActionListener() {
+        addTicketButton.setText("+ Ajouter un ticket");
+        addTicketButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addTicketActionPerformed(evt);
+                addTicketButtonActionPerformed(evt);
             }
         });
-        jPanel3.add(addTicket, java.awt.BorderLayout.PAGE_START);
+        jPanel3.add(addTicketButton, java.awt.BorderLayout.PAGE_START);
 
         jSplitPane1.setLeftComponent(jPanel3);
 
         getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
-        jMenu1.setText("File");
+        jMenu1.setText("Fichier");
 
         deconnectionMenuItem.setText("Déconnection");
         deconnectionMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -153,16 +154,12 @@ public class MainScreen extends javax.swing.JFrame implements Observer {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void addTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTicketActionPerformed
+    private void addTicketButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTicketButtonActionPerformed
         JDialog addDialog = new JDialog(this, "Créer un ticket", true);
-        addDialog.add(new AddPanel());
+        addDialog.add(new AddPanel(this.ctrlVue));
         addDialog.pack();
         addDialog.setVisible(true);
-    }//GEN-LAST:event_addTicketActionPerformed
+    }//GEN-LAST:event_addTicketButtonActionPerformed
 
     private void deconnectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deconnectionMenuItemActionPerformed
         this.ctrlVue.deconnecter();
@@ -170,10 +167,9 @@ public class MainScreen extends javax.swing.JFrame implements Observer {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addTicket;
+    private javax.swing.JButton addTicketButton;
     private javax.swing.JMenuItem deconnectionMenuItem;
     private javax.swing.JButton envoyerButton;
-    private javax.swing.JList<String> jList1;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
@@ -181,13 +177,27 @@ public class MainScreen extends javax.swing.JFrame implements Observer {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTree jTree1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JList<String> messageList;
+    private javax.swing.JTree ticketTree;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public void update(Observable o, Object o1) {
+        // Unable to know which object has been updated -> update everything
+        // Update ticketTree, messageList (with currently selected ticket)
+       /*
+        NavigableSet<Groupe> groupes = this.ctrlVue.getModel();
+        
+        this.updateTicketTree(groupes);
+        
+        Ticket selectedTicket = this.getSelectedTicket();
+        
+        this.updateMessageList(selectedTicket);*/
+                
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
 }
