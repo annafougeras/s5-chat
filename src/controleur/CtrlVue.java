@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.NavigableSet;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
 import modele.Groupe;
@@ -27,13 +28,38 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     ICtrlComClient ctrlComClient;
     BaseScreen currentScreen;
-    NavigableSet<Groupe> groupes;
+    NavigableSet<Groupe> model; /* Liste des groupes liés à l'utilisateur, qui contiennent des tickets, qui contiennent des messages ... */
+    NavigableSet<Groupe> groupes; /* Liste de tous les groupes existants */
+    
+    /*
+    @Override
+    public void addObserver(Observer o){
+        super.addObserver(o);
+        System.out.println("Observer ajouté : " +  o);
+        System.out.println("nombre d'observers : " + this.countObservers());
+    }
+    
+    
+    @Override
+    public void deleteObserver(Observer o){
+        super.deleteObserver(o);
+        System.out.println("Observer supprimé : " +  o);
+        System.out.println("nombre d'observers : " + this.countObservers());
+    }
+    */
     
     public CtrlVue(/*ComAdresse serverAddr*/){
         // Crée le ctrlCom
         /*ctrlComClient = new CtrlComClient(this, serverAddr);*/
         
         // Crée le modèle
+        this.model = new TreeSet<>(new Comparator<Groupe>() {
+            @Override
+            public int compare(Groupe g1, Groupe g2) {
+                return g1.getNom().compareTo(g2.getNom());
+            }
+        });
+        
         this.groupes = new TreeSet<>(new Comparator<Groupe>() {
             @Override
             public int compare(Groupe g1, Groupe g2) {
@@ -41,8 +67,10 @@ public class CtrlVue extends Observable implements ICtrlVue {
             }
         });
         
+        // TODO : tests perso
         NavigableSet<Ticket> tickets = new TreeSet<Ticket>();
         tickets.add(new Ticket(222, "Un ticket", 3, new Date()));
+        model.add(new Groupe(111, "Info 3A", tickets));
         groupes.add(new Groupe(111, "Info 3A", tickets));
         
         // Crée la vue
@@ -62,21 +90,26 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     @Override
     public NavigableSet<Groupe> getModel(){
+        return this.model;
+    }
+    
+    @Override
+    public NavigableSet<Groupe> getGroupes(){
         return this.groupes;
     }
     
     @Override
-    public void getTickets() {
+    public void getRemoteTickets() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void getMessages(Ticket ticket) {
+    public void getRemoteMessages(Ticket ticket) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
     @Override
-    public void getGroupes() {
+    public void getRemoteGroupes() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

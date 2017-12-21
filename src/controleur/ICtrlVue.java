@@ -23,22 +23,29 @@ public interface ICtrlVue extends S5Client {
     public NavigableSet<Groupe> getModel();
     
     /**
+     * Retourne la liste de tous les groupes connus
+     * @return la liste de tous les groupes connus
+     */
+    public NavigableSet<Groupe> getGroupes();
+     
+    /**
      * Récupère tous les tickets auquel a accès l'utilisateur
      * 
      */
-    void getTickets();
+    void getRemoteTickets();
     
     /**
      * Récupère la liste des messages du ticket spécifié
      * 
      * @param ticket
      */
-    void getMessages(Ticket ticket);
+    void getRemoteMessages(Ticket ticket);
     
     /**
      * Récupère la liste de tous les groupes existants
      */
-    void getGroupes();    
+    void getRemoteGroupes();    
+    
     
     /**
      * Ajoute un ticket

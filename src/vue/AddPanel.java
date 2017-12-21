@@ -5,23 +5,38 @@
  */
 package vue;
 
+import controleur.CtrlVue;
 import controleur.ICtrlVue;
+import java.util.NavigableSet;
+import java.util.Observable;
+import java.util.Observer;
+import javax.swing.JDialog;
 import modele.Groupe;
 
 /**
  *
  * @author Vincent Fougeras
  */
-public class AddPanel extends javax.swing.JPanel {
+public class AddPanel extends javax.swing.JPanel implements Observer {
 
-    ICtrlVue ctrlVue;
+    private ICtrlVue ctrlVue;
+    private Groupe[] groupes;
     
     /**
      * Creates new form AddPanel
      */
     public AddPanel(ICtrlVue ctrlVue) {
-        initComponents();
         this.ctrlVue = ctrlVue;
+        this.groupes = ctrlVue.getGroupes().toArray(new Groupe[0]);
+        
+        // Il faut s'ajouter soi même au ctrlVue pour être notifié
+        ((CtrlVue)this.ctrlVue).addObserver(this);
+        
+        initComponents();
+    }
+    
+    private void closeParentDialog(){
+        ((JDialog)this.getParent().getParent().getParent().getParent()).dispose();
     }
 
     /**
@@ -62,7 +77,7 @@ public class AddPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         jPanel1.add(jLabel2, gridBagConstraints);
 
-        groupeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        groupeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(this.groupes));
         groupeComboBox.setPreferredSize(new java.awt.Dimension(200, 25));
         groupeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -158,7 +173,7 @@ public class AddPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_groupeComboBoxActionPerformed
 
     private void annulerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annulerButtonActionPerformed
-        this.setVisible(false);
+        this.closeParentDialog();
     }//GEN-LAST:event_annulerButtonActionPerformed
 
     private void creerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creerButtonActionPerformed
@@ -167,7 +182,8 @@ public class AddPanel extends javax.swing.JPanel {
         String content = this.contentTextArea.getText();
         
         this.ctrlVue.addTicket(groupe, title, content);
-        this.setVisible(false);
+               
+        this.closeParentDialog();        
     }//GEN-LAST:event_creerButtonActionPerformed
 
 
@@ -176,7 +192,7 @@ public class AddPanel extends javax.swing.JPanel {
     private javax.swing.JTextArea contentTextArea;
     private javax.swing.JButton creerButton;
     private javax.swing.Box.Filler filler1;
-    private javax.swing.JComboBox<String> groupeComboBox;
+    private javax.swing.JComboBox<Groupe> groupeComboBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -185,4 +201,11 @@ public class AddPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTextField titleTextField;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(Observable o, Object o1) {
+        // Mettre à jour la liste des groupes existants
+        this.groupes = ctrlVue.getGroupes().toArray(new Groupe[0]);
+        groupeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(this.groupes));
+    }
 }

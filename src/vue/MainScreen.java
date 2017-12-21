@@ -5,7 +5,10 @@
  */
 package vue;
 
+import controleur.CtrlVue;
 import controleur.ICtrlVue;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Observer;
@@ -156,7 +159,21 @@ public class MainScreen extends BaseScreen {
 
     private void addTicketButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTicketButtonActionPerformed
         JDialog addDialog = new JDialog(this, "Créer un ticket", true);
-        addDialog.add(new AddPanel(this.ctrlVue));
+        final AddPanel addPanel;
+        addPanel = new AddPanel(this.ctrlVue);
+        addDialog.add(addPanel);
+        addDialog.addWindowListener(new WindowAdapter() 
+        {
+          public void windowClosed(WindowEvent e)
+          {
+            ((CtrlVue)ctrlVue).deleteObserver(addPanel);
+          }
+
+          public void windowClosing(WindowEvent e)
+          {
+            ((CtrlVue)ctrlVue).deleteObserver(addPanel);
+          }
+        });
         addDialog.pack();
         addDialog.setVisible(true);
     }//GEN-LAST:event_addTicketButtonActionPerformed
