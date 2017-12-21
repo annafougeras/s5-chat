@@ -41,6 +41,7 @@ public class ConnectionScreen extends BaseScreen {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         passwordPasswordField = new javax.swing.JPasswordField();
+        connectionStatus = new javax.swing.JLabel();
 
         jTextField1.setText("jTextField1");
 
@@ -101,6 +102,14 @@ public class ConnectionScreen extends BaseScreen {
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 10, 0);
         getContentPane().add(passwordPasswordField, gridBagConstraints);
 
+        connectionStatus.setForeground(new java.awt.Color(150, 0, 0));
+        connectionStatus.setText("Connection ratée");
+        connectionStatus.setVisible(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        getContentPane().add(connectionStatus, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -109,16 +118,18 @@ public class ConnectionScreen extends BaseScreen {
     }//GEN-LAST:event_passwordPasswordFieldActionPerformed
 
     private void connectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionButtonActionPerformed
+        connectionStatus.setVisible(false);
         String identifiant = identifiantTextField.getText();
         String password = Arrays.toString(passwordPasswordField.getPassword());
         if(! this.ctrlVue.connecter(identifiant, password)){
-            System.out.println("Connection ratée");
+            connectionStatus.setVisible(true);
         }
     }//GEN-LAST:event_connectionButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton connectionButton;
+    private javax.swing.JLabel connectionStatus;
     private javax.swing.JTextField identifiantTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
