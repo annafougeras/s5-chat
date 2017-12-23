@@ -5,7 +5,7 @@ DOC = doc
 JAVADOC = $(DOC)/javadoc
 
 # Packages nécessaires
-PACKAGES_CLIENT = 
+PACKAGES_CLIENT = vue modele communication communication.simple commChatS5
 PACKAGES_ADMIN = 
 PACKAGES_SERVEUR = 
 PACKAGES_TESTS = tests communication communication.simple commChatS5 modele
@@ -38,6 +38,9 @@ install_db:
 # Javadoc
 doc: | $(JAVADOC)
 	javadoc -use -quiet -public $(PACKAGES_TOUT) -sourcepath $(SRC) -d $(JAVADOC) -charset "UTF-8"
+
+doc_private: | $(JAVADOC)
+	javadoc -use -quiet -private $(PACKAGES_TOUT) -sourcepath $(SRC) -d $(JAVADOC) -charset "UTF-8"
 
 
 test_communication:
@@ -72,6 +75,6 @@ maxclean: clean
 	make -C db clean
 
 
-.PHONY: jars java doc install_db test_communication test_S5com kill_tests clean maxclean
+.PHONY: jars java doc doc_private install_db test_communication test_S5com kill_tests clean maxclean
 
 

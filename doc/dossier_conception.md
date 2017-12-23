@@ -1,4 +1,11 @@
-Ce document est une pré-ébauche de dossier de conception. J'ai mis un peu de ce dont je m'occupe, et le reste au pif. Vous pouvez modifier, ajouter, etc. selon vos goûts :-)
+<!--
+
+À l'attention du lecteur :
+
+Ce document est un fichier markdown.
+La lecture est plus agréable dans un logiciel sachant l'afficher (ex: navigateur web)
+
+-->
 
 
 
@@ -12,6 +19,7 @@ Equipe de développement :
  - Quentin MARTY
  - Pierre POMERET-COQUOT
 
+(L3 Info groupe 1)
 
 
 
@@ -41,12 +49,12 @@ Fonctionnalités :
 Propriétés des messages : 
 
  - Date d'émission
- - Statut de lecture (non lu, lu, etc.)
+ - Statut de lecture (non transmis, reçu, lu)
+
+
 
 
 ### 1.b. Application administrateur
-
-Ne peut être démarrée que sur le même processeur que le serveur.
 
 Fonctionnalités :
 
@@ -54,6 +62,8 @@ Fonctionnalités :
  - Création/suppression de comptes utilisateur
  - Création/suppression de liens d'appartenance utilisateur-groupe
  - Suppression de tickets / messages
+
+
 
 ### 1.c. Serveur
 
@@ -76,7 +86,6 @@ Le serveur utilisera une base de données
 
 ## 2. Analyse
 
-Analyse du problème
 
 ### 2.1. Modèle de données
 
@@ -84,7 +93,6 @@ L'information peut être modélisée ainsi :
 
 ![Modèle de données](modele_de_donnees.svg  "Modèle de données")
 
-Maintenant on peut travailler :-)
 
 
 
@@ -93,9 +101,16 @@ Maintenant on peut travailler :-)
 
 L'application sera écrite en Java. La base de donnée utilisera le SGDB mySQL.
 
-### 3.1. Modèle de données
+### 3.1. Modèle de données	
 
 #### 3.1.a. SQL
+
+> **MESSAGE** ( <u>*id message*</u>, titre, texte, date, #uid émetteur, #id ticket )  
+> **TICKET** ( <u>*id ticket*</u>, titre, date, #uid créateur, #id groupe )  
+> **CONSULTER** ( <u>*#id message, #uid lecteur*</u>, statut de lecture )  
+> **UTILISATEUR** ( <u>*uid*</u>, mot de passe, nom, renseignements variés, est admin ? )  
+> **APPARTENIR** ( <u>*#uid, #id groupe*</u> )  
+> **GROUPE** ( <u>*id groupe*</u>, nom )
 
 #### 3.1.b. Java
 
@@ -114,6 +129,8 @@ Par ailleurs, la classe Ticket pourra être instanciée avec des lacunes (sans s
 Diagramme de classe : 
 ![Diagramme de classe](class_diagram_modele.png  "Diagramme de classe")
 
+
+
 ### 3.2. Communication réseau
 
 Idée générale :
@@ -127,6 +144,8 @@ Communication sur TCP :
 
 La communication réseau est assurée par trois packages :
 
+
+
 #### 3.2.a. Package *communication*
 
 Interfaces pour un outil générique permettant la connexion authentifiée de clients à un serveur, et leur dialogue. 
@@ -135,19 +154,75 @@ Interfaces pour un outil générique permettant la connexion authentifiée de cl
  - **ControleurComServeur** : dialogue avec plusieurs ControleurComClient
  - **ObservateurComClient** : est informé des messages reçus par un ControleurComClient
  - **ObservateurComServeur** : est informé des messages reçus par un ControleurComServeur
- 
+
 Prévu pour être réutilisé dans d'autres logiciels : ne dépend pas du modèle de données choisi.
+
 
 #### 3.2.b. Package *communication.simple*
 
 Implémentations concrètes des interfaces définies dans le package *communication*.
 
+Echange de messages contenant un tableau (array) d'objets sérializables.
+
+Le premier élément du tableau est un énuméré indiquant le rôle du message (message d'accueil, établissement de connexion, réponse, requête, information).
+
+Son but est de savoir comment *caster* les autres éléments si besoin.
+
+	public enum SimpleTypeMessage implements Serializable {
+		BONJOUR,
+		IDENTIFICATION, 
+		CONFIRM_IDENTIFICATION,
+		INFORME,
+		DEMANDE,
+		INVALIDE;
+	}
+
+
+
 #### 3.2.c. Package *commChatS5*
 
-Implémentation de contrôleurs spécifiques aux applications client :
+Implémentation de contrôleurs spécifiques aux applications développées :
+ - CtrlComClient
+   - Demander la liste des groupes et leurs contenus (tickets)
+   - Demander le contenu d'un ticket
+   - Créer un nouveau ticket / message
+   - Etre informé d'un nouveau ticket / message
+ - CtrlComAdmin
+   - Consulter toutes les données
+   - Modifier toutes les données
+   - Supprimer toutes les données
+ - CtrlComServeur
+   - Traite les requêtes des clients et admin
 
- - Transmission de requêtes pour la liste des groupes et les tickets
- - Transmission de Set < Groupe >  et de Ticket
+Les interfaces suivantes permettent aux applications client, admin et serveur d'être informées par un contrôleur :
+
+ - S5Client : méthodes qu'utilise un CtrlComClient pour informer l'appli client
+ - S5Admin : méthodes qu'utilise un CtrlComAdmin pour informer l'appli admin
+ - S5Serveur : méthodes qu'utilise un CtrlComServeur pour produire les réponses aux requêtes des clients / admin
+
+Le package utilise *communication.simple*, et donc SimpleMessage pour communiquer : on envoie des tableaux d'objets sérializable. 
+
+Le premier élément du tableau n'est pas visible, et le reste de ce tableau est utilisé de la même manière que précédemment : 
+
+ - Un énuméré indiquant le type de message (demande de ticket, demande de la liste des groupes, réponse, etc.)
+ - Eventuelles informations (id du ticket demandé, ticket, liste des groupes, etc.). 
+
+L'énuméré sert, une fois encore, à savoir comment *caster* les autres cases du tableau.
+
+	public enum TypeMessage {
+		REQUETE_LISTE_GROUPE,
+		REQUETE_TICKET,
+		REQUETE_NOUVEAU_TICKET,
+		REQUETE_NOUVEAU_MESSAGE,
+	
+		INFORME_LISTE_GROUPE,
+		INFORME_TICKET,
+		INFORME_MESSAGE,
+		
+		[...]
+		
+		INCONNU;
+	}
 
 
 ### 3.3. IHM et Controleur de l'application client
@@ -173,6 +248,8 @@ Ajout d'un message sur ce ticket :
 Détails d'un message :  
 ![](maquettes/liste_lus.png)  
 
+
+
 ### 3.4. IHM et Controleur de l'interface administrateur
 
 Diagramme de classe :
@@ -188,24 +265,36 @@ Détails d'un groupe :
 Détails d'un utilisateur :  
 ![](maquettes/infos_user.png)  
 
+
+
+
+
 ## 4. Calendrier
 
-**Semaine 48**
+**Semaine 47**
 
  - Définition modèle de données
  - Définition com réseau
  - Définition base de donnée
  - Définition application client
 
+**Semaine 48**
+
+ - Implémentation com réseau générique
+ - Implémentation base de données
+ - Application client : vues
+
 **Semaine 49**
 
  - Dossier de conception complet
- - Implémentation com réseau générique et spécifique simple
+ - Implémentation com réseau spécifique simple
+ - Application client : contrôleur
 
 **Semaine 50**
 
  - Fermeture du dépôt : dossier de conception (lundi 11/12)
  - Com réseau : reprise sur incident
+ - Serveur : v0
 
 **Semaine 51**
 
@@ -218,9 +307,12 @@ Détails d'un utilisateur :
 **Semaine 1**
 
  - Vacances
+ - Serveur
+ - Application admin
 
 **Semaine 2**
 
+ - Finitions
  - Relectures et fioritures
 
 **Semaine 3**
@@ -229,9 +321,11 @@ Détails d'un utilisateur :
  - Soutenance (mercredi 17/01)
 
 
+
+
 ### Planning
 
-J'ai surtout rempli ma partie, et j'ai mis au pif pour vous...
-
 ![Planning](planning.png  "Planning")
+
+
 

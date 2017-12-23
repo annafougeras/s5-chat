@@ -5,16 +5,22 @@
  */
 package vue;
 
+import controleur.ICtrlVue;
+import java.util.Arrays;
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  *
  * @author Vincent Fougeras
  */
-public class ConnectionScreen extends javax.swing.JFrame {
-    
+public class ConnectionScreen extends BaseScreen {
+        
     /**
      * Creates new form ConnectionScreen
      */
-    public ConnectionScreen() {
+    public ConnectionScreen(ICtrlVue ctrlVue) {
+        super(ctrlVue);
         initComponents();
     }
 
@@ -35,6 +41,7 @@ public class ConnectionScreen extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         passwordPasswordField = new javax.swing.JPasswordField();
+        connectionStatus = new javax.swing.JLabel();
 
         jTextField1.setText("jTextField1");
 
@@ -95,6 +102,14 @@ public class ConnectionScreen extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 10, 0);
         getContentPane().add(passwordPasswordField, gridBagConstraints);
 
+        connectionStatus.setForeground(new java.awt.Color(150, 0, 0));
+        connectionStatus.setText("Connection ratée");
+        connectionStatus.setVisible(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        getContentPane().add(connectionStatus, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -103,48 +118,18 @@ public class ConnectionScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_passwordPasswordFieldActionPerformed
 
     private void connectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionButtonActionPerformed
-        // TODO add your handling code here:
+        connectionStatus.setVisible(false);
+        String identifiant = identifiantTextField.getText();
+        String password = Arrays.toString(passwordPasswordField.getPassword());
+        if(! this.ctrlVue.connecter(identifiant, password)){
+            connectionStatus.setVisible(true);
+        }
     }//GEN-LAST:event_connectionButtonActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            /*for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }*/
-            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ConnectionScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ConnectionScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ConnectionScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ConnectionScreen.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ConnectionScreen().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton connectionButton;
+    private javax.swing.JLabel connectionStatus;
     private javax.swing.JTextField identifiantTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -152,4 +137,10 @@ public class ConnectionScreen extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JPasswordField passwordPasswordField;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(Observable o, Object o1) {
+        // Nothing to update ?
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

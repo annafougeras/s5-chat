@@ -29,6 +29,7 @@ public class Groupe extends AbstractIdentifiable implements Comparable<Groupe> {
 	public Groupe(int uniqueId, String nom, NavigableSet<Ticket> ticketsConnus) {
 		super(uniqueId);
 		setNom(nom);
+      		this.ticketsConnus = new TreeSet<Ticket>();
 		addTicketsConnus(ticketsConnus);
 	}
 	
@@ -94,7 +95,7 @@ public class Groupe extends AbstractIdentifiable implements Comparable<Groupe> {
 	 * @param tickets Les tickets à ajouter
 	 */
 	public void addTicketsConnus(Collection<Ticket> tickets) {
-		ticketsConnus.addAll(tickets);
+            ticketsConnus.addAll(tickets);
 	}
 
 	

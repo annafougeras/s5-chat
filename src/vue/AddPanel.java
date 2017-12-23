@@ -5,17 +5,38 @@
  */
 package vue;
 
+import controleur.CtrlVue;
+import controleur.ICtrlVue;
+import java.util.NavigableSet;
+import java.util.Observable;
+import java.util.Observer;
+import javax.swing.JDialog;
+import modele.Groupe;
+
 /**
  *
  * @author Vincent Fougeras
  */
-public class AddPanel extends javax.swing.JPanel {
+public class AddPanel extends javax.swing.JPanel implements Observer {
 
+    private ICtrlVue ctrlVue;
+    private Groupe[] groupes;
+    
     /**
      * Creates new form AddPanel
      */
-    public AddPanel() {
+    public AddPanel(ICtrlVue ctrlVue) {
+        this.ctrlVue = ctrlVue;
+        this.groupes = ctrlVue.getGroupes().toArray(new Groupe[0]);
+        
+        // Il faut s'ajouter soi même au ctrlVue pour être notifié
+        ((CtrlVue)this.ctrlVue).addObserver(this);
+        
         initComponents();
+    }
+    
+    private void closeParentDialog(){
+        ((JDialog)this.getParent().getParent().getParent().getParent()).dispose();
     }
 
     /**
@@ -30,10 +51,10 @@ public class AddPanel extends javax.swing.JPanel {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        groupes = new javax.swing.JComboBox<>();
+        groupeComboBox = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
-        title = new javax.swing.JTextField();
-        jTextArea1 = new javax.swing.JTextArea();
+        titleTextField = new javax.swing.JTextField();
+        contentTextArea = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -56,17 +77,17 @@ public class AddPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
         jPanel1.add(jLabel2, gridBagConstraints);
 
-        groupes.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        groupes.setPreferredSize(new java.awt.Dimension(200, 25));
-        groupes.addActionListener(new java.awt.event.ActionListener() {
+        groupeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(this.groupes));
+        groupeComboBox.setPreferredSize(new java.awt.Dimension(200, 25));
+        groupeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                groupesActionPerformed(evt);
+                groupeComboBoxActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
-        jPanel1.add(groupes, gridBagConstraints);
+        jPanel1.add(groupeComboBox, gridBagConstraints);
 
         jLabel3.setText("Titre");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -76,27 +97,29 @@ public class AddPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
         jPanel1.add(jLabel3, gridBagConstraints);
 
-        title.setPreferredSize(new java.awt.Dimension(200, 25));
-        title.addActionListener(new java.awt.event.ActionListener() {
+        titleTextField.setPreferredSize(new java.awt.Dimension(200, 25));
+        titleTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                titleActionPerformed(evt);
+                titleTextFieldActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.insets = new java.awt.Insets(15, 0, 0, 0);
-        jPanel1.add(title, gridBagConstraints);
+        jPanel1.add(titleTextField, gridBagConstraints);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jTextArea1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51)));
+        contentTextArea.setColumns(20);
+        contentTextArea.setLineWrap(true);
+        contentTextArea.setRows(5);
+        contentTextArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51)));
+        contentTextArea.setMaximumSize(new java.awt.Dimension(142, 92));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel1.add(jTextArea1, gridBagConstraints);
+        jPanel1.add(contentTextArea, gridBagConstraints);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel1.setText("Création d'un ticket");
@@ -122,6 +145,11 @@ public class AddPanel extends javax.swing.JPanel {
         jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
         creerButton.setText("Créer le ticket");
+        creerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                creerButtonActionPerformed(evt);
+            }
+        });
         jPanel2.add(creerButton);
         jPanel2.add(filler1);
 
@@ -136,31 +164,48 @@ public class AddPanel extends javax.swing.JPanel {
         add(jPanel2, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void titleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_titleActionPerformed
+    private void titleTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_titleTextFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_titleActionPerformed
+    }//GEN-LAST:event_titleTextFieldActionPerformed
 
-    private void groupesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_groupesActionPerformed
+    private void groupeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_groupeComboBoxActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_groupesActionPerformed
+    }//GEN-LAST:event_groupeComboBoxActionPerformed
 
     private void annulerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annulerButtonActionPerformed
-        // TODO add your handling code here:
+        this.closeParentDialog();
     }//GEN-LAST:event_annulerButtonActionPerformed
+
+    private void creerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creerButtonActionPerformed
+        Groupe groupe = (Groupe) this.groupeComboBox.getSelectedItem();
+        String title = this.titleTextField.getText();
+        String content = this.contentTextArea.getText();
+        
+        this.ctrlVue.addTicket(groupe, title, content);
+               
+        this.closeParentDialog();        
+    }//GEN-LAST:event_creerButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton annulerButton;
+    private javax.swing.JTextArea contentTextArea;
     private javax.swing.JButton creerButton;
     private javax.swing.Box.Filler filler1;
-    private javax.swing.JComboBox<String> groupes;
+    private javax.swing.JComboBox<Groupe> groupeComboBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField title;
+    private javax.swing.JTextField titleTextField;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void update(Observable o, Object o1) {
+        // Mettre à jour la liste des groupes existants
+        this.groupes = ctrlVue.getGroupes().toArray(new Groupe[0]);
+        groupeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(this.groupes));
+    }
 }

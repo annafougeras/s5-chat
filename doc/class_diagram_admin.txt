@@ -28,6 +28,13 @@ package controleur {
 	}
 }
 
+package commS5 {
+	interface ICtrlComAdmin [[java:commChatS5.ICtrlComAdmin]] {
+	}
+	interface S5Admin [[java:commChatS5.S5Admin]] {
+	}
+}
+
 
 /' 
 	Relations 
@@ -42,6 +49,9 @@ AdminScreen -down-> ICtrlAdmin
 
 ICtrlAdmin --() Observable 
 AdminScreen --() Observer  
+
+CtrlAdmin --> ICtrlComAdmin
+ICtrlAdmin --|> S5Admin 
 
 @enduml
 
