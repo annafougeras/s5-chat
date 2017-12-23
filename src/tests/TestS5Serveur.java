@@ -26,7 +26,7 @@ import modele.Utilisateur;
 import commChatS5.CtrlComServeur;
 import commChatS5.ICtrlComServeur;
 import commChatS5.Identifiants;
-import commChatS5.S5Serveur;
+import commChatS5.S5ServeurClient;
 import communication.ComAdresse;
 
 /**
@@ -39,7 +39,7 @@ public class TestS5Serveur {
 	 * Serveur (fake)
 	 * TestS5Serveur
 	 */
-	public static class Serveur implements S5Serveur {
+	public static class Serveur implements S5ServeurClient {
 		
 		private static int cptClient = 0;
 		private Map<ComAdresse,Utilisateur> clients = new HashMap<>();
@@ -139,129 +139,6 @@ public class TestS5Serveur {
 			return msg;
 		}
 
-
-		@Override
-		public Utilisateur adminDemandeUtilisateur(ComAdresse admin,
-				Identifiable idUtilisateur) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Set<Utilisateur> adminDemandeUtilisateurs(ComAdresse admin) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Message adminDemandeMessage(ComAdresse admin,
-				Identifiable idMessage) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Set<Message> adminDemandeMessages(ComAdresse admin) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Ticket adminDemandeTicket(ComAdresse admin, Identifiable idTicket) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Set<Ticket> adminDemandeTickets(ComAdresse admin) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Groupe adminDemandeGroupe(ComAdresse admin, Identifiable idGroupe) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public Set<Groupe> adminDemandeGroupes(ComAdresse admin) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-
-		@Override
-		public void adminSetUtilisateur(ComAdresse admin,
-				Utilisateur utilisateur) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSetMessage(ComAdresse admin, Message message) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSetTicket(ComAdresse admin, Ticket ticket) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSetGroupe(ComAdresse admin, Groupe groupe) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSupprimerUtilisateur(ComAdresse admin,
-				Identifiable idUtilisateur) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSupprimerMessage(ComAdresse admin,
-				Identifiable idMessage) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSupprimerTicket(ComAdresse admin, Identifiable idTicket) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public void adminSupprimerGroupe(ComAdresse admin, Identifiable idGroupe) {
-			// TODO Auto-generated method stub
-			
-		}
-
-
-		@Override
-		public String executerSQL(ComAdresse admin, String commandeSQL) {
-			// TODO Auto-generated method stub
-			return null;
-		}
 		
 	}
 	

@@ -31,7 +31,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 	
 	private int port;
 	private SimpleControleurServeur controleur;
-	private S5Serveur observateur;
+	private S5ServeurClient observateur;
 	
 	
 	/**
@@ -39,7 +39,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 	 * @param observateur Listener 
 	 * @param port Port local d'écoute du serveur
 	 */
-	public CtrlComServeur(S5Serveur observateur, int port){
+	public CtrlComServeur(S5ServeurClient observateur, int port){
 		this.observateur = observateur;
 		this.port = port;
 		controleur = new SimpleControleurServeur(this);

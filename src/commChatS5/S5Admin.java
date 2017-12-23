@@ -83,12 +83,4 @@ public interface S5Admin {
 	 */
 	public void recevoirGroupe(Set<Groupe> tousLesGroupes);
 	
-	
-	
-	/**
-	 * Recevoir une réponse suite à l'exécustion d'une commande SQL
-	 * @param reponse
-	 */
-	public void recevoirReponseSQL(String reponse);
-	
 }
