@@ -83,4 +83,8 @@ public interface S5Admin {
 	 */
 	public void recevoirGroupe(Set<Groupe> tousLesGroupes);
 	
+	
+	@Deprecated
+	public void recevoirReponseSQL(String reponse);
+	
 }
