@@ -23,13 +23,13 @@ public interface ICtrlComAdmin {
 	 * Etablissement de connexion en mode bloquant
 	 * @return VRAI si la connexion st établie
 	 */
-	public boolean etablirConnexionBloquant();
+	public boolean etablirConnexionBloquant(Identifiants identifiants);
 	
 	/**
 	 * Etablissement de connexion en mode non bloquant.
 	 * Le retour est transmis par S5Admin.recevoir
 	 */
-	public void etablirConnexion();
+	public void etablirConnexion(Identifiants identifiants);
 	
 	
 	
@@ -119,6 +119,7 @@ public interface ICtrlComAdmin {
 	 * @param commandeSQL La commande SQL à exécuter
 	 * @return Le retour SQL
 	 */
+	@Deprecated
 	public String executerSQLBloquant(String commandeSQL);
 	
 	/**
@@ -126,6 +127,7 @@ public interface ICtrlComAdmin {
 	 * @param commandeSQL La commande SQL a exécuter
 	 * Le retour est transmis par S5Admin.recevoirAcqSQL
 	 */
+	@Deprecated
 	public void executerSQL(String commandeSQL);
 	
 	

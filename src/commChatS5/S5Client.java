@@ -14,7 +14,8 @@ import modele.Message;
 import modele.Ticket;
 
 /**
- * Interface pour utilisateur de contrôler de communication client (listener)
+ * Interface pour recevoir du serveur (par le réseau) les informations demandées à un contrôleur,
+ * les nouveaux messages, etc.
  */
 public interface S5Client {
 	

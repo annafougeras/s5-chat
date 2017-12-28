@@ -15,7 +15,9 @@ import modele.Ticket;
 import modele.Utilisateur;
 
 /**
- * Interface à implémenter par l'administrateur (qui peut tout recevoir)
+ * Interface à implémenter par l'appli administrateur
+ * Les primitives permettent de recevoir du serveur (par le réseau) les
+ * objets demandés / nouveaux / etc.
  */
 public interface S5Admin {
 
@@ -82,6 +84,13 @@ public interface S5Admin {
 	 * @param tousLesGroupes
 	 */
 	public void recevoirGroupe(Set<Groupe> tousLesGroupes);
+	
+	
+	/**
+	 * Recevoir un message invalide
+	 * @param obj Le message invalide, s'il faut essayer d'en tirer quelque chose
+	 */
+	public void recevoirMessageInvalide(Object obj);
 	
 	
 	@Deprecated

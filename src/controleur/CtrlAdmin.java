@@ -171,4 +171,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+    @Override
+    public void recevoirMessageInvalide(Object messageInvalide) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }
