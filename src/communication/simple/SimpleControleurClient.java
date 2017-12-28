@@ -32,7 +32,15 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 	private ComEtatDeConnexion etatCnx;
 	private ObservateurComClient<SimpleMessage> observateur;
 	
-	private int essaisRestants = NB_ESSAIS;
+	private Thread threadEcouteServeur = null;
+	
+	private boolean enCoursDePrimitiveBloquante = false;
+	private boolean reponseRecue = false;
+	private SimpleMessage reponse = null;
+	
+	
+	
+	
 	
 	/**
 	 * Constructeur
@@ -43,6 +51,9 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 		this.etatCnx = ComEtatDeConnexion.NON_CONNECTE;
 	}
 
+	
+	
+	
 	@Override
 	public void connecter(ComAdresse serveurDistant,
 			ComIdentification identifiant) {
@@ -82,20 +93,62 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 
 	@Override
 	public void demander(SimpleMessage question) {
-		Thread thread = new Thread(new Requete(question));
-		thread.start();
+		try {
+			envoyerMessage(socket, question);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public SimpleMessage demanderBloquant(SimpleMessage question) throws ComException {
-		Requete req = new Requete(question);
-		return req.executerRequete();
+		enCoursDePrimitiveBloquante = true;
+		reponseRecue = false;
+		try {
+			envoyerMessage(socket, question);
+		} catch (IOException e) {
+			throw new ComException(e);
+		}
+		while (!reponseRecue){
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		enCoursDePrimitiveBloquante = false;
+		return reponse;
+		
 	}
 
+	
 	@Override
+	@SuppressWarnings("deprecation")
 	public void deconnecter() {
+		etatCnx = ComEtatDeConnexion.DECONNECTE;
+		threadEcouteServeur.stop();
 		fermerFlux();
 	}
+	
+	
+	
+	/**
+	 * Effectue le traitement lors d'un message 
+	 * (i.e. reprendre une primitive bloquante ou informer l'observateur)
+	 * @param message Le message reçu
+	 */
+	private void traiterMessageRecu(SimpleMessage message){
+		if (enCoursDePrimitiveBloquante){
+			reponse = message;
+			reponseRecue = true;
+		}
+		else {
+			observateur.ctrlCom_recevoir(message);
+		}
+	}
+	
+	
+	
 	
 	
 	/**
@@ -147,6 +200,9 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 				throw new ComException.TypeMessageException("Réception message invalide", e);
 			}
 			
+			threadEcouteServeur = new Thread(new EcouteServeur());
+			threadEcouteServeur.start();
+			
 			return etatCnx;
 		}
 		
@@ -166,69 +222,31 @@ public class SimpleControleurClient extends AbstractSimpleControleur implements 
 		
 	}
 	
-	
 	/**
-	 * Demande d'informations
+	 * A l'écoute du serveur. 
+	 * (il peut envoyer les nouveaux tickets et messages)
 	 * SimpleControleurClient
 	 */
-	public class Requete implements Runnable {
-		
-		private SimpleMessage question;
-		
-		public Requete(SimpleMessage question){
-			this.question = question;
-		}
-
-		public SimpleMessage executerRequete() throws ComException {
-			SimpleMessage reponse = null;
-			boolean recu = false;
-			while (!recu && essaisRestants > 0){
-				try {
-					assert(question.getTypeMessage()==SimpleTypeMessage.DEMANDE);
-					
-					envoyerMessage(socket, question);
-					reponse = recevoirMessage(socket);
-					
-					assert(reponse.getTypeMessage()==SimpleTypeMessage.INFORME);
-					
-					recu = true;
-					essaisRestants = NB_ESSAIS;
-
-				} catch (AssertionError e){
-					essaisRestants--;
-					if (essaisRestants < 0)
-						throw new ComException.TypeMessageException("Le message n'est pas une requête", e);
-					else{
-						System.err.println("Echec assertion : " + e.getMessage() + " : essai supplémentaire");
-						e.printStackTrace();
-					}
-				} catch (IOException e){
-					essaisRestants--;
-					if (essaisRestants < 0)
-						throw new ComException("IOException ", e);
-					else
-						System.out.println("Echec IO : " + e.getMessage() + " : essai supplémentaire");
-				}
-			}
-			if (verbeux)
-				System.out.println(reponse);
-			return reponse;
-		}
+	private class EcouteServeur implements Runnable {
 		
 		@Override
-		public void run() {
-			SimpleMessage reponse;
-			try {
-				reponse = executerRequete();
-			} catch (ComException e) {
-				e.printStackTrace();
-				reponse = new SimpleMessage.SimpleMessageInvalide();
-				
+		public void run(){
+			SimpleMessage message;
+			while (getEtatDeConnexion() == ComEtatDeConnexion.CONNECTE){
+				try {
+					message = recevoirMessage(socket);
+					traiterMessageRecu(message);
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.err.println("Erreur -> déconnexion.");
+					deconnecter();
+				}
 			}
-			observateur.ctrlCom_recevoir(reponse);
 		}
-		
 	}
+	
+	
+	
 	
 
 }
