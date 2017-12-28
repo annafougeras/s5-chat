@@ -5,24 +5,39 @@ DOC = doc
 JAVADOC = $(DOC)/javadoc
 
 # Packages nécessaires
-PACKAGES_CLIENT = vue modele communication communication.simple commChatS5
-PACKAGES_ADMIN = 
+PACKAGES_CLIENT = app vue controleur modele communication communication.simple commChatS5
+PACKAGES_ADMIN = app vue controleur modele communication communication.simple commChatS5
 PACKAGES_SERVEUR = 
+
 PACKAGES_TESTS = tests communication communication.simple commChatS5 modele
 
 # Liste des packages utiles (sort trie et enlève les doublons)
 PACKAGES_TOUT = $(sort $(PACKAGES_CLIENT) $(PACKAGES_ADMIN) $(PACKAGES_SERVEUR) $(PACKAGES_TESTS))
 
+# Jars (exécutables)
+JAR_CLIENT  = appli_client.jar
+JAR_ADMIN   = appli_admin.jar
+JAR_SERVEUR = 
+JARS = $(JAR_CLIENT) $(JAR_ADMIN) $(JAR_SERVEUR)
+
+# Fichiers manifest des jars
+MANIFEST_CLIENT = $(SRC)/manifest_appli_client.txt
+MANIFEST_ADMIN  = $(SRC)/manifest_appli_admin.txt
+
+# Fichiers
+F_JAVA = $(foreach package, $(PACKAGES_TOUT), $(filter-out %/package-info.java, $(wildcard $(SRC)/$(subst .,/,$(package))/*.java)))
+F_CLASS = $(foreach f, $(F_JAVA), $(subst $(SRC)/, $(BIN)/, $(f:.java=.class)))
 
 
 
-
-
-
+# Tout
+all: java $(JARS)
 
 
 # Compile le java (.java -> .class)
-java: | $(BIN)
+java: $(F_CLASS)
+
+$(F_CLASS): | $(BIN)
 	javac -sourcepath $(SRC) -d $(BIN) $(foreach package, $(PACKAGES_TOUT), $(SRC)/$(subst .,/,$(package))/*.java)
 
 
@@ -30,6 +45,13 @@ java: | $(BIN)
 install_db: 
 	make -C db install
 
+
+# Crée les jars
+$(JAR_CLIENT): $(F_CLASS) $(MANIFEST_CLIENT)
+	jar cmf $(MANIFEST_CLIENT) $@ $(foreach package, $(PACKAGES_CLIENT), -C $(BIN) $(subst .,/,$(package)))
+	
+$(JAR_ADMIN): $(F_CLASS) $(MANIFEST_ADMIN)
+	jar cmf $(MANIFEST_ADMIN) $@ $(foreach package, $(PACKAGES_ADMIN), -C $(BIN) $(subst .,/,$(package)))
 
 
 
