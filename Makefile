@@ -7,7 +7,7 @@ JAVADOC = $(DOC)/javadoc
 # Packages nécessaires
 PACKAGES_CLIENT = app vue controleur modele communication communication.simple commChatS5
 PACKAGES_ADMIN = app vue controleur modele communication communication.simple commChatS5
-PACKAGES_SERVEUR = 
+PACKAGES_SERVEUR = serveur modele communication communication.simple commChatS5
 
 PACKAGES_TESTS = tests communication communication.simple commChatS5 modele
 
@@ -17,12 +17,13 @@ PACKAGES_TOUT = $(sort $(PACKAGES_CLIENT) $(PACKAGES_ADMIN) $(PACKAGES_SERVEUR) 
 # Jars (exécutables)
 JAR_CLIENT  = appli_client.jar
 JAR_ADMIN   = appli_admin.jar
-JAR_SERVEUR = 
+JAR_SERVEUR = serveur.jar
 JARS = $(JAR_CLIENT) $(JAR_ADMIN) $(JAR_SERVEUR)
 
 # Fichiers manifest des jars
 MANIFEST_CLIENT = $(SRC)/manifest_appli_client.txt
 MANIFEST_ADMIN  = $(SRC)/manifest_appli_admin.txt
+MANIFEST_SERVEUR= $(SRC)/manifest_serveur.txt
 
 # Fichiers
 F_JAVA = $(foreach package, $(PACKAGES_TOUT), $(filter-out %/package-info.java, $(wildcard $(SRC)/$(subst .,/,$(package))/*.java)))
@@ -52,6 +53,9 @@ $(JAR_CLIENT): $(F_CLASS) $(MANIFEST_CLIENT)
 	
 $(JAR_ADMIN): $(F_CLASS) $(MANIFEST_ADMIN)
 	jar cmf $(MANIFEST_ADMIN) $@ $(foreach package, $(PACKAGES_ADMIN), -C $(BIN) $(subst .,/,$(package)))
+	
+$(JAR_SERVEUR): $(F_CLASS) $(MANIFEST_SERVEUR)
+	jar cmf $(MANIFEST_SERVEUR) $@ $(foreach package, $(PACKAGES_SERVEUR), -C $(BIN) $(subst .,/,$(package)))
 
 
 

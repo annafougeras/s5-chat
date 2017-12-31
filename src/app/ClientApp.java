@@ -5,20 +5,34 @@
  */
 package app;
 
+import vue.ConnectionScreen;
+
+import communication.ComAdresse;
+import communication.simple.SimpleAdresse;
+
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
-import vue.ConnectionScreen;
 
 /**
  *
  * @author Vincent Fougeras
  */
-public class ClientApp {   
+public class ClientApp { 
+	
+	// Adresse par défaut du serveur
+	public static ComAdresse ADRESSE_SERVEUR = new SimpleAdresse("localhost", 8888);
     
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+    	
+    	// Adresse du serveur précisée en ligne de commande
+    	if (args.length == 2)
+   			ADRESSE_SERVEUR = new SimpleAdresse(args[0], Integer.parseInt(args[1]));
+    	
+    	System.out.println("Serveur distant : " + ADRESSE_SERVEUR);
+    	
         /* Set the look and feel */
         try {
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());

@@ -5,20 +5,25 @@
  */
 package controleur;
 
-import commChatS5.ICtrlComClient;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
+
 import modele.Groupe;
 import modele.Message;
 import modele.Ticket;
 import vue.BaseScreen;
 import vue.ConnectionScreen;
 import vue.MainScreen;
+import app.ClientApp;
+
+import commChatS5.CtrlComClient;
+import commChatS5.ICtrlComClient;
+import commChatS5.Identifiants;
 
 /**
  *
@@ -50,7 +55,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     public CtrlVue(/*ComAdresse serverAddr*/){
         // Crée le ctrlCom
-        /*ctrlComClient = new CtrlComClient(this, serverAddr);*/
+        ctrlComClient = new CtrlComClient(this, ClientApp.ADRESSE_SERVEUR);
         
         // Crée le modèle
         this.model = new TreeSet<>(new Comparator<Groupe>() {
@@ -67,11 +72,6 @@ public class CtrlVue extends Observable implements ICtrlVue {
             }
         });
         
-        // TODO : tests perso
-        NavigableSet<Ticket> tickets = new TreeSet<Ticket>();
-        tickets.add(new Ticket(222, "Un ticket", 3, new Date()));
-        model.add(new Groupe(111, "Info 3A", tickets));
-        groupes.add(new Groupe(111, "Info 3A", tickets));
         
         // Crée la vue
         currentScreen = new ConnectionScreen(this);
@@ -90,11 +90,24 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     @Override
     public NavigableSet<Groupe> getModel(){
-        return this.model;
+    	
+    	// Le modèle est constitué des groupes ayant au moins un ticket visible
+    	if (groupes.size() == 0)
+    		getRemoteGroupes();
+    	
+    	Iterator<Groupe> iter = groupes.iterator();
+    	for (;iter.hasNext();){
+    		Groupe g = iter.next();
+    		if (g.getTicketsConnus().size() > 0)
+    			model.add(g);
+    	}
+    	return model;
     }
     
     @Override
     public NavigableSet<Groupe> getGroupes(){
+    	if (groupes.size() == 0)
+    		getRemoteGroupes();
         return this.groupes;
     }
     
@@ -110,7 +123,9 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     @Override
     public void getRemoteGroupes() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	// Demande maintenant : bloquant
+    	groupes = new TreeSet<>();
+    	groupes.addAll(ctrlComClient.demanderTousLesGroupesBloquant());
     }
 
     @Override
@@ -125,20 +140,29 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     @Override
     public boolean connecter(String idUser, String password) {
-        boolean connecte = true;
-        
-        if(connecte){
+    	
+    	System.out.println("Patientez...");
+
+    	Identifiants identifiants = new Identifiants(idUser, password);
+    	boolean connecte = false;
+    	
+    	connecte = ctrlComClient.etablirConnexionBloquant(identifiants);
+    	
+    	System.out.println("Connexion établie : " + connecte);
+    	        
+        if(connecte)
             this.changeScreen(new MainScreen(this));            
-            return true;
-        }
-        else {
-            return false;
-        }
+ 
+        return connecte;
+
     }
 
 
     @Override
     public void deconnecter() {
+    	ctrlComClient.deconnecter();
+    	groupes = new TreeSet<Groupe>();
+    	model = new TreeSet<Groupe>();
         this.changeScreen(new ConnectionScreen(this));
     }
     
@@ -177,7 +201,10 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     @Override
     public void recevoir(Set<Groupe> listeDesGroupes) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	// Reçoit une nouvelle liste de groupes (à tout moment)
+    	groupes = new TreeSet<>();
+    	groupes.addAll(listeDesGroupes);
+    	//TODO this.updateScreen() !
     }
 
     @Override
