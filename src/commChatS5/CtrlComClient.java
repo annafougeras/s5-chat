@@ -24,7 +24,7 @@ import communication.simple.SimpleMessage.SimpleMessageDemande;
 import communication.simple.SimpleTypeMessage;
 
 /**
- * 
+ * Contrôleur réseau pour l'appli client
  */
 public class CtrlComClient implements ICtrlComClient, ObservateurComClient<SimpleMessage>{
 	

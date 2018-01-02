@@ -24,7 +24,8 @@ import communication.simple.SimpleMessage;
 
 /**
  * Contrôleur de communication authentifiée permettant de répondre 
- * aux demandes de liste des groups ou de ticket
+ * aux demandes de liste des groupes ou de ticket (appli client) et aux
+ * requêtes de l'appli admin
  */
 public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<SimpleMessage> {
 

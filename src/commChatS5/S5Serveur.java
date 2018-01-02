@@ -8,8 +8,9 @@
 package commChatS5;
 
 /**
- * Interface pour utilisateur du contrôleur de communication serveur (listener)
- * Communication client-serveur et admin-serveur
+ * Interface a implémenter par la partie logique du serveur.
+ * Primitives permettant de répondre aux demandes de connexions, de consultation
+ * ou de modification des informations de la base de données
  * 
  * Les interfaces sont divisées en :
  *  - S5ServeurClient : communication client-serveur

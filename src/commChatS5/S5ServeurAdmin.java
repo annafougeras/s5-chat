@@ -102,21 +102,21 @@ public interface S5ServeurAdmin {
 	/**
 	 * Ajouter / modifier un message
 	 * @param admin Adresse de l'administrateur effectuant la demande
-	 * @param utilisateur Le message à ajouter (nouvel id) ou a modifier (id existant)
+	 * @param message Le message à ajouter (nouvel id) ou a modifier (id existant)
 	 */
 	public void adminSetMessage(ComAdresse admin, Message message);	
 
 	/**
 	 * Ajouter / modifier un ticket
 	 * @param admin Adresse de l'administrateur effectuant la demande
-	 * @param utilisateur Le ticket à ajouter (nouvel id) ou a modifier (id existant)
+	 * @param ticket Le ticket à ajouter (nouvel id) ou a modifier (id existant)
 	 */
 	public void adminSetTicket(ComAdresse admin, Ticket ticket);	
 
 	/**
 	 * Ajouter / modifier un groupe
 	 * @param admin Adresse de l'administrateur effectuant la demande
-	 * @param utilisateur Le groupe à ajouter (nouvel id) ou a modifier (id existant)
+	 * @param groupe Le groupe à ajouter (nouvel id) ou a modifier (id existant)
 	 */
 	public void adminSetGroupe(ComAdresse admin, Groupe groupe);
 
