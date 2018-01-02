@@ -153,7 +153,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 			case REQUETE_NOUVEAU_TICKET:
 				Identifiable idGroupe = (Identifiable) args[1];
 				String titreTicket = (String) args[2];
-				String contenuPremierMessage = (String) args[2];
+				String contenuPremierMessage = (String) args[3];
 				reponse = new SimpleMessage.SimpleMessageInformation(
 						TypeMessage.INFORME_TICKET,
 						observateur.creationTicket(client, idGroupe, titreTicket, contenuPremierMessage)

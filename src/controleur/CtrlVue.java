@@ -6,7 +6,6 @@
 package controleur;
 
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.NavigableSet;
 import java.util.Observable;
@@ -30,6 +29,13 @@ import commChatS5.Identifiants;
  * @author Vincent Fougeras
  */
 public class CtrlVue extends Observable implements ICtrlVue {
+	
+	
+	public enum Notification {
+		UPDATE_JTREE;
+	}
+	
+	
 
     ICtrlComClient ctrlComClient;
     BaseScreen currentScreen;
@@ -95,6 +101,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
     	if (groupes.size() == 0)
     		getRemoteGroupes();
     	
+    	model = new TreeSet<>();
     	Iterator<Groupe> iter = groupes.iterator();
     	for (;iter.hasNext();){
     		Groupe g = iter.next();
@@ -129,13 +136,13 @@ public class CtrlVue extends Observable implements ICtrlVue {
     }
 
     @Override
-    public void addTicket(Groupe destination, String content, String title) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addTicket(Groupe destination, String title, String content) {
+    	ctrlComClient.creerTicket(destination, title, content);
     }
 
     @Override
     public void addMessage(Ticket ticket, String message) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	ctrlComClient.creerMessage(ticket, message);
     }
 
     @Override
@@ -173,9 +180,14 @@ public class CtrlVue extends Observable implements ICtrlVue {
             public void run() {
                 currentScreen.setVisible(false);
                 deleteObserver(currentScreen);
+                
+                // En séquence, sinon on risque de deleteObserver après changé currentScreen!
+                currentScreen = newScreen;
+                addObserver(currentScreen);
+                currentScreen.setVisible(true);
             }
         }); 
-        
+        /*
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -184,6 +196,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
                 currentScreen.setVisible(true);
             }
         });
+        */
     }
     
     
@@ -194,9 +207,34 @@ public class CtrlVue extends Observable implements ICtrlVue {
     */
     @Override
     public void recevoir(Ticket ticketRecu) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	
+    	System.out.println("Réception ticket : " + ticketRecu);
+    	
+    	// Le groupe parent est déjà connu
+    	if (groupes.contains(ticketRecu.getParent())) {
+    		Groupe grp = groupes.floor((Groupe) ticketRecu.getParent());
+    		
+    		// Le ticket existe déjà : on le supprime
+    		if (grp.getTicketsConnus().contains(ticketRecu)) 
+    			grp.getTicketsConnus().remove(ticketRecu);
+    		
+    		// On ajoute le nouveau ticket
+    		grp.getTicketsConnus().add(ticketRecu);
+    		System.out.println(grp.getTicketsConnus());
+    	}
+    	
+    	// Le groupe est inconnu, on demande la liste des groupes
+    	else {
+    		System.err.println("Réception d'un ticket pour un groupe inconnu");
+    		ctrlComClient.demanderTousLesGroupes();
+    	}
+    	
+        // Notifier le jTree : le modèle est mis à jour mais le JTree le prend en 
+    	// compte UNIQUEMENT si on n'a jamais déplié le volet correspondant au groupe
         
-        //this.notifyObservers();
+    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+    	//notifyObservers(Notification.UPDATE_JTREE);
+        currentScreen.update(this, Notification.UPDATE_JTREE);
     }
 
     @Override
@@ -204,7 +242,10 @@ public class CtrlVue extends Observable implements ICtrlVue {
     	// Reçoit une nouvelle liste de groupes (à tout moment)
     	groupes = new TreeSet<>();
     	groupes.addAll(listeDesGroupes);
-    	//TODO this.updateScreen() !
+
+    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+    	//notifyObservers(Notification.UPDATE_JTREE);
+        currentScreen.update(this, Notification.UPDATE_JTREE);
     }
 
     @Override
@@ -222,5 +263,9 @@ public class CtrlVue extends Observable implements ICtrlVue {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    
+    
+
+    
     
 }

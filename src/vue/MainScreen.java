@@ -5,18 +5,16 @@
  */
 package vue;
 
-import controleur.CtrlVue;
-import controleur.ICtrlVue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.NavigableSet;
 import java.util.Observable;
-import java.util.Observer;
+
 import javax.swing.JDialog;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import modele.Groupe;
-import modele.Ticket;
+
+import controleur.CtrlVue;
+import controleur.ICtrlVue;
 
 /**
  *
@@ -205,6 +203,7 @@ public class MainScreen extends BaseScreen {
     public void update(Observable o, Object o1) {
         // Unable to know which object has been updated -> update everything
         // Update ticketTree, messageList (with currently selected ticket)
+    	
        /*
         NavigableSet<Groupe> groupes = this.ctrlVue.getModel();
         
@@ -214,7 +213,24 @@ public class MainScreen extends BaseScreen {
         
         this.updateMessageList(selectedTicket);*/
                 
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	
+    	if (o1 instanceof CtrlVue.Notification){
+    		CtrlVue.Notification notification = (CtrlVue.Notification) o1;
+    		switch (notification){
+    		case UPDATE_JTREE:
+    			System.out.println(ticketTree.getModel());
+    			ticketTree.setModel(new GroupeTreeModel(ctrlVue.getModel()));
+    			ticketTree.updateUI();
+    			break;
+    		default:
+    			System.err.println("Notification inadaptée : " + notification);
+    			
+    		}
+    	}
+    	else
+    		System.err.println("Notification inadaptée : " + o1);
+    	
     }
     
 }

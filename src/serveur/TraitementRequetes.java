@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -36,6 +35,7 @@ import communication.ComAdresse;
  * 
  */
 public class TraitementRequetes implements S5Serveur {
+	public static int uniqueID = 1000;
 	
 	// Association adresse réseau / nom d'utilisateur
 	private static Map<ComAdresse,String> utilisateurs;
@@ -45,7 +45,7 @@ public class TraitementRequetes implements S5Serveur {
 	public static Message[] data_messages;
 	public static Ticket[] data_tickets;
 	public static Groupe[] data_groups;
-	
+	public static Map<String,List<Groupe>> appartenance;
 	
 	
 	
@@ -64,25 +64,40 @@ public class TraitementRequetes implements S5Serveur {
 		 */
 		
 		NavigableMap<Utilisateur, StatutDeLecture> toutLu = new TreeMap<>();
+		appartenance = new HashMap<>();
 		
 		data_groups = new Groupe[5];
-		for (int i = 0; i < 5; ++i)
+		data_groups[0] = new Groupe(0, "Tout le monde");
+		for (int i = 1; i < 5; ++i)
 			data_groups[i] = new Groupe(i, "Groupe "+i);
 		
-		data_tickets = new Ticket[5];
-		for (int i = 0; i < 5; ++i)
+		data_tickets = new Ticket[10];
+		for (int i = 0; i < 10; ++i) {
 			data_tickets[i] = new Ticket(i, "Ticket "+i, 0, new Date());
+			data_tickets[i].setParent(data_groups[i%5]);
+		}
 		
 		data_users = new Utilisateur[10];
-		for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < 10; ++i) {
 			data_users[i] = new Utilisateur(""+i, "User_"+i, "Marcel");
+			String strUser = data_users[i].getIdentifiantUnique();
+			appartenance.put(strUser, new ArrayList<Groupe>());
+			appartenance.get(strUser).add(data_groups[0]);
+			appartenance.get(strUser).add(data_groups[i%4 + 1]);
+			appartenance.get(strUser).add(data_groups[(i+1)%4 + 1]);
+		}
 		
 		data_messages = new Message[20];
 		for (int i = 0; i < 10; ++i)
-			data_messages[i] = new Message(i, data_users[i], "Coucou !", new Date(), toutLu);
+			data_messages[i] = new Message(i, data_users[i], "Coucou n°"+i+" !", new Date(), toutLu);
 		
 		for (int i = 10; i < 20; ++i)
-			data_messages[i] = new Message(i, data_users[i-10], "Réponse", new Date(), toutLu);
+			data_messages[i] = new Message(i, data_users[i-10], "Réponse n°"+i+"", new Date(), toutLu);
+		
+		// Ajout des messages sur les tickets
+		for (int i = 0; i < 20; ++i)
+			data_tickets[i%10].addMessage(data_messages[i]);
+		
 	}
 	
 	
@@ -97,7 +112,7 @@ public class TraitementRequetes implements S5Serveur {
 		System.out.println(
 				"Connexion acceptée (" + 
 				identifiants.getNom() + ", " + 
-				identifiants.getPass() + ")"
+				(String) identifiants.getPass() + ")"
 				);
 		utilisateurs.put(client, identifiants.getNom());
 		return true;
@@ -109,16 +124,23 @@ public class TraitementRequetes implements S5Serveur {
 	public Set<Groupe> demandeTousLesGroupes(ComAdresse client) {
 		// TODO Groupes
 		
-		// Données fictives : 5 groupes nommés 1, 2, 3, 4 et 5
 		
 		List<Groupe> groupes = Arrays.asList(data_groups);
 		
-		// Si l'utilisateur est 'azer', il peut lire les tickets 1, 2, 3 sur les groupes 1 et 2
-		if (utilisateurs.get(client).equals("azer")){
-			NavigableSet<Ticket> tickets = new TreeSet<>();
-			tickets.add(data_tickets[0]);
-			tickets.add(data_tickets[1]);
-			groupes.get(0).addTicketsConnus(data_tickets[0], data_tickets[1]);
+		String user = utilisateurs.get(client);
+
+		// Modifie les tickets pour coller à l'utilisateur
+		// Attention, juste pour les tests avec 1 utilisateur
+		// car les modifs sont durables et seront envoyées aussi aux autres
+		if (appartenance.containsKey(user)){
+			
+			Iterator<Groupe> iter = appartenance.get(user).iterator();
+			for (;iter.hasNext();) {
+				Groupe g = iter.next();
+				for (Ticket t: data_tickets)
+					if (t.getParent().equals(g))
+						g.addTicketConnu(t);
+			}
 		}
 		
 		return new HashSet<Groupe>(groupes);
@@ -133,8 +155,26 @@ public class TraitementRequetes implements S5Serveur {
 	@Override
 	public Ticket creationTicket(ComAdresse client, Identifiable groupe,
 			String titre, String premierMessage) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Le ticket n'est pas ajouté mais simplement renvoyé
+		
+		TreeSet<Message> messages = new TreeSet<>();
+		messages.add(
+			new Message(
+					1000,
+					new Utilisateur(""+(uniqueID++), utilisateurs.get(client), "M."),
+					premierMessage + "\n(Le message n'est pas enregistré sur le serveur)",
+					new Date(),
+					new TreeMap<Utilisateur,StatutDeLecture>()
+					)
+			);
+		Ticket t = new Ticket(
+			uniqueID++, 
+			titre, 
+			messages,
+			new Date());
+		t.setParent(groupe);
+		
+		return t;
 	}
 
 	@Override
