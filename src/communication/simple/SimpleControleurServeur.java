@@ -85,32 +85,33 @@ public class SimpleControleurServeur extends AbstractSimpleControleur
 
 	@Override
 	public void informer(SimpleMessage message, ComAdresse destinataire) {
-		// TODO Auto-generated method stub
-
+		Thread t = new Thread(new EnvoyerMessage(message, destinataire));
+		t.start();
 	}
 
 	@Override
 	public void informerTous(SimpleMessage message) {
-		// TODO Auto-generated method stub
-
+		for (ComAdresse destinataire: tousLesClients()){
+			Thread t = new Thread(new EnvoyerMessage(message, destinataire));
+			t.start();
+		}
 	}
 
 	@Override
 	public void demander(SimpleMessage message, ComAdresse destinataire) {
-		// TODO Auto-generated method stub
-
+		// Impossible de demander quoi que ce soit à l'observateur d'un client.
+		// TODO Voir si ça vaut le coup de modifier les interfaces pour une fonctionnalité inutile
 	}
 
 	@Override
 	public void demanderTous(SimpleMessage message) {
-		// TODO Auto-generated method stub
-
+		for (ComAdresse adresse: sockets.keySet())
+			demander(message, adresse);
 	}
 
 	@Override
 	public Set<ComAdresse> tousLesClients() {
-		// TODO Auto-generated method stub
-		return null;
+		return sockets.keySet();
 	}
 
 	@Override
@@ -134,6 +135,7 @@ public class SimpleControleurServeur extends AbstractSimpleControleur
 		} catch (IOException e) {
 			System.err.println("Socket client " + client + " déjà fermé");
 		}
+		sockets.remove(client);
 	}
 	
 	
@@ -219,6 +221,32 @@ public class SimpleControleurServeur extends AbstractSimpleControleur
 		}
 	}
 	
+	private class EnvoyerMessage implements Runnable {
+		
+		private SimpleMessage message;
+		private ComAdresse adresseDest;
+		
+		public EnvoyerMessage(SimpleMessage message, ComAdresse adresse){
+			this.message = message;
+			this.adresseDest = adresse;
+		}
+
+		@Override
+		public void run() {
+			Socket socket = sockets.get(adresseDest);
+			try {
+				assert(socket != null);
+				envoyerMessage(socket, message);
+			} catch (AssertionError e){
+				System.err.println("L'adresse "+adresseDest+" ne correspond pas à un client connecté");
+			}
+			catch (IOException e) {
+				System.err.println("Impossible d'envoyer le message");
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * Ecoute d'un client
 	 * SimpleControleurServeur
@@ -260,7 +288,7 @@ public class SimpleControleurServeur extends AbstractSimpleControleur
 					}
 					
 				} catch (EOFException | SocketException e){
-					System.err.println("Contrôleur: flux fermé brutalement ");
+					System.err.println("Contrôleur: flux fermé par le client ");
 					essaisRestants = 0;
 				} catch (ComException.TypeMessageException | ClassCastException e){
 					System.err.println("Contrôleur: message illisible");

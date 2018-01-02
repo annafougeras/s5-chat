@@ -24,7 +24,8 @@ import communication.simple.SimpleMessage;
 
 /**
  * Contrôleur de communication authentifiée permettant de répondre 
- * aux demandes de liste des groups ou de ticket
+ * aux demandes de liste des groupes ou de ticket (appli client) et aux
+ * requêtes de l'appli admin
  */
 public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<SimpleMessage> {
 
@@ -153,7 +154,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 			case REQUETE_NOUVEAU_TICKET:
 				Identifiable idGroupe = (Identifiable) args[1];
 				String titreTicket = (String) args[2];
-				String contenuPremierMessage = (String) args[2];
+				String contenuPremierMessage = (String) args[3];
 				reponse = new SimpleMessage.SimpleMessageInformation(
 						TypeMessage.INFORME_TICKET,
 						observateur.creationTicket(client, idGroupe, titreTicket, contenuPremierMessage)

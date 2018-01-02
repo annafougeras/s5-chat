@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableSet;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -40,6 +41,8 @@ public class TestS5Serveur {
 	 * TestS5Serveur
 	 */
 	public static class Serveur implements S5ServeurClient {
+		
+		public static int compteur = 0;
 		
 		private static int cptClient = 0;
 		private Map<ComAdresse,Utilisateur> clients = new HashMap<>();
@@ -108,14 +111,14 @@ public class TestS5Serveur {
 			System.out.println("Création de ticket par " + client);
 			NavigableSet<Message> messages = new TreeSet<>();
 			messages.add(new Message(
-					0, 
+					compteur++, 
 					clients.get(client), 
 					premierMessage, 
 					new Date(), 
 					new TreeMap<Utilisateur,StatutDeLecture>()
 					));
 			return new Ticket(
-					0, 
+					compteur++, 
 					titre, 
 					messages, 
 					new Date());
@@ -129,13 +132,19 @@ public class TestS5Serveur {
 			
 			System.out.println("Création de message par " + client);
 			Message msg = new Message(
-					0, 
+					compteur++, 
 					clients.get(client), 
 					message, 
 					new Date(), 
 					new TreeMap<Utilisateur,StatutDeLecture>()
 					);
 			msg.setParent(new KeyIdentifiable(1000));
+			
+			// Informe les autres clients du nouveau message
+			for (ComAdresse adresse: controleur.getClientsConnectes())
+				if (adresse != client)
+					controleur.informer(adresse, msg, new KeyIdentifiable(1000));
+			
 			return msg;
 		}
 
@@ -158,6 +167,23 @@ public class TestS5Serveur {
 		
 		Serveur serveur = new Serveur(port);
 		serveur.scenarioTest();
+		
+		// Reconnaît les commandes 'list' et 'exit' dans la console
+		Scanner scan = new Scanner(System.in);
+		for (String ligne = scan.nextLine();!ligne.equals("exit");ligne = scan.nextLine()){
+			switch (ligne){
+			case "list":
+				System.out.println(serveur.controleur.getClientsConnectes());
+				break;
+			case "":
+				break;
+			default:
+				System.out.println("Commande reconnues : list | exit");
+			}
+		}
+		System.out.println("fini");
+		scan.close();
+		serveur.controleur.stop();
 		
 		
 		
