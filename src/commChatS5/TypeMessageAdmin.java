@@ -8,7 +8,7 @@
 package commChatS5;
 
 /**
- * 
+ * Types de messages nécessaires au contrôleur admin
  */
 public enum TypeMessageAdmin {
 	

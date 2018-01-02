@@ -24,9 +24,9 @@ import communication.simple.SimpleMessage;
 import communication.simple.SimpleTypeMessage;
 
 /**
- * 
+ * Contrôleur réseau pour l'appli admin
  */
-public class CtrlComAdmin implements ICtrlComAdmin, ObservateurComClient<SimpleMessage> {
+public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurComClient<SimpleMessage> {
 
 	S5Admin observateur;
 	ComAdresse adresseServeur;
@@ -41,6 +41,8 @@ public class CtrlComAdmin implements ICtrlComAdmin, ObservateurComClient<SimpleM
 	
 	
 
+	// ICtrlComAdmin
+	
 	@Override
 	public boolean etablirConnexionBloquant(Identifiants identifiants) {
 		try {
@@ -225,6 +227,85 @@ public class CtrlComAdmin implements ICtrlComAdmin, ObservateurComClient<SimpleM
 	}
 
 
+	
+	
+	
+	
+
+	// ICtrlComAdmin2
+
+	@Override
+	public void executer(TAction action, TData data, Identifiable element) {
+		try {
+			switch (action){
+			case INSERER:
+			case MODIFIER:
+				switch (data){
+				case GROUPE:
+					insererGroupe((Groupe) element);
+					break;
+				case MESSAGE:
+					insererMessage((Message) element);
+					break;
+				case TICKET:
+					insererTicket((Ticket) element);
+					break;
+				case UTILISATEUR:
+					insererUtilisateur((Utilisateur) element);
+					break;
+				}
+				break;
+			case OBTENIR:
+				switch (data){
+				case GROUPE:
+					demanderGroupes();
+					break;
+				case MESSAGE:
+					demanderMessages();
+					break;
+				case TICKET:
+					demanderTickets();
+					break;
+				case UTILISATEUR:
+					demanderUtilisateurs();
+					break;
+				}
+				break;
+			case SUPPRIMER:
+				switch (data){
+				case GROUPE:
+					supprimerGroupe(element);
+					break;
+				case MESSAGE:
+					supprimerMessage(element);
+					break;
+				case TICKET:
+					supprimerTicket(element);
+					break;
+				case UTILISATEUR:
+					supprimerUtilisateur(element);
+					break;
+				}
+				break;
+			}
+		}
+		catch (ClassCastException e){
+			System.err.println("Impossible d'exécuter cette action");
+			e.printStackTrace();
+		}
+		
+	}
+
+	
+	
+	
+	
+	
+	
+	// ObservableComClient
+	
+	
+	
 	@Override
 	public void ctrlCom_connexionEtablie(boolean succes) {
 		observateur.recevoir(succes);
@@ -289,6 +370,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ObservateurComClient<SimpleM
 		
 		
 	}
+
 
 
 }
