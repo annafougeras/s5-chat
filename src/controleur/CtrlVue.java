@@ -6,13 +6,17 @@
 package controleur;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Set;
 import java.util.TreeSet;
 
 import modele.Groupe;
+import modele.Identifiable;
+import modele.KeyIdentifiable;
 import modele.Message;
 import modele.Ticket;
 import vue.BaseScreen;
@@ -32,7 +36,24 @@ public class CtrlVue extends Observable implements ICtrlVue {
 	
 	
 	public enum Notification {
-		UPDATE_JTREE;
+		UPDATE_JTREE,
+		UPDATE_MESSAGES;
+	}
+	
+	public class RunnableNotification implements Runnable {
+
+		private Observable emetteur;
+		private Notification notification;
+		
+		public RunnableNotification(Observable emetteur, Notification notification){
+			this.emetteur = emetteur;
+			this.notification = notification;
+		}
+		
+		@Override
+		public void run() {
+			currentScreen.update(emetteur, notification);
+		}
 	}
 	
 	
@@ -41,6 +62,9 @@ public class CtrlVue extends Observable implements ICtrlVue {
     BaseScreen currentScreen;
     NavigableSet<Groupe> model; /* Liste des groupes liés à l'utilisateur, qui contiennent des tickets, qui contiennent des messages ... */
     NavigableSet<Groupe> groupes; /* Liste de tous les groupes existants */
+    
+    Map<KeyIdentifiable,Groupe> groupesParId;
+    Map<KeyIdentifiable,Ticket> ticketsParId;
     
     /*
     @Override
@@ -89,6 +113,23 @@ public class CtrlVue extends Observable implements ICtrlVue {
             }
         });
     }
+    
+    
+    
+    private void majGroupes(Set<Groupe> nouveauxGroupes){
+    	groupes = new TreeSet<>();
+    	groupesParId = new HashMap<>();
+    	ticketsParId = new HashMap<>();
+    	groupes.addAll(nouveauxGroupes);
+    	for (Groupe g: groupes){
+    		groupesParId.put(new KeyIdentifiable(g.getIdentifiantUnique()), g);
+    		for (Ticket t: g.getTicketsConnus())
+    			ticketsParId.put(new KeyIdentifiable(t.getIdentifiantUnique()), t);
+    	}
+    }
+    
+    
+    
 
     /* 
         Méthodes de ICtrlVue
@@ -131,8 +172,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
     @Override
     public void getRemoteGroupes() {
     	// Demande maintenant : bloquant
-    	groupes = new TreeSet<>();
-    	groupes.addAll(ctrlComClient.demanderTousLesGroupesBloquant());
+    	majGroupes(ctrlComClient.demanderTousLesGroupesBloquant());
     }
 
     @Override
@@ -181,7 +221,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
                 currentScreen.setVisible(false);
                 deleteObserver(currentScreen);
                 
-                // En séquence, sinon on risque de deleteObserver après changé currentScreen!
+                // En séquence, sinon on risque de deleteObserver après changé currentScreen ?
                 currentScreen = newScreen;
                 addObserver(currentScreen);
                 currentScreen.setVisible(true);
@@ -208,44 +248,49 @@ public class CtrlVue extends Observable implements ICtrlVue {
     @Override
     public void recevoir(Ticket ticketRecu) {
     	
-    	System.out.println("Réception ticket : " + ticketRecu);
+    	System.out.println("Ticket reçu : " + ticketRecu);
+    	
+    	Identifiable groupeParent = new KeyIdentifiable(ticketRecu.getParent());
+    	Identifiable ticket = new KeyIdentifiable(ticketRecu);
     	
     	// Le groupe parent est déjà connu
-    	if (groupes.contains(ticketRecu.getParent())) {
-    		Groupe grp = groupes.floor((Groupe) ticketRecu.getParent());
+    	if (groupesParId.containsKey(groupeParent)) {
+    		
+    		Groupe grp = groupesParId.get(groupeParent);
     		
     		// Le ticket existe déjà : on le supprime
-    		if (grp.getTicketsConnus().contains(ticketRecu)) 
-    			grp.getTicketsConnus().remove(ticketRecu);
+    		if (ticketsParId.containsKey(ticket)) {
+    			grp.getTicketsConnus().remove(ticketsParId.get(ticket));
+    			ticketsParId.remove(ticket);
+    		}
     		
     		// On ajoute le nouveau ticket
     		grp.getTicketsConnus().add(ticketRecu);
-    		System.out.println(grp.getTicketsConnus());
+    		ticketsParId.put(new KeyIdentifiable(ticketRecu), ticketRecu);
+    		
+        	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+        	//notifyObservers(Notification.UPDATE_JTREE);
+            java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_JTREE));
     	}
     	
     	// Le groupe est inconnu, on demande la liste des groupes
     	else {
-    		System.err.println("Réception d'un ticket pour un groupe inconnu");
+    		System.out.println("Groupe inconnu -> demandé");
     		ctrlComClient.demanderTousLesGroupes();
     	}
-    	
-        // Notifier le jTree : le modèle est mis à jour mais le JTree le prend en 
-    	// compte UNIQUEMENT si on n'a jamais déplié le volet correspondant au groupe
         
-    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
-    	//notifyObservers(Notification.UPDATE_JTREE);
-        currentScreen.update(this, Notification.UPDATE_JTREE);
     }
 
     @Override
     public void recevoir(Set<Groupe> listeDesGroupes) {
     	// Reçoit une nouvelle liste de groupes (à tout moment)
-    	groupes = new TreeSet<>();
-    	groupes.addAll(listeDesGroupes);
+    	System.out.println("Liste des groupes reçue");
+    	majGroupes(listeDesGroupes);
 
     	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
     	//notifyObservers(Notification.UPDATE_JTREE);
-        currentScreen.update(this, Notification.UPDATE_JTREE);
+        java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_JTREE));
+
     }
 
     @Override
@@ -255,12 +300,38 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     @Override
     public void recevoir(Message messageRecu) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	System.out.println("Message reçu : " + messageRecu);
+    	Identifiable ticketParent = messageRecu.getParent();
+    	Identifiable groupeParent = ticketParent.getParent();
+    	
+    	if (groupesParId.containsKey(groupeParent)){
+    		
+    		if (ticketsParId.containsKey(ticketParent)){
+    			
+    			Ticket t = ticketsParId.get(ticketParent);
+    			t.addMessage(messageRecu);
+    			
+    	    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+    	    	//notifyObservers(Notification.UPDATE_JTREE);
+    	        java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_MESSAGES));
+    		}
+    		else {
+    			System.out.println("Ticket inconnu -> demandé");
+    			ctrlComClient.demanderTicket(ticketParent);
+    		}
+    	}
+    	else {
+    		System.out.println("Groupe inconnu -> demandé");
+    		System.out.println(groupesParId);
+    		ctrlComClient.demanderTousLesGroupes();
+    	}
+    	
     }
 
     @Override
     public void recevoir(Object messageInconnu) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	//TODO Faire plus ?
+    	System.err.println("Message inconnu reçu : " + messageInconnu);
     }
 
     

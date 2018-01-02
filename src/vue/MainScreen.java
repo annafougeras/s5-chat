@@ -219,17 +219,16 @@ public class MainScreen extends BaseScreen {
     		CtrlVue.Notification notification = (CtrlVue.Notification) o1;
     		switch (notification){
     		case UPDATE_JTREE:
-    			System.out.println(ticketTree.getModel());
     			ticketTree.setModel(new GroupeTreeModel(ctrlVue.getModel()));
     			ticketTree.updateUI();
     			break;
     		default:
-    			System.err.println("Notification inadaptée : " + notification);
+    			System.err.println("Notification non traitée : " + notification);
     			
     		}
     	}
     	else
-    		System.err.println("Notification inadaptée : " + o1);
+    		System.err.println("Notification non traitée : " + o1);
     	
     }
     

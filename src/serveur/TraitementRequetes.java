@@ -22,6 +22,7 @@ import java.util.TreeSet;
 
 import modele.Groupe;
 import modele.Identifiable;
+import modele.KeyIdentifiable;
 import modele.Message;
 import modele.StatutDeLecture;
 import modele.Ticket;
@@ -35,7 +36,6 @@ import communication.ComAdresse;
  * 
  */
 public class TraitementRequetes implements S5Serveur {
-	public static int uniqueID = 1000;
 	
 	// Association adresse réseau / nom d'utilisateur
 	private static Map<ComAdresse,String> utilisateurs;
@@ -46,6 +46,7 @@ public class TraitementRequetes implements S5Serveur {
 	public static Ticket[] data_tickets;
 	public static Groupe[] data_groups;
 	public static Map<String,List<Groupe>> appartenance;
+	public static int uniqueID = 1000;
 	
 	
 	
@@ -281,5 +282,7 @@ public class TraitementRequetes implements S5Serveur {
 		// TODO Auto-generated method stub
 
 	}
+	
+	
 
 }

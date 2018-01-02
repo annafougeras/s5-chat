@@ -7,8 +7,19 @@
  */
 package serveur;
 
+import java.util.Date;
 import java.util.Iterator;
+import java.util.NavigableSet;
 import java.util.Scanner;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import modele.Identifiable;
+import modele.KeyIdentifiable;
+import modele.Message;
+import modele.StatutDeLecture;
+import modele.Ticket;
+import modele.Utilisateur;
 
 import commChatS5.CtrlComServeur;
 import commChatS5.ICtrlComServeur;
@@ -45,6 +56,11 @@ public class Serveur {
 			String cmd = scan.nextLine();
 			switch (cmd){
 			
+			// Ligne vide
+			case "":
+				break;
+			
+			// Liste des clients connectés
 			case "list":
 			case "clients":
 				System.out.println("Clients connectés :");
@@ -57,14 +73,43 @@ public class Serveur {
 					System.err.println("Pas implémenté !");
 				}
 				break;
+				
+			// Créer un message fictif
+			case "new m":
+				Message msg = new Message(0, new Utilisateur("michelID", "Michoux", "Michel"),"Nouveau message !",new Date(), new TreeMap<Utilisateur,StatutDeLecture>());
+				Identifiable ticket = new KeyIdentifiable(0);
+				Identifiable groupe = new KeyIdentifiable(0);
+				ticket.setParent(groupe);
+				msg.setParent(ticket);
+				
+				for (ComAdresse client: ctrlCom.getClientsConnectes())
+					ctrlCom.informer(client, msg, ticket);
+					
+				break;
 			
+			// Créer un ticket fictif
+			case "new t":
+				Message msg1 = new Message(-10, new Utilisateur("marcelID", "Marçoux", "Marcel"), "Premier message du nouveau ticket", new Date(), new TreeMap<Utilisateur,StatutDeLecture>());
+				NavigableSet<Message> messages = new TreeSet<>();
+				messages.add(msg1);
+				Ticket t = new Ticket(-100, "Nouveau ticket", messages, new Date());
+				t.setParent(new KeyIdentifiable(0));
+				
+				for (ComAdresse client: ctrlCom.getClientsConnectes())
+					ctrlCom.informer(client, t);
+				
+				break;
+			
+			// Quitter
 			case "exit":
 			case "quit":
 				quitter = true;
 				break;
 				
+			// Défaut
 			default:
 				System.out.println("La commande "+cmd+" n'est pas reconnue");
+				System.out.println("Essayez list / new m / new t / quit");
 				break;
 			}
 		} while (!quitter);
