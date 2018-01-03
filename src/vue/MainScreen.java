@@ -15,6 +15,8 @@ import javax.swing.JScrollPane;
 
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
+import modele.Groupe;
+import modele.Ticket;
 
 /**
  *
@@ -120,9 +122,15 @@ public class MainScreen extends BaseScreen {
         jScrollPane1.setMinimumSize(new java.awt.Dimension(200, 23));
 
         ticketTree.setMaximumSize(null);
+        ticketTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                ticketTreeValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(ticketTree);
         ticketTree.setRootVisible(false);
         ticketTree.setShowsRootHandles(true);
+        ticketTree.setCellRenderer(new GroupeTreeCellRenderer());
 
         jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
@@ -180,6 +188,38 @@ public class MainScreen extends BaseScreen {
         this.ctrlVue.deconnecter();
     }//GEN-LAST:event_deconnectionMenuItemActionPerformed
 
+    /**
+     * Agit en fonction de l'item sélectionné dans le JTree (déroule le groupe, ou ouvre le ticket)
+     * @param evt 
+     */ 
+    private void ticketTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {                                        
+        if(ticketTree.getLastSelectedPathComponent() instanceof Groupe){
+            ticketTree.expandPath(evt.getNewLeadSelectionPath()); /* Ne marche pas tout le temps mais on a le double-click + le "plus" qui marchent tout le temps */
+        } else if (ticketTree.getLastSelectedPathComponent() instanceof Ticket){
+            Ticket ticket = (Ticket) ticketTree.getLastSelectedPathComponent();
+            
+            /* 
+                Ouvrir le ticket dans le panel de droite 
+            */
+            this.ctrlVue.getRemoteMessages(ticket); // Demander au controleur de mettre a jour le ticket
+            
+            // J'utilisais cette fonction auparavant pour mettre à jour les messages mais 
+            // c'est surement mieux de faire comme tu as fait (en utilisant des CtrlVue.Notification)
+            //this.updateMessageList(ticket); // Afficher les messages du ticket
+        }
+    }
+    
+    /**
+     * Retourne le ticket actuellement selectionne dans le JTree
+     * @return le ticket actuellement selectionne ou null
+     */
+    private Ticket getSelectedTicket(){
+        if (ticketTree.getLastSelectedPathComponent() instanceof Ticket){
+            Ticket ticket = (Ticket) ticketTree.getLastSelectedPathComponent();
+            return ticket;
+        }
+        return null;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTicketButton;
