@@ -23,6 +23,7 @@ import modele.Utilisateur;
 
 import commChatS5.CtrlComServeur;
 import commChatS5.ICtrlComServeur;
+import commChatS5.S5Serveur;
 import communication.ComAdresse;
 
 /**
@@ -32,7 +33,7 @@ public class Serveur {
 	
 	public static int port;
 	public static ICtrlComServeur ctrlCom;
-	public static TraitementRequetes traitReq;
+	public static S5Serveur traitReq;
 	
 	public static void main(String args[]){
 		
@@ -42,7 +43,7 @@ public class Serveur {
 		}
 		
 		port = Integer.parseInt(args[0]);
-		traitReq = new TraitementRequetes();
+		traitReq = new Instance();
 		ctrlCom = new CtrlComServeur(traitReq, port);
 		
 		System.out.println("Démarrage du serveur");

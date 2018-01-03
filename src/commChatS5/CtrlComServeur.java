@@ -118,6 +118,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 	@Override
 	public void ctrlCom_informer(ComAdresse client, SimpleMessage message) {
 		System.out.println(client + ": " + message);
+		System.out.println("Non implémenté");
 	}
 
 	@Override
