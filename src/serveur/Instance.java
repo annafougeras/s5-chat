@@ -40,6 +40,9 @@ public class Instance implements S5Serveur {
 	static final String USER = "id4146242_chats5";
 	static final String PASS = "root123";
 	*/
+	
+	
+	// DB locale
 	static final String DB_URL = "jdbc:mysql://localhost:3306/projetS5";
 	static final String USER = "s5";
 	static final String PASS = "s5";
@@ -54,6 +57,8 @@ public class Instance implements S5Serveur {
 	
 	public Instance(){
 		
+		
+		// Connexion à la db : une seule fois à l'instanciation ?
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("Connecting to database...");
@@ -123,8 +128,8 @@ public class Instance implements S5Serveur {
 		return ok;
 	}
 
-	@Override // je crois qu'il faut rajouter l'exception SQLException dans l'interface
-	// Pas d'exception SQL pour la communication réseau : il faut les traiter ici (retourne null)
+	@Override // je crois qu'il faut rajouter l'exception SQLException dans l'interface <- pas moi :-)
+	// Pas d'exception SQL pour la communication réseau : il faut les traiter ici (retourne null par exemple)
 	public Set<Groupe> demandeTousLesGroupes(ComAdresse client) {
 		Set<Groupe> retourne = new TreeSet<>();
 		try {
@@ -169,11 +174,13 @@ public class Instance implements S5Serveur {
 					int nb_msg_non_lus = 0;
 					// int nb_msg_non_lus = select count from bla bla bla
 					Date date_dernier_message = new Date();
+					// select date from blablabla
 
 					// Avec le constructeur
 					Ticket unTicket = new Ticket(id_ticket,titreTicket, nb_msg_non_lus, date_dernier_message);
 	
-	/*
+					// Ca on le ne fait pas : les tickets sont incomplets. C'est le travail de demanderTicket
+					/*
 					// Recuperation des messages pour chaque ticket
 					String sql3 = "SELECT id_message,contenu,user.id_user,nom_user,prenom_user,date_message FROM message, user WHERE message.id_user = user.id_user AND id_ticket = " + id_ticket + " ORDER BY date_message DESC";
 					ResultSet rs3 = stmt.executeQuery(sql3);
@@ -212,11 +219,12 @@ public class Instance implements S5Serveur {
 	public Ticket demandeTicket(ComAdresse client, Identifiable idTicket) {
 
 		Ticket unTicket = null;
+		// Id du client
 		String utilisateur = utilisateurs.get(client);
 		
 		try {
 			
-			// si l'utilisateur a accès au ticket...
+			// si l'utilisateur a accès au ticket alors...
 			
 			
 			//conn = null;
@@ -246,7 +254,9 @@ public class Instance implements S5Serveur {
 					// Ici on calcule les statuts de lecture pour les lecteurs du message
 					NavigableMap<Utilisateur, StatutDeLecture> statuts = null;
 	
+					// Instanciation du message
 					Message unMessage = new Message(0, emetteur, contenuMsg, dateMsg, statuts);
+					unMessage.setParent(idTicket);
 					messages.add(unMessage);
 				}
 				rs2.close();
@@ -254,14 +264,14 @@ public class Instance implements S5Serveur {
 				// On crée le ticket
 				unTicket = new Ticket(id_ticket, titreTicket, messages, dateCreationTicket);
 	
-				// On renseigne ses parents
-				// select id_groupe from blabla
+				// On renseigne son parent
 				unTicket.setParent(new KeyIdentifiable(id_groupe_parent));
 				
 			}
 			else {
 				System.err.println("Identifiant de ticket inconnu (" + id_ticket + ")");
 			}
+			
 			rs.close();
 			stmt.close();
 			//conn.close();
@@ -276,7 +286,7 @@ public class Instance implements S5Serveur {
 
 	
 	@Override // je pense qu'on devrait pas retourner le ticket + il faudrait l'utilisateur en argument pour le premier message
-	// L'utilisateur, c'est client :-)
+	// L'utilisateur, c'est le client :-)
 	public Ticket creationTicket(ComAdresse client, Identifiable groupe, String titre, String premierMessage) {
 		//int id_user = 1; // !! a modifier !! \\
 		String id_user = utilisateurs.get(client);
@@ -294,6 +304,8 @@ public class Instance implements S5Serveur {
 	
 		    statement = conn.createStatement();
 			String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, '"+titre+"', '"+dateCurrent+"', "+groupe.getIdentifiantNumeriqueUnique()+")";
+			
+			// On demande de renvoyer les clés générées
 			statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
 			
 	
@@ -312,6 +324,8 @@ public class Instance implements S5Serveur {
 			if (rs.next())
 				id_ticket = rs.getInt(1);
 	
+			// Ici problème de foreign key : la référence à l'utilisateur est son identifiant numérique (et non son identifiant alphanumérique).
+			// Pourquoi deux identifiants ?
 			String query2 = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
 	
 			PreparedStatement preparedStmt = conn.prepareStatement(query2);
@@ -378,6 +392,7 @@ public class Instance implements S5Serveur {
 
 
 
+	// Ton code d'où je tire mes copier-collers
 	/*
 	@Override // je pense qu'on devrait pas retourner le ticket + il faudrait l'utilisateur en argument pour le premier message
 	public Ticket creationTicket(ComAdresse client, Identifiable groupe, String titre, String premierMessage) {
