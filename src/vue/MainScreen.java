@@ -15,7 +15,9 @@ import javax.swing.JScrollPane;
 
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
+import java.util.ArrayList;
 import modele.Groupe;
+import modele.Message;
 import modele.Ticket;
 
 /**
@@ -104,11 +106,8 @@ public class MainScreen extends BaseScreen {
 
         jScrollPane2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        messageList.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        messageList.setModel(new MessageListModel(new ArrayList<Message>()));
+        messageList.setCellRenderer(new MessageListCellRenderer());
         jScrollPane2.setViewportView(messageList);
 
         scrollDown(jScrollPane2);
@@ -235,7 +234,7 @@ public class MainScreen extends BaseScreen {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JList<String> messageList;
+    private javax.swing.JList<Message> messageList;
     private javax.swing.JTree ticketTree;
     // End of variables declaration//GEN-END:variables
 
