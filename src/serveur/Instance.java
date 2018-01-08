@@ -13,26 +13,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import modele.Groupe;
-import modele.Identifiable;
 import modele.KeyIdentifiable;
 import modele.Message;
 import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
-import commChatS5.Identifiants;
-import commChatS5.S5Serveur;
-import communication.ComAdresse;
-
-public class Instance implements S5Serveur {
+public class Instance implements IInstance {
 	
 	static final String JDBC_DRIVER = "mysql.src.com.mysql.jdbc.Driver";  
 	
@@ -55,8 +49,9 @@ public class Instance implements S5Serveur {
 	
 	
 	
-	// On garde l'association adresse réseau / identifiant
-	Map<ComAdresse,String> utilisateurs = new HashMap<>();
+
+	private Connection conn;
+	
 	
 	
 	
@@ -92,578 +87,551 @@ public class Instance implements S5Serveur {
 			System.exit(2);
 		}
 		
-		System.out.println("mysql-connector-java-5.1.44-bin trouvé et chargé");
+		System.out.println("Connexion avec la basse de données réussie");
 	}
 	
 	
-	/* MAIN
-	   public static void main(String[] args) {
-		   Connection conn = null;
-		   Statement stmt = null;
-		   try{
-		      //STEP 2: Register JDBC driver
-		      Class.forName("mysql.src.com.mysql.jdbc.Driver");
-
-		      //STEP 3: Open a connection
-		      System.out.println("Connecting to database...");
-		      conn = DriverManager.getConnection(DB_URL,USER,PASS);
-
-		   }catch(SQLException se){
-		      //Handle errors for JDBC
-		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		      try{
-		         if(stmt!=null)
-		            stmt.close();
-		      }catch(SQLException se2){
-		      }// nothing we can do
-		      try{
-		         if(conn!=null)
-		            conn.close();
-		      }catch(SQLException se){
-		         se.printStackTrace();
-		      }//end finally try
-		   }//end try
-		   System.out.println("Fin");
-	   }
+	
+	
+	
+	
+	
+	/* FONCTIONS PUREMENT SQL */
+	
+	/**
+	 * Vérifie un couple d'identifiants pour la connexion, renvoie l'id de l'utilisateur ou -1
+	 * @param nom
+	 * @param pass
+	 * @return -1 si connexion refusée, l'identifiant numérique de l'utilisateur si connexion acceptée
+	 * @throws SQLException
 	 */
-	private Connection conn;
-
-	@Override // pour cette methode du coup faudrait créer une table spéciale (ou un champ reservé à ça, voir ça avec pierre)
-	public boolean demandeConnexion(ComAdresse client, Identifiants identifiants) {
-		// select * from users where nickname=identifiants.getNom() and pass=identifiants.getPass()
-		// if ok :
-		boolean ok = true;
+	public int sqlConnexion(String nom, String pass) throws SQLException {
+		return 1;
+	}
+	
+	/**
+	 * Vérifie un couple d'identifiants pour la connexion ADMIN, renvoie l'id de l'utilisateur ou -1
+	 * @param nom
+	 * @param pass
+	 * @return -1 si connexion refusée, l'identifiant numérique de l'utilisateur si connexion acceptée
+	 * @throws SQLException
+	 */
+	public int sqlConnexionAdmin(String nom, String pass) throws SQLException {
+		return 1;
+	}
+	
+	/**
+	 * Construit un utilisateur d'après son id numérique
+	 * @param id Identifiant de l'utilisateur
+	 * @return Utilisateur
+	 * @throws SQLException
+	 */
+	public Utilisateur sqlSelectUtilisateur(int id) throws SQLException {	
 		
-		// On garde l'association ComAdresse/id
-		if (ok)
-			utilisateurs.put(client, identifiants.getNom());
-		return ok;
+		Utilisateur u;
+		String sql = "SELECT * FROM user WHERE id_user ="+ id +" LIMIT 1";
+		
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		
+		// à mettre en getInt si on décide de changer le constructeur d'utilisateur
+		u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
+	
+		return u;
+	}
+	
+	/**
+	 * Select de tous les utilisateurs
+	 * @return Set
+	 * @throws SQLException
+	 */
+	public Set<Utilisateur> sqlSelectUtilisateurs() throws SQLException {	
+		Set<Utilisateur> retourne = new TreeSet<>();
+		String sql = "SELECT id_user, nom_user, prenom_user FROM user";
+		
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()) {
+			Utilisateur u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
+			retourne.add(u);
+		}
+		return retourne;
+	}
+	
+	/**
+	 * Construit un message d'après son id après avoir vérifié que l'utilisateur peut le consulter
+	 * @param idMsg Id du message
+	 * @return Le message demandé, ou null
+	 * @throws SQLException
+	 */
+	public Message sqlSelectMessage(int idMsg, int idUser) throws SQLException {
+		
+		//TODO sql peut consulter le message ?
+		boolean messageVisible = true;
+		
+		if (!messageVisible) 
+			return null;
+		
+		return sqlSelectMessage(idMsg);
+		
+	}
+	
+	/**
+	 * Construit un message d'après son id
+	 * @param idMsg Id du message
+	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @return Le message demandé, ou null
+	 * @throws SQLException
+	 */
+	public Message sqlSelectMessage(int idMsg) throws SQLException {
+		
+		String sql = "SELECT * FROM message WHERE id_message ="+ idMsg +" LIMIT 1";
+		
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		Utilisateur u = new Utilisateur(rs.getString("id_user"),"nom","prenom");
+		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), null);
+		return retourne;
+	}
+	
+	
+	/**
+	 * Construit l'ensemble de tous les messages
+	 * @return
+	 * @throws SQLException
+	 */
+	public Set<Message> sqlSelectMessages() throws SQLException {
+		Set<Message> retourne = new TreeSet<>();
+		String sql = "SELECT * FROM message";
+		
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		while(rs.next()) {
+			Utilisateur u = new Utilisateur(rs.getString("id_user"),"nom","prenom");
+			Message mess = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), null);	
+			retourne.add(mess);
+		}
+		return retourne;
+	}
+	
+	/**
+	 * Construit un ticket incomplet (avec uniquement le nombre de messages non lus, et la date du dernier)
+	 * @param idTicket Id du ticket
+	 * @param idUser Id de l'utilisateur faisant la demande
+	 * @return Le ticket, ou null
+	 * @throws SQLException
+	 */
+	public Ticket sqlSelectTicketIncomplet(int idTicket, int idUser) throws SQLException {
+		return null;
+	}
+	
+	/**
+	 * Construit un ticket complet (avec tous les messages)
+	 * @param idTicket Id du ticket
+	 * @param idUser Id de l'utilisateur faisant la demande
+	 * @return Le ticket, ou null
+	 * @throws SQLException
+	 */
+	
+	public Ticket sqlSelectTicket(int idTicket, int idUser) throws SQLException {
+
+		//TODO SQL : ticket visible par le client ?
+		boolean ticketVisibleParLeClient = true;
+		
+		if (!ticketVisibleParLeClient)
+			return null;
+		
+		return sqlSelectTicket(idTicket);
 	}
 
-	@Override // je crois qu'il faut rajouter l'exception SQLException dans l'interface <- pas moi :-)
-	// Pas d'exception SQL pour la communication réseau : il faut les traiter ici (retourne null par exemple)
-	public Set<Groupe> demandeTousLesGroupes(ComAdresse client) {
-		Set<Groupe> retourne = new TreeSet<>();
-		try {
-			//conn = null;
-			Statement stmt = null;
-			System.out.println(" ** Select groupes ** ");
-			stmt = conn.createStatement();
-			String sql = "SELECT id_groupe, nom_groupe FROM groupe";
-			System.out.println("Execute query...");
-			ResultSet rs = stmt.executeQuery(sql);
+	@Override
+	public Ticket sqlSelectTicket(int idTicket) throws SQLException {
+
+		Ticket t;
+		
+		
+		Statement stmt = null;
+		System.out.println(" ** Select ticket ** ");
+		stmt = conn.createStatement();
+		String sql = "SELECT * FROM ticket WHERE id_ticket = " + idTicket + " LIMIT 1";
+		ResultSet rs = stmt.executeQuery(sql);
+		
+		if(rs.next()){
+			Date dateCreationTicket = rs.getDate("creation_ticket");
+			String titreTicket = rs.getString("titre_ticket");
+			int id_groupe_parent = rs.getInt("id_groupe");
+			NavigableSet<Message> messages = new TreeSet<Message>();
+
+			String sql2 = "SELECT id_message,contenu,user.id_user,nom_user,prenom_user,date_message FROM message, user WHERE message.id_user = user.id_user AND id_ticket = " + idTicket + " ORDER BY date_message DESC";
+
+			Statement stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(sql2);
+
+			while(rs2.next()){
+				String contenuMsg = rs2.getString("contenu");
+				Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+				Date dateMsg = rs2.getDate("date_message");
+				
+				//TODO SQL Calcul des statuts de lecture pour les lecteurs du message
+				NavigableMap<Utilisateur, StatutDeLecture> statuts = new TreeMap<>();;
+
+				// Instanciation du message
+				Message unMessage = new Message(0, emetteur, contenuMsg, dateMsg, statuts);
+				unMessage.setParent(new KeyIdentifiable(idTicket));
+				messages.add(unMessage);
+			}
+			rs2.close();
 			
+			// On crée le ticket
+			t = new Ticket(idTicket, titreTicket, messages, dateCreationTicket);
+
+			// On renseigne son parent
+			t.setParent(new KeyIdentifiable(id_groupe_parent));
+			
+		}
+		else {
+			t = null;
+		}
+		
+		rs.close();
+		stmt.close();
 	
-			while(rs.next()){
-				
-				int id_groupe = rs.getInt("id_groupe");
-				String nom_groupe = rs.getString("nom_groupe");
-				
-				// Plus simple de créer avec le constructeur (et pareil tout le long)
-				Groupe unGroupe = new Groupe(id_groupe, nom_groupe);
+		
+		return t;
+	}
 	
 	
-				// On ajoute les tickets si l'utilisateur appartient au groupe
-				// ou s'il a créé le ticket.
-				// On aurait dû garder le champ 'créateur_ticket', ç'aurait été plus simple :-)
-				// Mais c'est aussi l'émetteur du premier message
-				
-				String utilisateur = utilisateurs.get(client);
-				
-				// if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
-				
-				// Recuperation des tickets pour chaque groupe
+	
+	public Set<Ticket> sqlSelectTickets() throws SQLException {
+
+		Set<Ticket> retourne = new TreeSet<>();
+		String sql = "SELECT * FROM ticket";
+		
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		
+		
+		while(rs.next()) {
+			// Recuperation des messages pour chaque ticket (juste l'id suffit pour cette méthode)
+			NavigableSet<Message> messages = new TreeSet<Message>();
+			String sql2 = "SELECT id_message FROM message WHERE id_ticket = " + rs.getShort("id_ticket") + " LIMIT 1";
+	
+			Statement stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(sql2);
+	
+			while(rs2.next()){
+				Message unMessage = new Message(rs2.getInt("id_message"), null, null, null, null);
+				messages.add(unMessage);
+			}
+			Ticket t = new Ticket(rs.getShort("id_ticket"), rs.getString("titre_ticket"), messages, rs.getDate("creation_ticket"));
+			retourne.add(t);
+		}
+
+		return retourne;
+	}
+	
+	
+	
+	/**
+	 * Construit un groupe incomplet (contenant des tickets incomplets)
+	 * @param idGroupe Id du groupe
+	 * @param nomGroupe Nom du groupe
+	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @return Le groupe, ou null
+	 * @throws SQLException
+	 */
+	public Groupe sqlSelectGroupe(int idGroupe, String nomGroupe, int idUser) throws SQLException {
+		return null;
+	}
+	
+	/**
+	 * Construit la liste de tous les groupes (incomplets)
+	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @return
+	 * @throws SQLException
+	 */
+	public NavigableSet<Groupe> sqlSelectGroupes(int idUser) throws SQLException {
+		NavigableSet<Groupe> retourne = new TreeSet<>();
+		Statement stmt = null;
+		
+		System.out.println(" ** Select groupes ** ");
+		stmt = conn.createStatement();
+		String sql = "SELECT id_groupe, nom_groupe FROM groupe";
+		System.out.println("Execute query...");
+		ResultSet rs = stmt.executeQuery(sql);
+		
+		while(rs.next()){
+			
+			int id_groupe = rs.getInt("id_groupe");
+			String nom_groupe = rs.getString("nom_groupe");
+			
+			// Plus simple de créer avec le constructeur (et pareil tout le long)
+			Groupe unGroupe = new Groupe(id_groupe, nom_groupe);
+
+
+			// On ajoute les tickets si l'utilisateur appartient au groupe
+			// ou s'il a créé le ticket.
+			// On aurait dû garder le champ 'créateur_ticket', ç'aurait été plus simple :-)
+			// Mais c'est aussi l'émetteur du premier message
+			//TODO SQL :  if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
+			boolean groupeVisibleParLeClient = true;
+			
+			if (groupeVisibleParLeClient){
+			
+				// Recuperation des tickets pour le groupe
 				// On renvoie des tickets incomplets (sans les messages)
 				String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
 				Statement stmt2 = conn.createStatement();
 				ResultSet rs2 = stmt2.executeQuery(sql2);
 				while(rs2.next()){
 					int id_ticket = rs2.getInt("id_ticket");
-					//Date dateCreation = rs2.getDate("creation_ticket");
 					String titreTicket = rs2.getString("titre_ticket");
-					//NavigableSet<Message> messages = new TreeSet<Message>();
 					
+					//TODO SQL : nombre de messages non lus, date dernier message
 					int nb_msg_non_lus = 0;
-					// int nb_msg_non_lus = select count from bla bla bla
 					Date date_dernier_message = new Date();
-					// select date from blablabla
 
-					// Avec le constructeur
 					Ticket unTicket = new Ticket(id_ticket,titreTicket, nb_msg_non_lus, date_dernier_message);
 	
-					// Ca on le ne fait pas : les tickets sont incomplets. C'est le travail de demanderTicket
-					/*
-					// Recuperation des messages pour chaque ticket
-					String sql3 = "SELECT id_message,contenu,user.id_user,nom_user,prenom_user,date_message FROM message, user WHERE message.id_user = user.id_user AND id_ticket = " + id_ticket + " ORDER BY date_message DESC";
-					ResultSet rs3 = stmt.executeQuery(sql3);
-					while(rs3.next()){
-						int idMsg = rs3.getInt("id_message");
-						String texteMsg = rs3.getString("contenu");
-						Utilisateur emetteur = new Utilisateur(rs3.getString("id_user"), rs3.getString("nom_user"), rs3.getString("prenom_user"));
-						Date dateEmission = rs3.getDate("date_message");
-						
-						// Avec le constructeur
-						Message unMessage = new Message(idMsg, emetteur, texteMsg, dateEmission, null);
-						unTicket.addMessage(unMessage);
-					}
-					rs3.close();
-					*/
 					unGroupe.addTicketConnu(unTicket);
 				}
 				stmt2.close();
 				rs2.close();
-				retourne.add(unGroupe);
-
-			}		
-			rs.close();
-			stmt.close();
-			//conn.close();
-		}
-		catch (SQLException e){
-			e.printStackTrace();
-		}
+			}
+			retourne.add(unGroupe);
+		}		
+		rs.close();
+		stmt.close();
+		
 		return retourne;
 	}
 
 
 
-	@Override
-	public Ticket demandeTicket(ComAdresse client, Identifiable idTicket) {
 
-		Ticket unTicket = null;
-		// Id du client
-		String utilisateur = utilisateurs.get(client);
+
+
+
+
+
+
+
+
+	@Override
+	public int sqlInsertGroupe(String nom) throws SQLException {
+
+	    Statement statement = conn.createStatement();
+	    String query;
+	   	query = "INSERT INTO groupe (id_groupe, nom_groupe) VALUES (NULL, "+ nom +")";
+	  	statement.executeUpdate(query);	
 		
-		try {
-			
-			// si l'utilisateur a accès au ticket alors...
-			
-			
-			//conn = null;
-			Statement stmt = null;
-			System.out.println(" ** Select ticket ** ");
-			stmt = conn.createStatement();
-			int id_ticket = idTicket.getIdentifiantNumeriqueUnique();
-			String sql = "SELECT * FROM ticket WHERE id_ticket = " + id_ticket + " LIMIT 1";
-			ResultSet rs = stmt.executeQuery(sql);
-			if(rs.next()){
-				Date dateCreationTicket = rs.getDate("creation_ticket");
-				String titreTicket = rs.getString("titre_ticket");
-				int id_groupe_parent = rs.getInt("id_groupe");
-				NavigableSet<Message> messages = new TreeSet<Message>();
-	
-				// Recuperation des messages pour chaque ticket
-				String sql2 = "SELECT id_message,contenu,user.id_user,nom_user,prenom_user,date_message FROM message, user WHERE message.id_user = user.id_user AND id_ticket = " + id_ticket + " ORDER BY date_message DESC";
-	
-				Statement stmt2 = conn.createStatement();
-				ResultSet rs2 = stmt2.executeQuery(sql2);
-	
-				while(rs2.next()){
-					String contenuMsg = rs2.getString("contenu");
-					Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
-					Date dateMsg = rs2.getDate("date_message");
-					
-					// Ici on calcule les statuts de lecture pour les lecteurs du message
-					NavigableMap<Utilisateur, StatutDeLecture> statuts = null;
-	
-					// Instanciation du message
-					Message unMessage = new Message(0, emetteur, contenuMsg, dateMsg, statuts);
-					unMessage.setParent(idTicket);
-					messages.add(unMessage);
-				}
-				rs2.close();
-				
-				// On crée le ticket
-				unTicket = new Ticket(id_ticket, titreTicket, messages, dateCreationTicket);
-	
-				// On renseigne son parent
-				unTicket.setParent(new KeyIdentifiable(id_groupe_parent));
-				
-			}
-			else {
-				System.err.println("Identifiant de ticket inconnu (" + id_ticket + ")");
-			}
-			
-			rs.close();
-			stmt.close();
-			//conn.close();
-		}
-		catch (SQLException e){
-			e.printStackTrace();
-		}
-		
-		return unTicket;
+		//TODO récupérer l'id
+		return 0;
 	}
 
 
-	
-	@Override // je pense qu'on devrait pas retourner le ticket + il faudrait l'utilisateur en argument pour le premier message
-	// L'utilisateur, c'est le client :-)
-	public Ticket creationTicket(ComAdresse client, Identifiable groupe, String titre, String premierMessage) {
-		//int id_user = 1; // !! a modifier !! \\
-		String id_user = utilisateurs.get(client);
+
+
+
+
+
+	@Override
+	public int sqlInsertUtilisateur(String nom, String prenom, String nickname,
+			String pass) throws SQLException {
+	    Statement statement = conn.createStatement();
+		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
+				+ "VALUES (NULL, NULL,'"+nickname+"', '"+nom+"', "+prenom+")";
+		statement.executeUpdate(query);
 		
-		Ticket unTicket = null;
+		//TODO récupérer l'id
+		return 0;
+	}
+
+
+
+
+
+
+
+	@Override
+	public int sqlInsertTicket(String titre, String premierMessage, int idUser, int idGroupe)
+			throws SQLException {
 		
-		try {
+		Statement statement = null;
+		System.out.println(" ** insert ticket ** ");
+	    java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
+
+	    statement = conn.createStatement();
+		String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, '"+titre+"', '"+dateCurrent+"', "+idGroupe+")";
+		
+		// On demande de renvoyer les clés générées
+		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+
+		ResultSet rs = statement.getGeneratedKeys();
+		int id_ticket = 0;
+		if (rs.next()) {
+			id_ticket = rs.getInt(1);
 			
-			//conn = null;
-			Statement statement = null;
-			System.out.println(" ** insert ticket ** ");
-			//SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			//Calendar calendar = Calendar.getInstance();
-		    java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
+			// sqlInsertMessage() ?
+		
 	
-		    statement = conn.createStatement();
-			String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, '"+titre+"', '"+dateCurrent+"', "+groupe.getIdentifiantNumeriqueUnique()+")";
-			
-			// On demande de renvoyer les clés générées
-			statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-			
-	
-			/* au cas où l'autre methode d'insertion est moins fiable (même si elle est plus simple pour la recupération de l'AI
-			String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, ?, ?, ?)";
-	
-			PreparedStatement preparedStmt = conn.prepareStatement(query);
-			preparedStmt.setString (1, titre);
-			preparedStmt.setDate (2, DateCurrent);
-			preparedStmt.setInt (3, groupe.getIdentifiantNumeriqueUnique());
-			preparedStmt.execute();
-			 */
-	
-			ResultSet rs = statement.getGeneratedKeys(); // cette ligne c'est pour avoir le numero du dernier auto increment du ticket créer
-			int id_ticket = 0;
-			if (rs.next())
-				id_ticket = rs.getInt(1);
-	
-			// Ici problème de foreign key : la référence à l'utilisateur est son identifiant numérique (et non son identifiant alphanumérique).
-			// Pourquoi deux identifiants ?
 			String query2 = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
 	
 			PreparedStatement preparedStmt = conn.prepareStatement(query2);
 			preparedStmt.setInt (1, id_ticket);
-			preparedStmt.setString (2, id_user);
+			preparedStmt.setInt (2, idUser);
 			preparedStmt.setString (3, premierMessage);
 			preparedStmt.setDate (4, dateCurrent);
 			preparedStmt.execute();
 	
-			unTicket = demandeTicket(client, new KeyIdentifiable(id_ticket));
 			
-			//conn.close();
-		}
-		catch (SQLException e){
-			e.printStackTrace();
 		}
 
-		return unTicket; // à potentiellement enlevé si on décide de ne pas renvoyer le ticket finalement
+		return id_ticket;
 	}
+
+
+
+
+
+
 
 	@Override
-	public Message creationMessage(ComAdresse client, Identifiable ticket,
-			String message) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Utilisateur adminDemandeUtilisateur(ComAdresse admin,
-			Identifiable idUtilisateur) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Utilisateur> adminDemandeUtilisateurs(ComAdresse admin) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Message adminDemandeMessage(ComAdresse admin, Identifiable idMessage) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Message> adminDemandeMessages(ComAdresse admin) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Ticket adminDemandeTicket(ComAdresse admin, Identifiable idTicket) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<Ticket> adminDemandeTickets(ComAdresse admin) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
-	// Ton code d'où je tire mes copier-collers
-	/*
-	@Override // je pense qu'on devrait pas retourner le ticket + il faudrait l'utilisateur en argument pour le premier message
-	public Ticket creationTicket(ComAdresse client, Identifiable groupe, String titre, String premierMessage) {
-		int id_user = 1; // !! a modifier !! \\
+	public int sqlInsertMessage(String contenu, int idUser, int idTicket)
+			throws SQLException {	
+		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
+		String query = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
 		
-		conn = null;
-		Statement statement = null;
-		System.out.println(" ** insert ticket ** ");
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Calendar calendar = Calendar.getInstance();
-	    java.sql.Date DateCurrent = new java.sql.Date(calendar.getTime().getTime());
-
-	    statement = conn.createStatement();
-		String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, "+titre+", "+DateCurrent+", "+groupe.getIdentifiantNumeriqueUnique()+")";
-		statement.executeUpdate(query);
-*/
-		/* au cas où l'autre methode d'insertion est moins fiable (même si elle est plus simple pour la recupération de l'AI
-		String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, ?, ?, ?)";
-
-		PreparedStatement preparedStmt = conn.prepareStatement(query);
-		preparedStmt.setString (1, titre);
-		preparedStmt.setDate (2, DateCurrent);
-		preparedStmt.setInt (3, groupe.getIdentifiantNumeriqueUnique());
+		PreparedStatement preparedStmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		preparedStmt.setInt (1, idTicket);
+		preparedStmt.setInt(2, idUser);
+		preparedStmt.setString (3, contenu);
+		preparedStmt.setDate (4, dateCurrent);
 		preparedStmt.execute();
-		 */
+		
+		ResultSet rs = preparedStmt.getGeneratedKeys();
+		int idMsg = 0;
+		if (rs.next())
+			idMsg = rs.getInt(1);
+		
+		return idMsg;
+		
 /*
-		ResultSet rs = statement.getGeneratedKeys(); // cette ligne c'est pour avoir le numero du dernier auto increment du ticket créer
-		int id_ticket = rs.getInt(1);
-
-		String query2 = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
-
-		PreparedStatement preparedStmt = conn.prepareStatement(query2);
-		preparedStmt.setInt (1, id_ticket);
-		preparedStmt.setInt (2, id_user);
-		preparedStmt.setString (3, premierMessage);
-		preparedStmt.setDate (4, DateCurrent);
-		preparedStmt.execute();
-
-		conn.close();
-		return unTicket; // à potentiellement enlevé si on décide de ne pas renvoyer le ticket finalement
-	}
-
-	@Override // pareil ici il faut l'id_user pour pouvoir créer le message
-	public Message creationMessage(ComAdresse client, Identifiable ticket, String message) throws SQLException {
-		int id_user = 1; // !! a modifier !! \\
-		
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Calendar calendar = Calendar.getInstance();
-	    java.sql.Date DateCurrent = new java.sql.Date(calendar.getTime().getTime());
-
-		String query2 = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
-		
-		PreparedStatement preparedStmt = conn.prepareStatement(query2);
-		preparedStmt.setInt (1, ticket.getIdentifiantNumeriqueUnique());
-		preparedStmt.setInt (2, id_user);
-		preparedStmt.setString (3, message);
-		preparedStmt.setDate (4, DateCurrent);
-		preparedStmt.execute();
-
-		preparedStmt.close();
-		conn.close();
-		return null;
-	}
-
-	@Override
-	public Utilisateur adminDemandeUtilisateur(ComAdresse admin, Identifiable idUtilisateur) throws SQLException {
-		conn = null;
-		Statement stmt = null;
-		stmt = conn.createStatement();
-		String sql = "SELECT nom_user, prenom_user FROM user WHERE id_user = "+idUtilisateur.getIdentifiantNumeriqueUnique()+" LIMIT 1";
-		ResultSet rs = stmt.executeQuery(sql);
-		
-		// ce serait peut être plus judicieux que l'identifiant unique soit l'id_user dans la bdd (donc un int et pas un string, à méditer)
-		Utilisateur user = new Utilisateur(idUtilisateur.getIdentifiantUnique(),rs.getString("nom_user"),rs.getString("prenom_user"));
-
-		rs.close();
-		conn.close();
-		return user;
-	}
-
-	@Override
-	public Set<Utilisateur> adminDemandeUtilisateurs(ComAdresse admin) throws SQLException {
-		Set<Utilisateur> listeUser = new TreeSet<>();
-		conn = null;
-		Statement stmt = null;
-		stmt = conn.createStatement();
-		String sql = "SELECT id_user, nom_user, prenom_user FROM user";
-		ResultSet rs = stmt.executeQuery(sql);
-		
-		// j'ai mis l'idUnique en string pour satisfaire le prototype mais c'est un int dans la bdd, ça m'étonnerait que ça marche si facilement
-		listeUser.add(new Utilisateur(rs.getString("id_user"),rs.getString("nom_user"),rs.getString("prenom_user")));
-		
-		stmt.close();
-		conn.close();
-		return listeUser;
-	}
-
-	@Override
-	public Message adminDemandeMessage(ComAdresse admin, Identifiable idMessage) throws SQLException {
-		conn = null;
-		Statement stmt = null;
-
-		String sql = "SELECT id_message,contenu,user.id_user,nom_user,prenom_user,date_message FROM message, user WHERE message.id_user = user.id_user AND id_message = " + idMessage.getIdentifiantNumeriqueUnique() + " LIMIT 1";
-		ResultSet rs = stmt.executeQuery(sql);
-
-		Message unMessage;
-		unMessage.setTexte(rs.getString("contenu"));
-		unMessage.setEmetteur(new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user")));
-		unMessage.setDateEmission(rs.getDate("date_message"));
-
-		rs.close();
-		conn.close();
-		return unMessage;
-	}
-
-	@Override
-	public Set<Message> adminDemandeMessages(ComAdresse admin) throws SQLException {
-		conn = null;
-		Statement stmt = null;
-
-		Set<Message> listeMessages = new TreeSet<>();
-
-		String sql = "SELECT contenu,user.id_user,nom_user,prenom_user,date_message FROM message,user WHERE user.id_user = message.id_user";
-		ResultSet rs = stmt.executeQuery(sql);
-		
-		while(rs.next()) {
-			Message unMessage;
-			unMessage.setTexte(rs.getString("contenu"));
-			unMessage.setEmetteur(new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user")));
-			unMessage.setDateEmission(rs.getDate("date_message"));
-			listeMessages.add(unMessage);
+ * Fait le même travail ?
+		@Override // manque l'id du ticket concerné (manque trop d'infos ou alors j'ai pas compris ce qu'elle doit faire)
+		public void adminSetMessage(ComAdresse admin, Message message) {
+		    java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
+		    Statement statement = conn.createStatement();
+			String query = "INSERT INTO user (id_message, id_ticket, id_user, contenu, date_message) "
+					+ "VALUES (NULL, NULL, NULL, '"+message.getTexte()+"', "+dateCurrent+")";
+			statement.executeUpdate(query);
 		}
-		rs.close();
-		conn.close();
-		return listeMessages;
+*/		
 	}
 
-	@Override
-	public Ticket adminDemandeTicket(ComAdresse admin, Identifiable idTicket) throws SQLException {
-		conn = null;
-		Statement stmt = null;
-		System.out.println(" ** Select ticket ** ");
-		stmt = conn.createStatement();
 
-		int id_ticket = idTicket.getIdentifiantNumeriqueUnique();
-		Ticket unTicket;
 
-		String sql = "SELECT * FROM ticket WHERE id_ticket = " + id_ticket + " LIMIT 1";
-		ResultSet rs = stmt.executeQuery(sql);
-		if(rs.next()){
-			unTicket.setDateCreation(rs.getDate("creation_ticket"));
-			unTicket.setTitre(rs.getString("titre_ticket"));
-			NavigableSet<Message> messages = new TreeSet<Message>();
 
-			// Recuperation des messages pour le ticket
-			String sql2 = "SELECT id_message,contenu,user.id_user,nom_user,prenom_user,date_message FROM message, user WHERE message.id_user = user.id_user AND id_ticket = " + id_ticket + " ORDER BY date_message DESC";
-			ResultSet rs2 = stmt.executeQuery(sql2);
-			while(rs2.next()){
-				Message unMessage;
-				unMessage.setTexte(rs2.getString("contenu"));
-				unMessage.setEmetteur(new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user")));
-				unMessage.setDateEmission(rs2.getDate("date_message"));
-				messages.add(unMessage);
-			}
-			rs2.close();
-			unTicket.addMessages(messages);
-		}
-		rs.close();
-		stmt.close();
-		conn.close();
-		return unTicket;
-	}
+
+
 
 	@Override
-	public Set<Ticket> adminDemandeTickets(ComAdresse admin) throws SQLException {
-		conn = null;
-		Statement stmt = null;
-
-		Set<Message> listeTickets = new TreeSet<>();
-
-		String sql = "SELECT id_ticket FROM ticket";
-		ResultSet rs = stmt.executeQuery(sql);
+	public int sqlUpdateGroupe(int id, String nom) throws SQLException {
+	    Statement statement = conn.createStatement();
+	    String query;
+    	query = "UPDATE groupe SET nom_groupe = \""+ nom +"\" WHERE id_groupe = "+ id +" LIMIT 1";
+		statement.executeUpdate(query);	
 		
-		while(rs.next()) {
-			// ici j'ai un problème quand j'ai voulu me faciliter le travail, je ne peux pas instancier d'objet "Identifiable" :/
-			Ticket unTicket = adminDemandeTicket(admin,rs.getInt("id_ticket"));
-			listeTickets.add(unTicket);
-		}
-		rs.close();
-		conn.close();
-		return listeTickets;
+		return id;
 	}
-	*/
+
+
+
+
+
+
 
 	@Override
-	public Groupe adminDemandeGroupe(ComAdresse admin, Identifiable idGroupe) {
+	public int sqlUpdateUtilisateur(int id, String nom, String prenom,
+			String nickname, String pass) throws SQLException {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
+
+
 	@Override
-	public Set<Groupe> adminDemandeGroupes(ComAdresse admin) {
+	public int sqlUpdateTicket(int idTicket, String titre, int idUser,
+			int idGroupe) throws SQLException {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
+
+
 	@Override
-	public void adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur) {
+	public int updateMessage(int idMsg, String contenu, int idUser,
+			int idTicket) throws SQLException {
 		// TODO Auto-generated method stub
-		
+		return 0;
 	}
 
-	@Override
-	public void adminSetMessage(ComAdresse admin, Message message) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	@Override
-	public void adminSetTicket(ComAdresse admin, Ticket ticket) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void adminSetGroupe(ComAdresse admin, Groupe groupe) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void adminSupprimerUtilisateur(ComAdresse admin, Identifiable idUtilisateur) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void adminSupprimerMessage(ComAdresse admin, Identifiable idMessage) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void adminSupprimerTicket(ComAdresse admin, Identifiable idTicket) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void adminSupprimerGroupe(ComAdresse admin, Identifiable idGroupe) {
+	public void sqlRejoindreGroupe(int idUser, int idGroupe)
+			throws SQLException {
 		// TODO Auto-generated method stub
 		
 	}
 
 
 
+	@Override
+	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public void deleteGroupe(int id) throws SQLException {
+	    Statement statement = conn.createStatement();
+		String query = "DELETE FROM groupe WHERE id_groupee = "+id+" LIMIT 1";
+		statement.executeUpdate(query);
+	}
+
+
+
+	@Override
+	public void deleteTicket(int id) throws SQLException {
+	    Statement statement = conn.createStatement();
+		String query = "DELETE FROM ticket WHERE id_ticket = "+id+" LIMIT 1";
+		statement.executeUpdate(query);
+	}
+
+
+
+	@Override
+	public void deleteMessage(int id) throws SQLException {
+	    Statement statement = conn.createStatement();
+		String query = "DELETE FROM message WHERE id_message = "+id+" LIMIT 1";
+		statement.executeUpdate(query);
+	}
+
+
+	@Override
+	public void deleteUtilisateur(int id) throws SQLException {
+	    Statement statement = conn.createStatement();
+		String query = "DELETE FROM user WHERE id_user = "+id+" LIMIT 1";
+		statement.executeUpdate(query);
+	}
+	
+	
+	
+	
+	
+	
 }
+
