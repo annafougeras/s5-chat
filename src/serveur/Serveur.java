@@ -23,6 +23,7 @@ import modele.Utilisateur;
 
 import commChatS5.CtrlComServeur;
 import commChatS5.ICtrlComServeur;
+import commChatS5.S5Serveur;
 import communication.ComAdresse;
 
 /**
@@ -32,17 +33,30 @@ public class Serveur {
 	
 	public static int port;
 	public static ICtrlComServeur ctrlCom;
-	public static TraitementRequetes traitReq;
+	public static S5Serveur traitReq;
 	
 	public static void main(String args[]){
 		
-		if (args.length != 1){
-			System.err.println("Argument attendu : port du serveur");
+		if (args.length < 1){
+			System.err.println("Arguments attendus : \n\t - port du serveur \n\t - [local|distant]");
 			System.exit(1);
 		}
 		
+		// DB locale ou distante
+		boolean local = true;
+		if (args.length >= 2){
+			switch (args[1]){
+			case "distant":
+				local = false;
+				break;
+			default:
+				local = true;
+				break;
+			}
+		}
+		
 		port = Integer.parseInt(args[0]);
-		traitReq = new TraitementRequetes();
+		traitReq = new Instance(local);
 		ctrlCom = new CtrlComServeur(traitReq, port);
 		
 		System.out.println("Démarrage du serveur");
