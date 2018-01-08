@@ -35,17 +35,23 @@ import communication.ComAdresse;
 public class Instance implements S5Serveur {
 	
 	static final String JDBC_DRIVER = "mysql.src.com.mysql.jdbc.Driver";  
-	/*
-	static final String DB_URL = "jdbc:mysql://databases.000webhost.com:3306/id4146242_chats5";
-	static final String USER = "id4146242_chats5";
-	static final String PASS = "root123";
-	*/
+	
+	
+	// DB distante
+	static final String DB_URL_DISTANT = "jdbc:mysql://sql11.freesqldatabase.com:3306/sql11214606";
+	static final String USER_DISTANT = "sql11214606";
+	static final String PASS_DISTANT = "Qrm3V4MXQG";
 	
 	
 	// DB locale
-	static final String DB_URL = "jdbc:mysql://localhost:3306/projetS5";
-	static final String USER = "s5";
-	static final String PASS = "s5";
+	static final String DB_URL_LOCAL = "jdbc:mysql://localhost:3306/projetS5";
+	static final String USER_LOCAL = "s5";
+	static final String PASS_LOCAL = "s5";
+	
+	// DB retenue à l'instanciation
+	private static String DB_URL;
+	private static String USER;
+	private static String PASS;
 	
 	
 	
@@ -55,13 +61,24 @@ public class Instance implements S5Serveur {
 	
 	
 	
-	public Instance(){
+	public Instance(boolean local){
 		
+		if (local){
+			DB_URL = DB_URL_LOCAL;
+			USER = USER_LOCAL;
+			PASS = PASS_LOCAL;
+		}
+		else {
+			DB_URL = DB_URL_DISTANT;
+			USER = USER_DISTANT;
+			PASS = PASS_DISTANT;
+		}
 		
 		// Connexion à la db : une seule fois à l'instanciation ?
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("Connecting to database...");
+			System.out.println("Local: " + local);
 				conn = DriverManager.getConnection(DB_URL,USER,PASS);
 		}
 		catch (ClassNotFoundException e){
