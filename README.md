@@ -31,12 +31,32 @@ Récupérez [l'application administrateur](#make_jars), puis exécutez :
 
 #### Serveur
 
-La machine sur laquelle le serveur sera installée doit disposer du SGDB mysql *(essayez LAMP / WAMP / MAMP)*  
-Installation de la base de données :
+Deux cas : 
 
+**1. Le serveur dispose du SGDB mySQL**
+
+Récupérez [le serveur](#make_jars), puis exécutez :
+
+	# Installe la base de données (utilisateur 's5', mot de passe 's5)
 	make install_db
+	
+	# Insère des données bidons
+	make -C db fake_data
+	
+	# Démarre le serveur sur le port xxxx (habituellement 8888) en utilisant la base de données nouvellement créée
+	java -jar serveur.jar xxxx local
 
-*Pour l'instant, pas mieux*
+**2. Le serveur ne dispose pas du SGBD mySQL, mais possède une connexion internet**
+
+Récupérez [le serveur](#make_jars), puis exécutez :
+
+	# Démarre le serveur sur le port xxxx (habituellement 8888) en utilisant une base de données distante
+	java -jar serveur.jar xxxx distant
+
+Le serveur reconnaît quelques commandes :
+
+	list : affiche la liste des clients connectés
+	exit : ferme le serveur et quitte
 
 ***
 
@@ -85,6 +105,13 @@ Base de donnée :
 	make -D db list_tables
 
 Tests :
+
+	# Démonstration : lance le serveur et les applis (serveur local, db locale)
+	make demo
+	make demo_local
+	
+	# Démonstration (serveur local, db distante)
+	make demo_distant
 
 	# Communicateur réseau générique
 	make test_communication

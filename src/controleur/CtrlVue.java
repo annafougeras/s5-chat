@@ -43,9 +43,9 @@ public class CtrlVue extends Observable implements ICtrlVue {
 	public class RunnableNotification implements Runnable {
 
 		private Observable emetteur;
-		private Notification notification;
+		private Object notification;
 		
-		public RunnableNotification(Observable emetteur, Notification notification){
+		public RunnableNotification(Observable emetteur, Object notification){
 			this.emetteur = emetteur;
 			this.notification = notification;
 		}
@@ -65,6 +65,10 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     Map<KeyIdentifiable,Groupe> groupesParId;
     Map<KeyIdentifiable,Ticket> ticketsParId;
+    
+    
+    
+    
     
     /*
     @Override
@@ -166,7 +170,8 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     @Override
     public void getRemoteMessages(Ticket ticket) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	if (!ticket.estComplet())
+    		ctrlComClient.demanderTicket(ticket);
     }
     
     @Override
@@ -270,7 +275,8 @@ public class CtrlVue extends Observable implements ICtrlVue {
     		
         	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
         	//notifyObservers(Notification.UPDATE_JTREE);
-            java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_JTREE));
+            java.awt.EventQueue.invokeLater(new RunnableNotification(this, ticketRecu));
+    
     	}
     	
     	// Le groupe est inconnu, on demande la liste des groupes

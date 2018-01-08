@@ -31,28 +31,35 @@ public class MessageListCellRenderer extends JLabel implements ListCellRenderer<
             setText(message.getTexte());
         }
         else {
-            // Texte du message
-            Utilisateur user = message.getEmetteur();
-            setText("[" + user.getPrenom() + " " + user.getNom() + "] (" 
-                    + dateFormat.format(message.getDateEmission()) + ") " 
-                    + message.getTexte());
-            
-            // Couleur du message
-            StatutDeLecture statut = StatutDeLecture.LU;
-            for(StatutDeLecture currentStatut : message.getStatuts().values()){
-                if(currentStatut.compareTo(statut) > 0){
-                    statut = currentStatut;
+            if(message.getEmetteur() == null || message.getStatuts() == null || message.getDateEmission() == null){
+                // Informations manquantes : impossible de rendre le message
+                setText(message.getTexte() + " [MessageListCellRenderer : infos manquantes]");
+            }
+            else {
+                // Texte du message
+                Utilisateur user = message.getEmetteur();
+                setText("[" + user.getPrenom() + " " + user.getNom() + "] (" 
+                        + dateFormat.format(message.getDateEmission()) + ") " 
+                        + message.getTexte());
+
+                // Couleur du message
+                StatutDeLecture statut = StatutDeLecture.LU;
+                for(StatutDeLecture currentStatut : message.getStatuts().values()){
+                    if(currentStatut.compareTo(statut) > 0){
+                        statut = currentStatut;
+                    }
+                }
+                switch (statut){
+                    case NON_ENVOYE : setBackground(Color.LIGHT_GRAY);
+                                      break;
+                    case ENVOYE : setBackground(Color.RED);
+                                  break;
+                    case RECU : setBackground(Color.ORANGE);
+                                break;
+                    case LU : setBackground(Color.GREEN);
                 }
             }
-            switch (statut){
-                case NON_ENVOYE : setBackground(Color.LIGHT_GRAY);
-                                  break;
-                case ENVOYE : setBackground(Color.RED);
-                              break;
-                case RECU : setBackground(Color.ORANGE);
-                            break;
-                case LU : setBackground(Color.GREEN);
-            }
+            
         }
         
         return this;
