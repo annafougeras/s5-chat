@@ -5,12 +5,14 @@
  */
 package controleur;
 
-import java.util.Comparator;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
 import modele.Groupe;
 import modele.Message;
 import modele.Ticket;
@@ -18,24 +20,31 @@ import modele.Utilisateur;
 import vue.AdminScreen;
 import vue.BaseScreenAdmin;
 
+import commChatS5.CtrlComAdmin;
+import commChatS5.ICtrlComAdmin;
+import commChatS5.Identifiants;
+import communication.ComAdresse;
+import communication.simple.SimpleAdresse;
+
 
 public class CtrlAdmin extends Observable implements ICtrlAdmin {
+	
+	public static final ComAdresse SERVEUR_LOCAL = new SimpleAdresse("localhost", 8888);
     
-    NavigableMap<Groupe, Utilisateur> model;
+	private NavigableSet<Groupe> modele;
+    private NavigableMap<Groupe, NavigableSet<Utilisateur>> mapGroupeUser;
+    private NavigableMap<Utilisateur, NavigableSet<Groupe>> mapUserGroupe;
     BaseScreenAdmin currentScreen;
+    private ICtrlComAdmin ctrlComAdmin;
     
-     public CtrlAdmin(/*ComAdresse serverAddr*/){
+     public CtrlAdmin(ComAdresse serverAddr){
         // Crée le ctrlCom
-        /*ctrlComAdmin = new CtrlComAdmin(this, serverAddr);*/
+        ctrlComAdmin = new CtrlComAdmin(this, serverAddr);
         
         // Crée le modèle
-        this.model = new TreeMap<>(new Comparator<Groupe>() {
-            @Override
-            public int compare(Groupe g1, Groupe g2) {
-                return g1.getNom().compareTo(g2.getNom());
-            }
-        });
-        
+        modele = new TreeSet<>();
+        mapGroupeUser = new TreeMap<>();
+        mapUserGroupe = new TreeMap<>();
            
         // Crée la vue
         currentScreen = new AdminScreen(this);
@@ -48,36 +57,83 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
         });
     }
     
+     
+     
+     
+     
+
+
+ 	@Override
+ 	public boolean connecter(String passAdmin) {
+ 		boolean cnx = ctrlComAdmin.etablirConnexionBloquant(new Identifiants("admin", passAdmin));
+ 		if (cnx) {
+	 		ctrlComAdmin.demanderGroupes();
+	 		ctrlComAdmin.demanderUtilisateursParGroupe();
+ 		}
+ 		return cnx;
+ 	}
+
+
+ 	@Override
+ 	public void deconnecter() {
+ 		ctrlComAdmin.deconnecter();
+ 	}
+
+
+     
+     
+     
+     
+     
+     
+    private void updateMaps(Map<Groupe,NavigableSet<Utilisateur>> map){
+    	mapGroupeUser = new TreeMap<>();
+    	mapUserGroupe = new TreeMap<>();
+    	mapGroupeUser.putAll(map);
+    	for (Map.Entry<Groupe, NavigableSet<Utilisateur>> e: map.entrySet()) {
+    		for (Utilisateur u: e.getValue()) {
+    			if (!mapUserGroupe.containsKey(u))
+    				mapUserGroupe.put(u, new TreeSet<Groupe>());
+    			mapUserGroupe.get(u).add(e.getKey());
+    		}
+    	}
+    }
     
 
     @Override
     public NavigableSet<Groupe> getGroupes() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	return modele;
     }
 
     @Override
     public NavigableSet<Groupe> getGroupes(Utilisateur utilisateur) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	if (mapUserGroupe.containsKey(utilisateur))
+    		return mapUserGroupe.get(utilisateur);
+    	return new TreeSet<Groupe>();
     }
 
     @Override
     public NavigableSet<Utilisateur> getUtilisateurs() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	return new TreeSet<Utilisateur>(mapUserGroupe.keySet());
+    	
     }
 
     @Override
     public NavigableSet<Utilisateur> getUtilisateurs(Groupe groupe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	if (mapGroupeUser.containsKey(groupe))
+    		return mapGroupeUser.get(groupe);
+    	return new TreeSet<Utilisateur>();
     }
 
     @Override
     public void getRemoteGroupes() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.demanderGroupes();
+    	ctrlComAdmin.demanderUtilisateursParGroupe();
     }
 
     @Override
     public void getRemoteUtilisateurs() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.demanderUtilisateurs();
     }
 
     @Override
@@ -92,22 +148,22 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public void insererUtilisateur(Utilisateur utilisateur) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.insererUtilisateur(utilisateur);
     }
 
     @Override
     public void insererGroupe(Groupe groupe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.insererGroupe(groupe);
     }
 
     @Override
     public void supprimerUtilisateur(Utilisateur utilisateur) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.supprimerUtilisateur(utilisateur);
     }
 
     @Override
     public void supprimerGroupe(Groupe groupe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.supprimerGroupe(groupe);
     }
 
     
@@ -126,7 +182,10 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public void recevoirGroupe(Set<Groupe> tousLesGroupes) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	modele = new TreeSet<>();
+    	modele.addAll(tousLesGroupes);
+		currentScreen.update(this, null);
+    	
     }
 
     
@@ -166,14 +225,24 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
+	@Override
+	public void recevoirUtilisateurParGroupe(Map<Groupe, NavigableSet<Utilisateur>> map) {
+		updateMaps(map);
+		currentScreen.update(this, null);
+	}
+    
     @Override
+    @Deprecated
     public void recevoirReponseSQL(String reponse) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     @Override
     public void recevoirMessageInvalide(Object messageInvalide) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	//System.err.println("Message invalide reçu: " + messageInvalide);
     }
+
+
+
     
 }

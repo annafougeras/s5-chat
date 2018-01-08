@@ -5,13 +5,14 @@
  */
 package controleur;
 
-import commChatS5.S5Admin;
 import java.util.NavigableSet;
+
 import modele.Groupe;
-import modele.Identifiable;
-import modele.Message;
-import modele.Ticket;
 import modele.Utilisateur;
+
+import commChatS5.Identifiants;
+import commChatS5.S5Admin;
+import communication.ComAdresse;
 
 /**
  *
@@ -19,6 +20,9 @@ import modele.Utilisateur;
  */
 public interface ICtrlAdmin extends S5Admin {
     
+	public boolean connecter(String passAdmin);
+	public void deconnecter();
+	
     /**
      * Retourne la liste des groupes
      * @return la liste des groupes

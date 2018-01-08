@@ -11,7 +11,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 import modele.Groupe;
 import modele.Identifiable;
@@ -68,14 +70,16 @@ public class TraitementRequetes implements S5Serveur {
 		String nom = identifiants.getNom();
 		String pass= identifiants.getPass();
 		
-		int idUser;
-		boolean ok;
-		boolean estAdmin;
+		int idUser = -1;
+		boolean ok = false;
+		boolean estAdmin = false;
 		
 		try {
-			idUser = sql.sqlConnexion(nom, pass);
-			ok = (idUser >= 0);
-			estAdmin = (sql.sqlConnexionAdmin(nom, pass) >= 0);
+			if (nom.equals("admin")){
+				estAdmin = (sql.sqlConnexionAdmin(pass) >= 0);
+			}
+			else
+				ok = (sql.sqlConnexion(nom, pass) >= 0);
 		}
 		catch (SQLException e){
 			e.printStackTrace();
@@ -84,13 +88,13 @@ public class TraitementRequetes implements S5Serveur {
 			estAdmin = false;
 		}
 		
+		
 		// On garde l'association ComAdresse/id
-		if (ok) {
+		if (ok) 
 			utilisateurs.put(client, idUser);
-			if (estAdmin)
-				admins.add(client);
-		}
-		return ok;
+		if (estAdmin)
+			admins.add(client);
+		return (ok || estAdmin);
 	}
 
 	@Override 
@@ -377,10 +381,14 @@ public class TraitementRequetes implements S5Serveur {
 	}
 
 	@Override // pas de password définit ici
-	public void adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur) {
+	public Utilisateur adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur) {
+		int idUser = -1;
+		Utilisateur u = null;
 		if (estAdmin(admin)) {
 			try {
-				sql.sqlInsertUtilisateur("on", "a", "pas", "l'info");
+				idUser = sql.sqlInsertUtilisateur("on", "a", "pas", "l'info");
+				if (idUser >= 0)
+					u = sql.sqlSelectUtilisateur(idUser);
 			} 
 			catch (SQLException e) {
 				e.printStackTrace();
@@ -389,13 +397,19 @@ public class TraitementRequetes implements S5Serveur {
 		else {
 			System.err.println("Un client exécute des requêtes admins");
 		}
+		
+		return u;
 	}
 
 	@Override // manque l'id du ticket concerné (manque trop d'infos ou alors j'ai pas compris ce qu'elle doit faire)
-	public void adminSetMessage(ComAdresse admin, Message message) {
+	public Message adminSetMessage(ComAdresse admin, Message message) {
+		int idMsg = -1;
+		Message m = null;;
 		if (estAdmin(admin)) {
 			try {
-				sql.sqlInsertMessage("c'est mal fait", 1, 2);
+				idMsg = sql.sqlInsertMessage("c'est mal fait", 1, 2);
+				if (idMsg >= 0)
+					m = sql.sqlSelectMessage(idMsg);
 			} 
 			catch (SQLException e) {
 				e.printStackTrace();
@@ -404,16 +418,33 @@ public class TraitementRequetes implements S5Serveur {
 		else {
 			System.err.println("Un client exécute des requêtes admins");
 		}
+		return m;
 	}
 
 	@Override // manque le groupe
-	public void adminSetTicket(ComAdresse admin, Ticket ticket) {
+	public Ticket adminSetTicket(ComAdresse admin, Ticket ticket) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override // ici c'est bon
-	public void adminSetGroupe(ComAdresse admin, Groupe groupe) {
+	public Groupe adminSetGroupe(ComAdresse admin, Groupe groupe) {
+		int idGroupe = -1;
+		Groupe g = null;;
+		if (estAdmin(admin)) {
+			try {
+				idGroupe= sql.sqlInsertMessage("c'est mal fait", 1, 2);
+				if (idGroupe>= 0)
+					g = sql.sqlSelectGroupe(idGroupe, -1);
+			} 
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			System.err.println("Un client exécute des requêtes admins");
+		}
+		return g;
 		
 	}
 
@@ -431,6 +462,21 @@ public class TraitementRequetes implements S5Serveur {
 
 	@Override
 	public void adminSupprimerGroupe(ComAdresse admin, Identifiable idGroupe) {
+	}
+
+	@Override
+	public TreeMap<Groupe, NavigableSet<Utilisateur>> adminDemandeUtilisateursParGroupe(
+			ComAdresse admin) {
+		if (!estAdmin(admin))
+			return null;
+		
+		TreeMap<Groupe, NavigableSet<Utilisateur>> map = null;
+		try {
+			map = sql.sqlSelectUtilisateursParGroupe();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return map;
 	}
 	
 	

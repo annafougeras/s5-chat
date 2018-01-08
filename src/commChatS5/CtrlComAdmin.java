@@ -7,6 +7,8 @@
  */
 package commChatS5;
 
+import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 
 import modele.Groupe;
@@ -49,6 +51,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 			return controleur.connecterBloquant(
 					adresseServeur, identifiants) == ComEtatDeConnexion.CONNECTE;
 		} catch (ComException e) {
+			System.err.println("Etablissement de connexion : echec\n" + e.getMessage());
 			return false;
 		}
 	}
@@ -72,6 +75,15 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 				new SimpleMessage.SimpleMessageDemande(
 						TypeMessage.REQUETE_ADMIN, 
 						TypeMessageAdmin.TOUS_UTILISATEURS
+						));
+	}
+	
+	@Override
+	public void demanderUtilisateursParGroupe() {
+		controleur.demander(
+				new SimpleMessage.SimpleMessageDemande(
+						TypeMessage.REQUETE_ADMIN, 
+						TypeMessageAdmin.TOUS_UTILISATEURS_PAR_GROUPE
 						));
 	}
 
@@ -324,35 +336,41 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 				throw new ComException.TypeMessageException("Le message reçu est de type " + message.getTypeMessage());
 			type = (TypeMessage) args[0];
 			
+			
+			
 			if (type != TypeMessage.INFORM_ADMIN){
-				throw new ComException.TypeMessageException("Le type du message reçu est " + type + " (et non INFORM_ADMIN");
+				throw new ComException.TypeMessageException("Le type du message reçu est " + type + " (et non INFORM_ADMIN)");
 			}
 			
-			TypeMessageAdmin typeAdm = (TypeMessageAdmin) args[0];
+			TypeMessageAdmin typeAdm = (TypeMessageAdmin) args[1];
+			
 			switch (typeAdm){
 			case UTILISATEUR:
-				observateur.recevoirGroupe((Groupe) args[1]);
+				observateur.recevoirUtilisateur((Utilisateur) args[2]);
 				break;
 			case MESSAGE:
-				observateur.recevoirMessage((Message) args[1]);
+				observateur.recevoirMessage((Message) args[2]);
 				break;
 			case TICKET:
-				observateur.recevoirTicket((Ticket) args[1]);
+				observateur.recevoirTicket((Ticket) args[2]);
 				break;
 			case GROUPE:
-				observateur.recevoirGroupe((Groupe) args[1]);
+				observateur.recevoirGroupe((Groupe) args[2]);
 				break;
 			case TOUS_UTILISATEURS:
-				observateur.recevoirGroupe((Set<Groupe>) args[1]);
+				observateur.recevoirUtilisateur((Set<Utilisateur>) args[2]);
+				break;
+			case TOUS_UTILISATEURS_PAR_GROUPE:
+				observateur.recevoirUtilisateurParGroupe((Map<Groupe,NavigableSet<Utilisateur>>) args[2]);
 				break;
 			case TOUS_MESSAGES:
-				observateur.recevoirMessage((Set<Message>) args[1]);
+				observateur.recevoirMessage((Set<Message>) args[2]);
 				break;
 			case TOUS_TICKETS:
-				observateur.recevoirTicket((Set<Ticket>) args[1]);
+				observateur.recevoirTicket((Set<Ticket>) args[2]);
 				break;
 			case TOUS_GROUPES:
-				observateur.recevoirGroupe((Set<Groupe>) args[1]);
+				observateur.recevoirGroupe((Set<Groupe>) args[2]);
 				break;
 			default:
 				throw new ComException.TypeMessageException("Le type du message ADMIN reçu est " + typeAdm + " (invalide)");
@@ -370,6 +388,10 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 		
 		
 	}
+
+
+
+
 
 
 

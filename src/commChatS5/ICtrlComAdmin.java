@@ -33,12 +33,18 @@ public interface ICtrlComAdmin {
 	
 	
 	
-	
+
 	/**
 	 * Demande tous les utilisateurs
 	 * Le retour est transmis par S5Admin.recevoirUtilisateur
 	 */
 	public void demanderUtilisateurs();
+	
+	/**
+	 * Demande tous les utilisateurs par groupe (Map<Groupe,Utilisateur>)
+	 * Le retour est transmis par S5Admin.recevoirUtilisateur
+	 */
+	public void demanderUtilisateursParGroupe();
 	
 	/**
 	 * Demande tous les messages

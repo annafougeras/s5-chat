@@ -87,7 +87,7 @@ public class Instance implements IInstance {
 			System.exit(2);
 		}
 		
-		System.out.println("Connexion avec la basse de données réussie");
+		System.out.println("Connexion avec la base de données réussie");
 	}
 	
 	
@@ -116,7 +116,7 @@ public class Instance implements IInstance {
 	 * @return -1 si connexion refusée, l'identifiant numérique de l'utilisateur si connexion acceptée
 	 * @throws SQLException
 	 */
-	public int sqlConnexionAdmin(String nom, String pass) throws SQLException {
+	public int sqlConnexionAdmin(String pass) throws SQLException {
 		return 1;
 	}
 	
@@ -157,6 +157,20 @@ public class Instance implements IInstance {
 		}
 		return retourne;
 	}
+
+
+
+	@Override
+	public TreeMap<Groupe, NavigableSet<Utilisateur>> sqlSelectUtilisateursParGroupe()
+			throws SQLException {
+		// TODO Auto-generated method stub
+		System.err.println("Instance: selectUtilisateursParGroupe : Non implémenté");
+		return null;
+	}
+	
+	
+	
+	
 	
 	/**
 	 * Construit un message d'après son id après avoir vérifié que l'utilisateur peut le consulter
@@ -340,7 +354,7 @@ public class Instance implements IInstance {
 	 * @return Le groupe, ou null
 	 * @throws SQLException
 	 */
-	public Groupe sqlSelectGroupe(int idGroupe, String nomGroupe, int idUser) throws SQLException {
+	public Groupe sqlSelectGroupe(int idGroupe, int idUser) throws SQLException {
 		return null;
 	}
 	
@@ -627,11 +641,11 @@ public class Instance implements IInstance {
 		String query = "DELETE FROM user WHERE id_user = "+id+" LIMIT 1";
 		statement.executeUpdate(query);
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
 	
 }
 

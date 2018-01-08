@@ -130,7 +130,19 @@ public class AdminScreen extends BaseScreenAdmin {
 
     @Override
     public void update(Observable o, Object o1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        userList.setModel(new javax.swing.AbstractListModel<Utilisateur>() {
+            List<Utilisateur> users = new ArrayList<>(ctrlAdmin.getUtilisateurs());
+            public int getSize() { return users.size(); }
+            public Utilisateur getElementAt(int i) { return users.get(i); }
+        });
+
+
+        groupList.setModel(new javax.swing.AbstractListModel<Groupe>() {
+            List<Groupe> groupes = new ArrayList<>(ctrlAdmin.getGroupes());
+            public int getSize() { return groupes.size(); }
+            public Groupe getElementAt(int i) { return groupes.get(i); }
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

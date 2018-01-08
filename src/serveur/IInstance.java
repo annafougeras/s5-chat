@@ -10,6 +10,7 @@ package serveur;
 import java.sql.SQLException;
 import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 import modele.Groupe;
 import modele.Message;
@@ -38,7 +39,7 @@ public interface IInstance {
 	 * @return -1 si connexion refusée, l'identifiant numérique de l'utilisateur si connexion acceptée
 	 * @throws SQLException
 	 */
-	public int sqlConnexionAdmin(String nom, String pass) throws SQLException;
+	public int sqlConnexionAdmin(String pass) throws SQLException;
 	
 	/**
 	 * Construit un utilisateur d'après son id numérique
@@ -113,12 +114,11 @@ public interface IInstance {
 	/**
 	 * Construit un groupe incomplet (contenant des tickets incomplets)
 	 * @param idGroupe Id du groupe
-	 * @param nomGroupe Nom du groupe
-	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @param idUser Id de l'utilisateur faisant la requête (ou -1 = ok)
 	 * @return Le groupe, ou null
 	 * @throws SQLException
 	 */
-	public Groupe sqlSelectGroupe(int idGroupe, String nomGroupe, int idUser) throws SQLException;
+	public Groupe sqlSelectGroupe(int idGroupe, int idUser) throws SQLException;
 	
 	/**
 	 * Construit la liste de tous les groupes (incomplets)
@@ -127,6 +127,8 @@ public interface IInstance {
 	 * @throws SQLException
 	 */
 	public NavigableSet<Groupe> sqlSelectGroupes(int idUser) throws SQLException;
+	
+	public TreeMap<Groupe,NavigableSet<Utilisateur>> sqlSelectUtilisateursParGroupe() throws SQLException;
 	
 	
 
