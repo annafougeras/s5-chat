@@ -69,6 +69,20 @@ doc_private: | $(JAVADOC)
 	javadoc -use -quiet -private $(PACKAGES_TOUT) -sourcepath $(SRC) -d $(JAVADOC) -charset "UTF-8"
 
 
+# Tests et démo
+
+demo: demo_local
+
+demo_local: $(JAR_CLIENT) $(JAR_ADMIN) $(JAR_SERVEUR)
+	xterm -ge 80x15+0+000 -e "java -jar $(JAR_SERVEUR) 8888 local" &
+	xterm -ge 80x15+0+230 -e "java -jar $(JAR_CLIENT)" &
+	xterm -ge 80x15+0+460 -e "java -jar $(JAR_ADMIN)" &
+
+demo_distant: $(JAR_CLIENT) $(JAR_ADMIN) $(JAR_SERVEUR)
+	xterm -ge 80x15+0+000 -e "java -jar $(JAR_SERVEUR) 8888 distant" &
+	xterm -ge 80x15+0+230 -e "java -jar $(JAR_CLIENT)" &
+	xterm -ge 80x15+0+460 -e "java -jar $(JAR_ADMIN)" &
+
 test_communication:
 	xterm -ge 80x15+0+000 -e "java -classpath $(BIN) tests.TestComSimpleServeur 8888" &
 	xterm -ge 80x15+0+230 -e "sleep 1 && java -classpath $(BIN) tests.TestComSimpleClient 127.0.0.2 8888" &
@@ -81,6 +95,8 @@ test_S5com:
 
 kill_tests:
 	pgrep "xterm" | while read pid; do kill -9 $$pid; done
+
+
 
 # Création des dossiers
 $(BIN):
