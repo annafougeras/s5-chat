@@ -7,22 +7,31 @@ package vue;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.NavigableSet;
 import java.util.Observable;
 
 import javax.swing.JDialog;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
+import modele.Groupe;
+import modele.Identifiable;
+import modele.KeyIdentifiable;
+import modele.Message;
+import modele.Ticket;
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
-import modele.Groupe;
-import modele.Ticket;
 
 /**
  *
  * @author Vincent Fougeras
  */
 public class MainScreen extends BaseScreen {
+	
+	
+	private Ticket ticketAffiche = null;
+	
+	
 
     /**
      * Creates new form MainScreen
@@ -105,7 +114,7 @@ public class MainScreen extends BaseScreen {
         jScrollPane2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         messageList.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            String[] strings = { "Sélectionnez un ticket dans l'arborescence sur la gauche" };
             public int getSize() { return strings.length; }
             public String getElementAt(int i) { return strings[i]; }
         });
@@ -205,11 +214,12 @@ public class MainScreen extends BaseScreen {
             
             // J'utilisais cette fonction auparavant pour mettre à jour les messages mais 
             // c'est surement mieux de faire comme tu as fait (en utilisant des CtrlVue.Notification)
-            //this.updateMessageList(ticket); // Afficher les messages du ticket
+            this.updateMessageList(ticket); // Afficher les messages du ticket
         }
     }
     
-    /**
+
+	/**
      * Retourne le ticket actuellement selectionne dans le JTree
      * @return le ticket actuellement selectionne ou null
      */
@@ -239,6 +249,45 @@ public class MainScreen extends BaseScreen {
     private javax.swing.JTree ticketTree;
     // End of variables declaration//GEN-END:variables
 
+    
+    
+    
+    
+    
+    
+
+    /**
+	 * @param ticket
+	 */
+	private void updateMessageList(final Ticket ticket) {
+		ticketAffiche = ticket;
+		if (ticket.estComplet()){
+			System.out.println(ticket.getMessages());
+			NavigableSet<Message> set = ticket.getMessages();
+		
+	        messageList.setModel(new javax.swing.AbstractListModel<String>() {
+	            public int getSize() { return ticketAffiche.getMessages().size(); }
+	            public String getElementAt(int i) { return ticketAffiche.getMessages().toArray()[i].toString(); }
+	        });
+		}
+		else
+	        messageList.setModel(new javax.swing.AbstractListModel<String>() {
+	            public int getSize() { return 1; }
+	            public String getElementAt(int i) { return "Patientez..."; }
+	        });
+	}
+    
+	private void updateMessageList(){
+		if (ticketAffiche instanceof Ticket)
+			updateMessageList((Ticket) ticketAffiche);
+	}
+    
+	private void updateTicketTree(){
+		ticketTree.setModel(new GroupeTreeModel(ctrlVue.getModel()));
+		ticketTree.updateUI();
+		// On doit pouvoir réouvrir le noeud du JTree, sachant this.ticketAffiche
+	}
+    
     @Override
     public void update(Observable o, Object o1) {
         // Unable to know which object has been updated -> update everything
@@ -259,13 +308,22 @@ public class MainScreen extends BaseScreen {
     		CtrlVue.Notification notification = (CtrlVue.Notification) o1;
     		switch (notification){
     		case UPDATE_JTREE:
-    			ticketTree.setModel(new GroupeTreeModel(ctrlVue.getModel()));
-    			ticketTree.updateUI();
+    			updateTicketTree();
     			break;
+    		case UPDATE_MESSAGES:
+    			updateMessageList();
+    			break;
+    			
     		default:
     			System.err.println("Notification non traitée : " + notification);
     			
     		}
+    	}
+    	else if (o1 instanceof Ticket){
+    		Ticket notification = (Ticket) o1;
+    		updateTicketTree();
+    		if (notification.equals(ticketAffiche))
+    			updateMessageList(notification);
     	}
     	else
     		System.err.println("Notification non traitée : " + o1);

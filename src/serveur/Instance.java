@@ -264,6 +264,7 @@ public class Instance implements S5Serveur {
 				ResultSet rs2 = stmt2.executeQuery(sql2);
 	
 				while(rs2.next()){
+					int idMsg = rs2.getInt("id_message");
 					String contenuMsg = rs2.getString("contenu");
 					Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 					Date dateMsg = rs2.getDate("date_message");
@@ -272,7 +273,7 @@ public class Instance implements S5Serveur {
 					NavigableMap<Utilisateur, StatutDeLecture> statuts = null;
 	
 					// Instanciation du message
-					Message unMessage = new Message(0, emetteur, contenuMsg, dateMsg, statuts);
+					Message unMessage = new Message(idMsg, emetteur, contenuMsg, dateMsg, statuts);
 					unMessage.setParent(idTicket);
 					messages.add(unMessage);
 				}
