@@ -16,6 +16,9 @@ import javax.swing.JScrollPane;
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
 import java.util.ArrayList;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import modele.Groupe;
 import modele.Message;
 import modele.Ticket;
@@ -108,6 +111,13 @@ public class MainScreen extends BaseScreen {
 
         messageList.setModel(new MessageListModel(new ArrayList<Message>()));
         messageList.setCellRenderer(new MessageListCellRenderer());
+
+        messageList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        messageList.addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent e) {
+                openMessageDetailsModal();
+            }
+        });
         jScrollPane2.setViewportView(messageList);
 
         scrollDown(jScrollPane2);
@@ -218,6 +228,21 @@ public class MainScreen extends BaseScreen {
             return ticket;
         }
         return null;
+    }
+    
+    private void openMessageDetailsModal(){
+        // Récupérer la sélection
+        Message message = messageList.getSelectedValue();
+        
+        if(message != null){
+            // Ouvrir le modal
+            JDialog detailsDialog = new JDialog(this, "Détails du message", true);
+            MessageDetailsPanel detailsPanel = new MessageDetailsPanel(message);
+            detailsDialog.add(detailsPanel);
+
+            detailsDialog.pack();
+            detailsDialog.setVisible(true);
+        }        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
