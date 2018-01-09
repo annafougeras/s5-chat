@@ -155,6 +155,28 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	}
 
 	@Override
+	public void rejoindreGroupe(Identifiable groupe, Identifiable utilisateur) {
+		controleur.demander(
+				new SimpleMessage.SimpleMessageDemande(
+						TypeMessage.REQUETE_ADMIN, 
+						TypeMessageAdmin.REJOINDRE_GROUPE,
+						groupe,
+						utilisateur
+						));	
+	}
+
+	@Override
+	public void quitterGroupe(Identifiable groupe, Identifiable utilisateur) {
+		controleur.demander(
+				new SimpleMessage.SimpleMessageDemande(
+						TypeMessage.REQUETE_ADMIN, 
+						TypeMessageAdmin.QUITTER_GROUPE,
+						groupe,
+						utilisateur
+						));	
+	}
+
+	@Override
 	public void supprimerUtilisateur(Identifiable element) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(

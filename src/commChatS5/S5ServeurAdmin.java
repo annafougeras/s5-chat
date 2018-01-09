@@ -129,6 +129,26 @@ public interface S5ServeurAdmin {
 	 * @param groupe Le groupe à ajouter (nouvel id) ou a modifier (id existant)
 	 */
 	public Groupe adminSetGroupe(ComAdresse admin, Groupe groupe);
+	
+	
+	
+	/**
+	 * Fait en sorte qu'un utilisateur rejoint un groupe
+	 * @param admin Adresse de l'administrateur effectuant la demande
+	 * @param idGroupe ID du groupe à rejoindre
+	 * @param idUtilisateur ID de l'utilisateur
+	 */
+	public void adminRejoindreGroupe(ComAdresse admin, Identifiable idGroupe, Identifiable idUtilisateur);
+	
+	
+	/**
+	 * Fait en sorte qu'un utilisateur quitte un groupe
+	 * @param admin Adresse de l'administrateur effectuant la demande
+	 * @param idGroupe ID du groupe à quitter
+	 * @param idUtilisateur ID de l'utilisateur
+	 */
+	public void adminQuitterGroupe(ComAdresse admin, Identifiable idGroupe, Identifiable idUtilisateur);
+	
 
 	
 	

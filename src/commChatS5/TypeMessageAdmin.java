@@ -33,6 +33,9 @@ public enum TypeMessageAdmin {
 	AJOUT_MODIF_TICKET,
 	AJOUT_MODIF_GROUPE,
 	
+	REJOINDRE_GROUPE,
+	QUITTER_GROUPE,
+	
 	SQL;
 
 }

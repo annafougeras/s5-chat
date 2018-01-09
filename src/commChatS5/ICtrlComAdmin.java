@@ -92,6 +92,20 @@ public interface ICtrlComAdmin {
 	public void insererGroupe(Groupe modGroupe);
 	
 	
+	/**
+	 * Fait en sorte q'un utilisateur rejoigne un groupe
+	 * @param groupe Le groupe à rejoindre
+	 * @param utilisateur L'utilisateur
+	 */
+	public void rejoindreGroupe(Identifiable groupe, Identifiable utilisateur);
+
+	/**
+	 * Fait en sorte q'un utilisateur quitte un groupe
+	 * @param groupe Le groupe à quitter
+	 * @param utilisateur L'utilisateur
+	 */
+	public void quitterGroupe(Identifiable groupe, Identifiable utilisateur);
+	
 	
 	
 	/**

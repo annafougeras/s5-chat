@@ -150,13 +150,21 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public void removeUtilisateurFromGroupe(Utilisateur utilisateur, Groupe groupe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	ctrlComAdmin.quitterGroupe(
+    			new KeyIdentifiable(groupe), 
+    			new KeyIdentifiable(utilisateur)
+    			);
+    	ctrlComAdmin.demanderUtilisateursParGroupe();
     }
 
     @Override
     public void addUtilisateurToGroupe(Utilisateur utilisateur, Groupe groupe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    	ctrlComAdmin.rejoindreGroupe(
+    			new KeyIdentifiable(groupe), 
+    			new KeyIdentifiable(utilisateur)
+    			);
+    	ctrlComAdmin.demanderUtilisateursParGroupe();
+    	}
 
     @Override
     public void insererUtilisateur(Utilisateur utilisateur) {

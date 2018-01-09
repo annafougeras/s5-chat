@@ -452,6 +452,35 @@ public class TraitementRequetes implements S5Serveur {
 	
 	
 	
+
+	@Override
+	public void adminRejoindreGroupe(ComAdresse admin, Identifiable idGroupe,
+			Identifiable idUtilisateur) {
+		int idUser = idUtilisateur.getIdentifiantNumeriqueUnique();
+		int idGrp = idGroupe.getIdentifiantNumeriqueUnique();
+		try {
+			sql.sqlRejoindreGroupe(idUser, idGrp);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void adminQuitterGroupe(ComAdresse admin, Identifiable idGroupe,
+			Identifiable idUtilisateur) {
+		int idUser = idUtilisateur.getIdentifiantNumeriqueUnique();
+		int idGrp = idGroupe.getIdentifiantNumeriqueUnique();
+		try {
+			sql.sqlQuitterGroupe(idUser, idGrp);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
 	@Override
 	public void adminSupprimerUtilisateur(ComAdresse admin, Identifiable idUtilisateur) {
 		
@@ -515,6 +544,7 @@ public class TraitementRequetes implements S5Serveur {
 			}
 		}
 	}
+
 	
 	
 
