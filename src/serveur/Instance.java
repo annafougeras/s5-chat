@@ -108,7 +108,12 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public int sqlConnexion(String nom, String pass) throws SQLException {
-		return 1;
+		String sql = "SELECT count(*) as connexion, id_user FROM user WHERE nickname_user ='"+ nom +"' AND password_user = '"+ Sha256.sha256("qt"+pass+"pi") +"' LIMIT 1";
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		if(rs.getInt("connexion") == 1)
+			return rs.getInt("id_user");
+		return -1;
 	}
 	
 	/**
@@ -119,6 +124,7 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public int sqlConnexionAdmin(String pass) throws SQLException {
+		// j'ai pas compris cette methode ou alors je pense qu'elle est pas utile
 		return 1;
 	}
 	
@@ -129,7 +135,6 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public Utilisateur sqlSelectUtilisateur(int id) throws SQLException {	
-		
 		Utilisateur u = null;
 		String sql = "SELECT * FROM user WHERE id_user ="+ id +" LIMIT 1";
 		
@@ -163,13 +168,31 @@ public class Instance implements IInstance {
 
 
 	@Override
-	public TreeMap<Groupe, NavigableSet<Utilisateur>> sqlSelectUtilisateursParGroupe()
-			throws SQLException {
-		// TODO Auto-generated method stub
-		System.err.println("Instance: selectUtilisateursParGroupe : Non implémenté");
-		return null;
+	public TreeMap<Groupe, NavigableSet<Utilisateur>> sqlSelectUtilisateursParGroupe() throws SQLException {
+		String sql = "SELECT * FROM appartenance GROUP BY id_groupe";
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+
+		TreeMap<Groupe, NavigableSet<Utilisateur>> retourne = new TreeMap<>();
+		NavigableSet<Utilisateur> listeUtilisateurs = new TreeSet<>();
+		int currentGroupe = 1;
+		while(rs.next()) {
+			if(rs.getInt("id_groupe") != currentGroupe) {
+				// retourne le nom du groupe concerné
+				String sql2 = "SELECT nom_groupe FROM groupe WHERE id_groupe = "+ rs.getInt("id_groupe") +" LIMIT 1";
+				ResultSet rs2 = stmt.executeQuery(sql2);
+				retourne.put(new Groupe(rs.getInt("id_groupe"), rs2.getString("nom_groupe"), null), listeUtilisateurs);
+				listeUtilisateurs.clear();
+			}
+
+			// retourne l'utilisateur concerné
+			String sql3 = "SELECT nom_user, prenom_user FROM user WHERE id_user = "+ rs.getInt("id_user") +" LIMIT 1";
+			ResultSet rs3 = stmt.executeQuery(sql3);
+			listeUtilisateurs.add(new Utilisateur(rs.getString("id_user"), rs3.getString("nom_user"), rs3.getString("prenom_user")));		
+		}
+		return retourne;
 	}
-	
+
 	
 	
 	
@@ -181,15 +204,7 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg, int idUser) throws SQLException {
-		
-		//TODO sql peut consulter le message ?
-		boolean messageVisible = true;
-		
-		if (!messageVisible) 
-			return null;
-		
-		return sqlSelectMessage(idMsg);
-		
+		return null; // ne sert à rien on fait déjà l'autorisation sur le ticket
 	}
 	
 	/**
@@ -200,7 +215,6 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg) throws SQLException {
-		
 		String sql = "SELECT * FROM message WHERE id_message ="+ idMsg +" LIMIT 1";
 		
 		Statement stmt = conn.createStatement();
@@ -250,14 +264,13 @@ public class Instance implements IInstance {
 	 */
 	
 	public Ticket sqlSelectTicket(int idTicket, int idUser) throws SQLException {
-
-		//TODO SQL : ticket visible par le client ?
-		boolean ticketVisibleParLeClient = true;
-		
-		if (!ticketVisibleParLeClient)
+		String sqlverif = "select count(*) as verif FROM user,ticket,appartenance WHERE appartenance.id_groupe = ticket.id_groupe AND appartenance.id_user = "+idUser+" AND ticket.id_ticket = "+idTicket;
+		Statement stmt = conn.createStatement();
+		ResultSet rsverif = stmt.executeQuery(sqlverif);
+		if(rsverif.getInt("verif") > 0)
+			return sqlSelectTicket(idTicket);
+		else
 			return null;
-		
-		return sqlSelectTicket(idTicket);
 	}
 
 	@Override
@@ -390,16 +403,15 @@ public class Instance implements IInstance {
 			// ou s'il a créé le ticket.
 			// On aurait dû garder le champ 'créateur_ticket', ç'aurait été plus simple :-)
 			// Mais c'est aussi l'émetteur du premier message
-			//TODO SQL :  if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
-			boolean groupeVisibleParLeClient = true;
-			
-			if (groupeVisibleParLeClient){
+			// if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
+			String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
+			ResultSet rsverif = stmt.executeQuery(sqlverif);
+			if(rsverif.getInt("verif") > 0) {
 			
 				// Recuperation des tickets pour le groupe
 				// On renvoie des tickets incomplets (sans les messages)
 				String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
-				Statement stmt2 = conn.createStatement();
-				ResultSet rs2 = stmt2.executeQuery(sql2);
+				ResultSet rs2 = stmt.executeQuery(sql2);
 				while(rs2.next()){
 					int id_ticket = rs2.getInt("id_ticket");
 					String titreTicket = rs2.getString("titre_ticket");
@@ -412,14 +424,9 @@ public class Instance implements IInstance {
 	
 					unGroupe.addTicketConnu(unTicket);
 				}
-				stmt2.close();
-				rs2.close();
+				retourne.add(unGroupe);
 			}
-			retourne.add(unGroupe);
 		}		
-		rs.close();
-		stmt.close();
-		
 		return retourne;
 	}
 
@@ -457,7 +464,7 @@ public class Instance implements IInstance {
 			String pass) throws SQLException {
 	    Statement statement = conn.createStatement();
 		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
-				+ "VALUES (NULL, '"+Sha256.sha256(pass)+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
+				+ "VALUES (NULL, '"+Sha256.sha256("qt"+pass+"pi")+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
 		ResultSet rs = statement.getGeneratedKeys();
 		if (rs.next())
@@ -579,8 +586,7 @@ public class Instance implements IInstance {
 
 
 	@Override
-	public int sqlUpdateTicket(int idTicket, String titre, 
-			int idGroupe) throws SQLException {
+	public int sqlUpdateTicket(int idTicket, String titre, int idGroupe) throws SQLException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -652,4 +658,3 @@ public class Instance implements IInstance {
 
 	
 }
-
