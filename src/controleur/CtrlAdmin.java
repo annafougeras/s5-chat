@@ -5,6 +5,7 @@
  */
 package controleur;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -14,6 +15,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import modele.Groupe;
+import modele.Identifiable;
+import modele.KeyIdentifiable;
 import modele.Message;
 import modele.Ticket;
 import modele.Utilisateur;
@@ -32,6 +35,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 	public static final ComAdresse SERVEUR_LOCAL = new SimpleAdresse("localhost", 8888);
     
 	private NavigableSet<Groupe> modele;
+	private Map<KeyIdentifiable,Groupe> groupeParId;
     private NavigableMap<Groupe, NavigableSet<Utilisateur>> mapGroupeUser;
     private NavigableMap<Utilisateur, NavigableSet<Groupe>> mapUserGroupe;
     BaseScreenAdmin currentScreen;
@@ -84,6 +88,14 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
      
      
      
+ 	private void updateModele(Set<Groupe> groupes){
+ 		modele = new TreeSet<>();
+ 		groupeParId = new HashMap<>();
+ 		for (Groupe g: groupes) {
+ 			modele.add(g);
+ 			groupeParId.put(new KeyIdentifiable(g), g);
+ 		}
+ 	}
      
      
     private void updateMaps(Map<Groupe,NavigableSet<Utilisateur>> map){
@@ -182,8 +194,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public void recevoirGroupe(Set<Groupe> tousLesGroupes) {
-    	modele = new TreeSet<>();
-    	modele.addAll(tousLesGroupes);
+    	updateModele(tousLesGroupes);
 		currentScreen.update(this, null);
     	
     }
@@ -212,7 +223,16 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public void recevoirTicket(Ticket ticket) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	Identifiable idGroupe = ticket.getParent();
+    	Groupe groupe;
+    	if (groupeParId.containsKey(idGroupe)) {
+    		groupe = groupeParId.get(idGroupe);
+    		groupe.getTicketsConnus().remove(new KeyIdentifiable(ticket));
+    		groupe.addTicketConnu(ticket);
+    		currentScreen.update(this, null);
+    	}
+    	else
+    		ctrlComAdmin.demanderGroupes();
     }
 
     @Override

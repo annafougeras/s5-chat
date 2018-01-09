@@ -113,6 +113,7 @@ public interface S5ServeurAdmin {
 	 * @param admin Adresse de l'administrateur effectuant la demande
 	 * @param message Le message à ajouter (nouvel id) ou a modifier (id existant)
 	 */
+	@Deprecated
 	public Message adminSetMessage(ComAdresse admin, Message message);	
 
 	/**

@@ -177,7 +177,10 @@ public class TraitementRequetes implements S5Serveur {
 
 	@Override
 	public Utilisateur adminDemandeUtilisateur(ComAdresse admin, Identifiable idUtilisateur) {
-	
+
+		if (!estAdmin(admin))
+			return null;
+		
 		Utilisateur u;
 		try {
 			u = sql.sqlSelectUtilisateur(utilisateurs.get(idUtilisateur));
@@ -196,14 +199,12 @@ public class TraitementRequetes implements S5Serveur {
 		if (!estAdmin(admin))
 			return null;
 		
-		
-		Set<Utilisateur> set;
+		Set<Utilisateur> set = null;
 		try {
 			set = sql.sqlSelectUtilisateurs();
 		}
 		catch (SQLException e){
 			e.printStackTrace();
-			set = null;
 		}
 		return set;
 	
@@ -215,13 +216,12 @@ public class TraitementRequetes implements S5Serveur {
 		if (!estAdmin(admin))
 			return null;
 		
-		Message m;
+		Message m = null;
 		
 		try {
 			m = sql.sqlSelectMessage(idMessage.getIdentifiantNumeriqueUnique());
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
 			m = null;
 		}
 		return m;
@@ -233,14 +233,13 @@ public class TraitementRequetes implements S5Serveur {
 		if (!estAdmin(admin))
 			return null;
 		
-		Set<Message> set;
+		Set<Message> set = null;
 		
 		try {
 			set = sql.sqlSelectMessages();
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
-			set = null;
 		}
 		return set;
 		
@@ -252,41 +251,16 @@ public class TraitementRequetes implements S5Serveur {
 		if (!estAdmin(admin))
 			return null;
 		
-		Ticket t;
+		Ticket t = null;
 		
 		try {
 			t = sql.sqlSelectTicket(idTicket.getIdentifiantNumeriqueUnique(), -1);
 		}
 		catch (SQLException e) {
-			t = null;
+			e.printStackTrace();
 		}
 		
 		return t;
-		
-		/*
-		// PAS DEPLACÉ CAR EN DOUBLE : récupérer un ticket complet
-		String sql = "SELECT * FROM ticket WHERE id_ticket ="+ idTicket.getIdentifiantNumeriqueUnique() +" LIMIT 1";
-		
-		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		
-		
-		
-		// Recuperation des messages pour chaque ticket (juste l'id suffit pour cette méthode)
-		NavigableSet<Message> messages = new TreeSet<Message>();
-		String sql2 = "SELECT id_message FROM message WHERE id_ticket = " + idTicket.getIdentifiantNumeriqueUnique();
-
-		Statement stmt2 = conn.createStatement();
-		ResultSet rs2 = stmt2.executeQuery(sql2);
-
-		while(rs2.next()){
-			Message unMessage = new Message(rs2.getInt("id_message"), null, null, null, null);
-			messages.add(unMessage);
-		}
-
-		Ticket retourne = new Ticket(idTicket.getIdentifiantNumeriqueUnique(), rs.getString("titre_ticket"), messages, rs.getDate("creation_ticket"));
-		return retourne;
-		*/
 	}
 
 	@Override
@@ -306,34 +280,8 @@ public class TraitementRequetes implements S5Serveur {
 	
 	@Override
 	public Groupe adminDemandeGroupe(ComAdresse admin, Identifiable idGroupe) {
+		//TODO quoi faire ?
 		return null;
-		
-		// Pas trop sûr de quoi faire. Le groupe avec ses tickets ? Liste des membres ?
-		
-		
-		/*
-		String sql = "SELECT nom_groupe FROM groupe WHERE id_groupe ="+ idGroupe.getIdentifiantNumeriqueUnique() +" LIMIT 1";
-		
-		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		
-		
-		
-		// Recuperation des tickets du groupe (l'id seulement là aussi)
-		NavigableSet<Ticket> tickets = new TreeSet<Ticket>();
-		String sql2 = "SELECT id_ticket FROM ticket WHERE id_groupe  = " + idGroupe.getIdentifiantNumeriqueUnique();
-
-		Statement stmt2 = conn.createStatement();
-		ResultSet rs2 = stmt2.executeQuery(sql2);
-
-		while(rs2.next()){
-			Ticket t = new Ticket(rs2.getInt("id_ticket"), null, null, null);
-			tickets.add(t);
-		}
-
-		Groupe retourne = new Groupe(idGroupe.getIdentifiantNumeriqueUnique(), rs.getString("nom_groupe"), tickets);
-		return retourne;
-		*/
 	}
 
 	@Override
@@ -342,143 +290,230 @@ public class TraitementRequetes implements S5Serveur {
 		if (!estAdmin(admin))
 			return null;
 		
-		Set<Groupe> set;
+		Set<Groupe> set = null;
 		
 		try {
 			set = sql.sqlSelectGroupes(-1);
 		}
 		catch (SQLException e) {
-			set = null;
+			e.printStackTrace();
 		}
 		
 		return set;
-		/*
-		Set<Groupe> retourne = new TreeSet<>();
-		String sql = "SELECT nom_groupe FROM groupe";
-		
-		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		
-		
-		while(rs.next()) {
-			// Recuperation des tickets des groupes (l'id seulement là aussi)
-			NavigableSet<Ticket> tickets = new TreeSet<Ticket>();
-			String sql2 = "SELECT id_ticket FROM ticket WHERE id_groupe  = " + rs.getInt("id_groupe");
-	
-			Statement stmt2 = conn.createStatement();
-			ResultSet rs2 = stmt2.executeQuery(sql2);
-	
-			while(rs2.next()){
-				Ticket t = new Ticket(rs2.getInt("id_ticket"), null, null, null);
-				tickets.add(t);
-			}
-			Groupe g = new Groupe(rs.getInt("id_groupe"), rs.getString("nom_groupe"), tickets);
-			retourne.add(g);
-		}
-
-		return retourne;
-		*/
-	}
-
-	@Override // pas de password définit ici
-	public Utilisateur adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur) {
-		int idUser = -1;
-		Utilisateur u = null;
-		if (estAdmin(admin)) {
-			try {
-				idUser = sql.sqlInsertUtilisateur("on", "a", "pas", "l'info");
-				if (idUser >= 0)
-					u = sql.sqlSelectUtilisateur(idUser);
-			} 
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		else {
-			System.err.println("Un client exécute des requêtes admins");
-		}
-		
-		return u;
-	}
-
-	@Override // manque l'id du ticket concerné (manque trop d'infos ou alors j'ai pas compris ce qu'elle doit faire)
-	public Message adminSetMessage(ComAdresse admin, Message message) {
-		int idMsg = -1;
-		Message m = null;;
-		if (estAdmin(admin)) {
-			try {
-				idMsg = sql.sqlInsertMessage("c'est mal fait", 1, 2);
-				if (idMsg >= 0)
-					m = sql.sqlSelectMessage(idMsg);
-			} 
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		else {
-			System.err.println("Un client exécute des requêtes admins");
-		}
-		return m;
-	}
-
-	@Override // manque le groupe
-	public Ticket adminSetTicket(ComAdresse admin, Ticket ticket) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override // ici c'est bon
-	public Groupe adminSetGroupe(ComAdresse admin, Groupe groupe) {
-		int idGroupe = -1;
-		Groupe g = null;;
-		if (estAdmin(admin)) {
-			try {
-				idGroupe= sql.sqlInsertGroupe(groupe.getNom());
-				System.out.println(idGroupe);
-				if (idGroupe>= 0)
-					g = sql.sqlSelectGroupe(idGroupe, -1);
-				System.out.println(g);
-			} 
-			catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		else {
-			System.err.println("Un client exécute des requêtes admins");
-		}
-		return g;
-		
 	}
 
 	@Override
-	public void adminSupprimerUtilisateur(ComAdresse admin, Identifiable idUtilisateur) {
-	}
-
-	@Override
-	public void adminSupprimerMessage(ComAdresse admin, Identifiable idMessage) {
-	}
-
-	@Override
-	public void adminSupprimerTicket(ComAdresse admin, Identifiable idTicket) {
-	}
-
-	@Override
-	public void adminSupprimerGroupe(ComAdresse admin, Identifiable idGroupe) {
-	}
-
-	@Override
-	public TreeMap<Groupe, NavigableSet<Utilisateur>> adminDemandeUtilisateursParGroupe(
-			ComAdresse admin) {
+	public TreeMap<Groupe, NavigableSet<Utilisateur>> adminDemandeUtilisateursParGroupe(ComAdresse admin) {
+		
 		if (!estAdmin(admin))
 			return null;
 		
 		TreeMap<Groupe, NavigableSet<Utilisateur>> map = null;
+		
 		try {
 			map = sql.sqlSelectUtilisateursParGroupe();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
 		return map;
+	}
+
+	
+	
+	
+	@Override
+	public Utilisateur adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur) {
+		
+		// TODO Mot de passe et nickname
+
+		if (!estAdmin(admin)) {
+			System.err.println("Un client exécute des requêtes admin");
+			return null;
+		}
+		
+		int idUtilisateur = utilisateur.getIdentifiantNumeriqueUnique();
+		Utilisateur u = null;
+
+		try {
+			if (idUtilisateur > 0) 
+				idUtilisateur = sql.sqlUpdateUtilisateur(
+						idUtilisateur, 
+						utilisateur.getNom(), 
+						utilisateur.getPrenom(), 
+						utilisateur.getNickname(), 
+						null);
+			else
+				idUtilisateur = sql.sqlInsertUtilisateur(
+						utilisateur.getNom(), 
+						utilisateur.getPrenom(), 
+						utilisateur.getNickname(), 
+						null);
+			if (idUtilisateur > 0)
+				u = sql.sqlSelectUtilisateur(idUtilisateur);
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return u;
+	}
+
+	@SuppressWarnings("unused")
+	@Override 
+	@Deprecated
+	public Message adminSetMessage(ComAdresse admin, Message message) {
+		
+		//TODO Supprimer cette fonction
+
+		if (!estAdmin(admin)) {
+			System.err.println("Un client exécute des requêtes admin");
+			return null;
+		}
+		
+		int idMsg = message.getIdentifiantNumeriqueUnique();
+		Message msg = null;
+
+		try {
+			int idTicket = message.getParent().getIdentifiantNumeriqueUnique();
+			int idUser = message.getEmetteur().getIdentifiantNumeriqueUnique();
+			if (idMsg > 0) 
+				System.err.println("TraitementRequete (admin): modif message: Non implémenté");
+				//idMsg = sql.sqlUpdateMessage(idMsg);
+			else
+				System.err.println("ADMIN ne peut pas créer de tickets");
+			if (idMsg > 0)
+				msg = sql.sqlSelectMessage(idMsg);
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		catch (NullPointerException e) {
+			System.err.println("Le parent du ticket est : " + message.getParent());
+			e.printStackTrace();
+		}
+		return msg;
+	}
+
+	@Override
+	public Ticket adminSetTicket(ComAdresse admin, Ticket ticket) {
+
+		if (!estAdmin(admin)) {
+			System.err.println("Un client exécute des requêtes admin");
+			return null;
+		}
+		
+		int idTicket = ticket.getIdentifiantNumeriqueUnique();
+		Ticket t = null;
+
+		try {
+			int idGroupe = ticket.getParent().getIdentifiantNumeriqueUnique();
+			if (idTicket > 0) 
+				idTicket = sql.sqlUpdateTicket(idTicket, ticket.getTitre(), idGroupe);
+			else
+				System.err.println("ADMIN ne peut pas créer de tickets");
+			if (idTicket > 0)
+				t = sql.sqlSelectTicket(idTicket);
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		catch (NullPointerException e) {
+			System.err.println("Le parent du ticket est : " + ticket.getParent());
+			e.printStackTrace();
+		}
+		return t;
+	}
+
+	@Override
+	public Groupe adminSetGroupe(ComAdresse admin, Groupe groupe) {
+
+		if (!estAdmin(admin)) {
+			System.err.println("Un client exécute des requêtes admin");
+			return null;
+		}
+		
+		int idGroupe = groupe.getIdentifiantNumeriqueUnique();
+		Groupe g = null;;
+
+		try {
+			if (idGroupe > 0) 
+				idGroupe = sql.sqlUpdateGroupe(idGroupe, groupe.getNom());
+			else
+				idGroupe = sql.sqlInsertGroupe(groupe.getNom());
+			if (idGroupe > 0)
+				g = sql.sqlSelectGroupe(idGroupe, -1);
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return g;
+	}
+
+	
+	
+	
+	@Override
+	public void adminSupprimerUtilisateur(ComAdresse admin, Identifiable idUtilisateur) {
+		
+		if (!estAdmin(admin)) {
+			System.err.println("Un non-admin demande à supprimer !");
+		}
+		else {
+			try {
+				sql.deleteGroupe(idUtilisateur.getIdentifiantNumeriqueUnique());
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void adminSupprimerMessage(ComAdresse admin, Identifiable idMessage) {
+		
+		if (!estAdmin(admin)) {
+			System.err.println("Un non-admin demande à supprimer !");
+		}
+		else {
+			try {
+				sql.deleteGroupe(idMessage.getIdentifiantNumeriqueUnique());
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void adminSupprimerTicket(ComAdresse admin, Identifiable idTicket) {
+		
+		if (!estAdmin(admin)) {
+			System.err.println("Un non-admin demande à supprimer !");
+		}
+		else {
+			try {
+				sql.deleteGroupe(idTicket.getIdentifiantNumeriqueUnique());
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void adminSupprimerGroupe(ComAdresse admin, Identifiable idGroupe) {
+		
+		if (!estAdmin(admin)) {
+			System.err.println("Un non-admin demande à supprimer !");
+		}
+		else {
+			try {
+				sql.deleteGroupe(idGroupe.getIdentifiantNumeriqueUnique());
+			}
+			catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	

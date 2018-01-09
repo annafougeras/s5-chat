@@ -575,11 +575,11 @@ public class Instance implements IInstance {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
+	
 
 
 	@Override
-	public int sqlUpdateTicket(int idTicket, String titre, int idUser,
+	public int sqlUpdateTicket(int idTicket, String titre, 
 			int idGroupe) throws SQLException {
 		// TODO Auto-generated method stub
 		return 0;

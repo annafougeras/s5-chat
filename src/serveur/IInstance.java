@@ -145,18 +145,21 @@ public interface IInstance {
 	public int sqlUpdateGroupe(int id, String nom) throws SQLException;
 	
 	public int sqlUpdateUtilisateur(int id, String nom, String prenom, String nickname, String pass) throws SQLException;
-	
-	public int sqlUpdateTicket(int idTicket, String titre, int idUser, int idGroupe) throws SQLException;
+
+	public int sqlUpdateTicket(int idTicket, String titre, int idGroupe) throws SQLException;
 	
 	public int updateMessage(int idMsg, String contenu, int idUser, int idTicket) throws SQLException;
 	
-
+	//TODO renommer en sqlDeleteGroupe
 	public void deleteGroupe(int id) throws SQLException;
 
+	//TODO renommer en sqlDeleteTicket
 	public void deleteTicket(int id) throws SQLException;
 
+	//TODO renommer en sqlDeleteMessage
 	public void deleteMessage(int id) throws SQLException;
 
+	//TODO renommer en sqlDeleteUtilisateur
 	public void deleteUtilisateur(int id) throws SQLException;
 	
 	

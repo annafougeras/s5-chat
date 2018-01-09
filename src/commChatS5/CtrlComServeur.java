@@ -206,6 +206,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 					break;
 					
 				case AJOUT_MODIF_UTILISATEUR:
+					@SuppressWarnings("unused")
 					Utilisateur u = observateur.adminSetUtilisateur(client, (Utilisateur) args[2]);
 					TreeMap<Groupe,NavigableSet<Utilisateur>> map1 = new TreeMap<>();
 					map1.putAll(observateur.adminDemandeUtilisateursParGroupe(client));
