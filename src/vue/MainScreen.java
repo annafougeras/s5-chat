@@ -86,7 +86,7 @@ public class MainScreen extends BaseScreen {
         jPanel2 = new javax.swing.JPanel();
         envoyerButton = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        newMessageTextArea = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         messageList = new javax.swing.JList<>();
         jPanel3 = new javax.swing.JPanel();
@@ -107,12 +107,17 @@ public class MainScreen extends BaseScreen {
         jPanel2.setLayout(new java.awt.BorderLayout(5, 0));
 
         envoyerButton.setText("Envoyer");
+        envoyerButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                envoyerButtonActionPerformed(evt);
+            }
+        });
         jPanel2.add(envoyerButton, java.awt.BorderLayout.LINE_END);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setLineWrap(true);
-        jTextArea1.setRows(2);
-        jScrollPane3.setViewportView(jTextArea1);
+        newMessageTextArea.setColumns(20);
+        newMessageTextArea.setLineWrap(true);
+        newMessageTextArea.setRows(2);
+        jScrollPane3.setViewportView(newMessageTextArea);
 
         jPanel2.add(jScrollPane3, java.awt.BorderLayout.CENTER);
 
@@ -208,6 +213,19 @@ public class MainScreen extends BaseScreen {
         this.ctrlVue.deconnecter();
     }//GEN-LAST:event_deconnectionMenuItemActionPerformed
 
+    private void envoyerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_envoyerButtonActionPerformed
+        String texte = newMessageTextArea.getText();
+        
+        if(!texte.isEmpty() && ticketAffiche != null){
+            // Envoyer le message au ticket courant
+            this.ctrlVue.addMessage(ticketAffiche, texte);
+            
+            // TODO : le message doit pouvoir s'afficher avant que le serveur ait répondu (dans ce cas le message a le statut ENVOYE)
+            // Mettre à jour les messages
+            this.ctrlVue.getRemoteMessages(ticketAffiche);
+        }
+    }//GEN-LAST:event_envoyerButtonActionPerformed
+
     /**
      * Agit en fonction de l'item sélectionné dans le JTree (déroule le groupe, ou ouvre le ticket)
      * @param evt 
@@ -270,8 +288,8 @@ public class MainScreen extends BaseScreen {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JList<Message> messageList;
+    private javax.swing.JTextArea newMessageTextArea;
     private javax.swing.JTree ticketTree;
     // End of variables declaration//GEN-END:variables
 
