@@ -229,7 +229,8 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 				
 			}
 		} catch (ClassCastException | IndexOutOfBoundsException | NullPointerException e){
-			System.err.println(e.getMessage());
+			System.err.println("Erreur dans la fabrication de la réponse ! ");
+			e.printStackTrace();
 			reponse = new SimpleMessage.SimpleMessageInformation(TypeMessage.INCONNU);
 		}
 		return reponse;

@@ -433,9 +433,11 @@ public class TraitementRequetes implements S5Serveur {
 		Groupe g = null;;
 		if (estAdmin(admin)) {
 			try {
-				idGroupe= sql.sqlInsertMessage("c'est mal fait", 1, 2);
+				idGroupe= sql.sqlInsertGroupe(groupe.getNom());
+				System.out.println(idGroupe);
 				if (idGroupe>= 0)
 					g = sql.sqlSelectGroupe(idGroupe, -1);
+				System.out.println(g);
 			} 
 			catch (SQLException e) {
 				e.printStackTrace();

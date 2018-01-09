@@ -130,14 +130,14 @@ public class Instance implements IInstance {
 	 */
 	public Utilisateur sqlSelectUtilisateur(int id) throws SQLException {	
 		
-		Utilisateur u;
+		Utilisateur u = null;
 		String sql = "SELECT * FROM user WHERE id_user ="+ id +" LIMIT 1";
 		
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		
-		// à mettre en getInt si on décide de changer le constructeur d'utilisateur
-		u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
+		if (rs.next())
+			u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
 	
 		return u;
 	}
@@ -352,17 +352,18 @@ public class Instance implements IInstance {
 	 * Construit un groupe incomplet (contenant des tickets incomplets)
 	 * @param idGroupe Id du groupe
 	 * @param nomGroupe Nom du groupe
-	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @param idUser Id de l'utilisateur faisant la requête (ou -1)
 	 * @return Le groupe, ou null
 	 * @throws SQLException
 	 */
 	public Groupe sqlSelectGroupe(int idGroupe, int idUser) throws SQLException {
+		System.err.println("Non implémenté");
 		return null;
 	}
 	
 	/**
 	 * Construit la liste de tous les groupes (incomplets)
-	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @param idUser Id de l'utilisateur faisant la requête (ou -1)
 	 * @return
 	 * @throws SQLException
 	 */
@@ -440,7 +441,9 @@ public class Instance implements IInstance {
 		String query = "INSERT INTO groupe (id_groupe, nom_groupe) VALUES (NULL, \""+ nom +"\")";
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
 		ResultSet rs = statement.getGeneratedKeys();
-		return rs.getInt(1);
+		if (rs.next())
+			return rs.getInt(1);
+		return -1;
 	}
 
 
@@ -454,10 +457,12 @@ public class Instance implements IInstance {
 			String pass) throws SQLException {
 	    Statement statement = conn.createStatement();
 		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
-				+ "VALUES (NULL, '"+sha256(pass)+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
+				+ "VALUES (NULL, '"+Sha256.sha256(pass)+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
 		ResultSet rs = statement.getGeneratedKeys();
-		return rs.getInt(1);
+		if (rs.next())
+			return rs.getInt(1);
+		return -1;
 	}
 
 

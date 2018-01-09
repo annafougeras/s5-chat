@@ -84,6 +84,7 @@ Création de jars :
 	# Ou indépendamment
 	make appli_client.jar
 	make appli_admin.jar
+	make serveur.jar
 
 Documentation :
 

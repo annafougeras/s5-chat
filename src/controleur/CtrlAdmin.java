@@ -222,7 +222,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public void recevoirGroupe(Groupe groupe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	System.out.println("Groupe reçu : " + groupe);
+    	modele.add(groupe);
+    	currentScreen.update(this, null);
     }
     
 	@Override
