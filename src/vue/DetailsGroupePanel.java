@@ -24,26 +24,26 @@ import modele.Utilisateur;
  *
  * @author Vincent Fougeras
  */
-public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
+public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
 
     private ICtrlAdmin ctrlAdmin;
-    private Utilisateur user;
-    private NavigableSet<Groupe> groupes;
+    private Groupe groupe;
+    private NavigableSet<Utilisateur> users;
     
     /**
      * Creates new form AddPanel
      */
-    public DetailsUserPanel(ICtrlAdmin ctrlAdmin, Utilisateur user) {
+    public DetailsGroupePanel(ICtrlAdmin ctrlAdmin, Groupe groupe) {
         this.ctrlAdmin = ctrlAdmin;
-        this.user = user;
-        this.groupes = ctrlAdmin.getGroupes(user);
+        this.groupe = groupe;
+        this.users = ctrlAdmin.getUtilisateurs(groupe);
         
         // Il faut s'ajouter soi même au ctrlAdmin pour être notifié
         ((CtrlAdmin)this.ctrlAdmin).addObserver(this);
         
         initComponents();
         
-        userNameLabel.setText("Détails de l'utilisateur " + user.getNom() + " " + user.getPrenom());
+        groupeNameLabel.setText("Détails du groupe " + groupe.getNom());
     }
     
     private JDialog getParentDialog(){
@@ -66,13 +66,13 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        groupTable = new javax.swing.JTable();
+        userTable = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
-        userNameLabel = new javax.swing.JLabel();
-        supprimerUserButton = new javax.swing.JButton();
-        modifierUserButton = new javax.swing.JButton();
+        groupeNameLabel = new javax.swing.JLabel();
+        supprimerGroupeButton = new javax.swing.JButton();
+        modifierGroupeButton = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
-        addGroupButton = new javax.swing.JButton();
+        addUserButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(30, 0), new java.awt.Dimension(30, 0), new java.awt.Dimension(32767, 0));
         annulerButton = new javax.swing.JButton();
@@ -82,48 +82,48 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        groupTable.setModel(new UserOrGroupeTableModel<Groupe>(new ArrayList<Groupe>(this.groupes)));
-        groupTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        groupTable.getSelectionModel().addListSelectionListener(new GroupTableSelectionListener());
-        jScrollPane1.setViewportView(groupTable);
+        userTable.setModel(new UserOrGroupeTableModel<Utilisateur>(new ArrayList<Utilisateur>(this.users)));
+        userTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        userTable.getSelectionModel().addListSelectionListener(new UserTableSelectionListener());
+        jScrollPane1.setViewportView(userTable);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         jPanel3.setLayout(new java.awt.GridBagLayout());
 
-        userNameLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        userNameLabel.setText("Détails de l'utilisateur ");
-        userNameLabel.setAlignmentX(0.5F);
+        groupeNameLabel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        groupeNameLabel.setText("Détails du groupe");
+        groupeNameLabel.setAlignmentX(0.5F);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.insets = new java.awt.Insets(5, 0, 10, 0);
-        jPanel3.add(userNameLabel, gridBagConstraints);
+        jPanel3.add(groupeNameLabel, gridBagConstraints);
 
-        supprimerUserButton.setText("Supprimer");
+        supprimerGroupeButton.setText("Supprimer");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 5, 0);
-        jPanel3.add(supprimerUserButton, gridBagConstraints);
+        jPanel3.add(supprimerGroupeButton, gridBagConstraints);
 
-        modifierUserButton.setText("Modifier");
+        modifierGroupeButton.setText("Modifier");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
-        jPanel3.add(modifierUserButton, gridBagConstraints);
+        jPanel3.add(modifierGroupeButton, gridBagConstraints);
 
         jPanel1.add(jPanel3, java.awt.BorderLayout.PAGE_START);
 
-        addGroupButton.setText("Ajouter un groupe");
-        addGroupButton.addActionListener(new java.awt.event.ActionListener() {
+        addUserButton.setText("Ajouter un utilisateur");
+        addUserButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addGroupButtonActionPerformed(evt);
+                addUserButtonActionPerformed(evt);
             }
         });
-        jPanel4.add(addGroupButton);
+        jPanel4.add(addUserButton);
 
         jPanel1.add(jPanel4, java.awt.BorderLayout.PAGE_END);
 
@@ -148,51 +148,51 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
         this.closeParentDialog();
     }//GEN-LAST:event_annulerButtonActionPerformed
 
-    private void addGroupButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addGroupButtonActionPerformed
+    private void addUserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUserButtonActionPerformed
         JDialog addDialog = new JDialog(getParentDialog(), "Ajouter un groupe", true);
         // TODO addGroupToUserPanel
         //AddGroupPanel addGroupPanel = new AddGroupPanel(this.ctrlAdmin);
         //addDialog.add(addGroupPanel);
         //addDialog.pack();
         //addDialog.setVisible(true);
-    }//GEN-LAST:event_addGroupButtonActionPerformed
+    }//GEN-LAST:event_addUserButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addGroupButton;
+    private javax.swing.JButton addUserButton;
     private javax.swing.JButton annulerButton;
     private javax.swing.Box.Filler filler1;
-    private javax.swing.JTable groupTable;
+    private javax.swing.JLabel groupeNameLabel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton modifierUserButton;
-    private javax.swing.JButton supprimerUserButton;
-    private javax.swing.JLabel userNameLabel;
+    private javax.swing.JButton modifierGroupeButton;
+    private javax.swing.JButton supprimerGroupeButton;
+    private javax.swing.JTable userTable;
     // End of variables declaration//GEN-END:variables
 
     @Override
     public void update(Observable o, Object o1) {
         // Mettre à jour la liste des groupes existants
-        this.groupes = ctrlAdmin.getGroupes();
+        this.users = ctrlAdmin.getUtilisateurs(groupe);
         // Changer la table de modèle
-        groupTable.setModel(new UserOrGroupeTableModel<>(new ArrayList<>(this.groupes)));
+        userTable.setModel(new UserOrGroupeTableModel<>(new ArrayList<>(this.users)));
     }
     
-    private class GroupTableSelectionListener implements ListSelectionListener {
+    private class UserTableSelectionListener implements ListSelectionListener {
 
         @Override
         public void valueChanged(ListSelectionEvent lse) {
-            int row = groupTable.getSelectedRow();
-            int col = groupTable.getSelectedColumn();
+            int row = userTable.getSelectedRow();
+            int col = userTable.getSelectedColumn();
             if(row >= 0 && col >= 0){
                 switch (col){
                     case 0 :
                     case 1 :
-                        Groupe groupe = (new ArrayList<>(groupes)).get(row);
-                        // TODO : Fermer le JDialog, et ouvrir le JDialog de ce groupe
+                        Utilisateur user = (new ArrayList<>(users)).get(row);
+                        // TODO : Fermer le JDialog, et ouvrir le JDialog de cet user
                         break;
                     default :
                         // TODO : Retirer l'utilisateur à ce groupe

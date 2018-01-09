@@ -42,10 +42,10 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTable" name="groupTable">
+            <Component class="javax.swing.JTable" name="userTable">
               <Properties>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new UserOrGroupeTableModel&lt;Groupe&gt;(new ArrayList&lt;Groupe&gt;(this.groupes))" type="code"/>
+                  <Connection code="new UserOrGroupeTableModel&lt;Utilisateur&gt;(new ArrayList&lt;Utilisateur&gt;(this.users))" type="code"/>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0"/>
@@ -55,7 +55,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="groupTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);&#xa;groupTable.getSelectionModel().addListSelectionListener(new GroupTableSelectionListener());"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="userTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);&#xa;userTable.getSelectionModel().addListSelectionListener(new UserTableSelectionListener());"/>
               </AuxValues>
             </Component>
           </SubComponents>
@@ -69,12 +69,12 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="userNameLabel">
+            <Component class="javax.swing.JLabel" name="groupeNameLabel">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Tahoma" size="14" style="0"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="D&#xe9;tails de l&apos;utilisateur "/>
+                <Property name="text" type="java.lang.String" value="D&#xe9;tails du groupe"/>
                 <Property name="alignmentX" type="float" value="0.5"/>
               </Properties>
               <Constraints>
@@ -83,7 +83,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JButton" name="supprimerUserButton">
+            <Component class="javax.swing.JButton" name="supprimerGroupeButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Supprimer"/>
               </Properties>
@@ -93,7 +93,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JButton" name="modifierUserButton">
+            <Component class="javax.swing.JButton" name="modifierGroupeButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Modifier"/>
               </Properties>
@@ -114,12 +114,12 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JButton" name="addGroupButton">
+            <Component class="javax.swing.JButton" name="addUserButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Ajouter un groupe"/>
+                <Property name="text" type="java.lang.String" value="Ajouter un utilisateur"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addGroupButtonActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addUserButtonActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

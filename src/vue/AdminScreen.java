@@ -131,23 +131,11 @@ public class AdminScreen extends BaseScreenAdmin {
     
     
     private void showGroupDetails(Groupe groupe) {
-    	JDialog dialogue = new JDialog(this, "Détails du groupe " + groupe.getNom(), true);
-    	JLabel label = new JLabel();
-    	String html;
-    	html = "<html><h1>Groupe \""+groupe.getNom()+"\"</h1>";
-    	html += "<h2>Tickets du groupe</h2><ul>";
-    	for (Ticket t: groupe.getTicketsConnus()) {
-    		html += "<li>" + t + "</li>";
-    	}
-    	html += "</ul><h2>Membres du groupe</h2><ul>";
-    	for (Utilisateur u: ctrlAdmin.getUtilisateurs(groupe))
-    		html += "<li>" + u + "</li>";
-    	html += "</ul>Il faudra faire mieux, mais ça marche !</html>";
-    	label.setPreferredSize(new Dimension(500,250));
-    	label.setText(html);
-    	dialogue.add(label);
-    	dialogue.pack();
-    	dialogue.setVisible(true);
+    	JDialog detailsGroupeDialog = new JDialog(this, "Détails du groupe", true);
+        DetailsGroupePanel detailsGroupePanel = new DetailsGroupePanel(this.ctrlAdmin, groupe);
+        detailsGroupeDialog.add(detailsGroupePanel);
+        detailsGroupeDialog.pack();
+        detailsGroupeDialog.setVisible(true);
     }
 
 
