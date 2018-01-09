@@ -5,21 +5,21 @@
  */
 package vue;
 
-import controleur.CtrlAdmin;
-import controleur.CtrlVue;
-import controleur.ICtrlAdmin;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Observable;
+
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import modele.Groupe;
+import modele.Ticket;
 import modele.Utilisateur;
+import controleur.ICtrlAdmin;
 
 /**
  *
@@ -126,6 +126,29 @@ public class AdminScreen extends BaseScreenAdmin {
         addDialog.pack();
         addDialog.setVisible(true);
     }//GEN-LAST:event_addGroupButtonActionPerformed
+    
+    
+    
+    
+    private void showGroupDetails(Groupe groupe) {
+    	JDialog dialogue = new JDialog(this, "Détails du groupe " + groupe.getNom(), true);
+    	JLabel label = new JLabel();
+    	String html;
+    	html = "<html><h1>Groupe \""+groupe.getNom()+"\"</h1>";
+    	html += "<h2>Tickets du groupe</h2><ul>";
+    	for (Ticket t: groupe.getTicketsConnus()) {
+    		html += "<li>" + t + "</li>";
+    	}
+    	html += "</ul><h2>Membres du groupe</h2><ul>";
+    	for (Utilisateur u: ctrlAdmin.getUtilisateurs(groupe))
+    		html += "<li>" + u + "</li>";
+    	html += "</ul>Il faudra faire mieux, mais ça marche !</html>";
+    	label.setPreferredSize(new Dimension(500,250));
+    	label.setText(html);
+    	dialogue.add(label);
+    	dialogue.pack();
+    	dialogue.setVisible(true);
+    }
 
 
     @Override
@@ -165,10 +188,8 @@ public class AdminScreen extends BaseScreenAdmin {
                 if (groupList.getSelectedIndex() == -1) {
                     //No selection, do nothing
                 } else {
-                    //Selection, open the group's details
-                    
-                    System.out.println("Ouvrir les détails du groupe (dans un modal comportant les mêmes éléments que dans la maquette)");
-                    
+                	Groupe g = groupList.getModel().getElementAt(groupList.getSelectedIndex());
+                	showGroupDetails(g);
                 }
             }
         }
