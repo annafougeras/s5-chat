@@ -56,11 +56,11 @@ public class Serveur {
 		}
 		
 		port = Integer.parseInt(args[0]);
-		traitReq = new Instance(local);
+		traitReq = new TraitementRequetes(local);
 		ctrlCom = new CtrlComServeur(traitReq, port);
-		
-		System.out.println("Démarrage du serveur");
+
 		ctrlCom.start();
+		System.out.println("Serveur démarré");
 		
 		
 		// Attente de commandes

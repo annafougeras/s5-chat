@@ -7,7 +7,9 @@
  */
 package commChatS5;
 
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 import modele.Groupe;
 import modele.Identifiable;
@@ -38,6 +40,13 @@ public interface S5ServeurAdmin {
 	 * @return Ensemble de tous les utilisateurs
 	 */
 	public Set<Utilisateur> adminDemandeUtilisateurs(ComAdresse admin);	
+
+	/**
+	 * Demande tous les utilisateurs rangés par groupes
+	 * @param client
+	 * @return
+	 */
+	TreeMap<Groupe,NavigableSet<Utilisateur>> adminDemandeUtilisateursParGroupe(ComAdresse client);
 
 
 	
@@ -97,28 +106,49 @@ public interface S5ServeurAdmin {
 	 * @param admin Adresse de l'administrateur effectuant la demande
 	 * @param utilisateur L'utilisateur à ajouter (nouvel id) ou a modifier (id existant)
 	 */
-	public void adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur);	
+	public Utilisateur adminSetUtilisateur(ComAdresse admin, Utilisateur utilisateur);	
 
 	/**
 	 * Ajouter / modifier un message
 	 * @param admin Adresse de l'administrateur effectuant la demande
 	 * @param message Le message à ajouter (nouvel id) ou a modifier (id existant)
 	 */
-	public void adminSetMessage(ComAdresse admin, Message message);	
+	@Deprecated
+	public Message adminSetMessage(ComAdresse admin, Message message);	
 
 	/**
 	 * Ajouter / modifier un ticket
 	 * @param admin Adresse de l'administrateur effectuant la demande
 	 * @param ticket Le ticket à ajouter (nouvel id) ou a modifier (id existant)
 	 */
-	public void adminSetTicket(ComAdresse admin, Ticket ticket);	
+	public Ticket adminSetTicket(ComAdresse admin, Ticket ticket);	
 
 	/**
 	 * Ajouter / modifier un groupe
 	 * @param admin Adresse de l'administrateur effectuant la demande
 	 * @param groupe Le groupe à ajouter (nouvel id) ou a modifier (id existant)
 	 */
-	public void adminSetGroupe(ComAdresse admin, Groupe groupe);
+	public Groupe adminSetGroupe(ComAdresse admin, Groupe groupe);
+	
+	
+	
+	/**
+	 * Fait en sorte qu'un utilisateur rejoint un groupe
+	 * @param admin Adresse de l'administrateur effectuant la demande
+	 * @param idGroupe ID du groupe à rejoindre
+	 * @param idUtilisateur ID de l'utilisateur
+	 */
+	public void adminRejoindreGroupe(ComAdresse admin, Identifiable idGroupe, Identifiable idUtilisateur);
+	
+	
+	/**
+	 * Fait en sorte qu'un utilisateur quitte un groupe
+	 * @param admin Adresse de l'administrateur effectuant la demande
+	 * @param idGroupe ID du groupe à quitter
+	 * @param idUtilisateur ID de l'utilisateur
+	 */
+	public void adminQuitterGroupe(ComAdresse admin, Identifiable idGroupe, Identifiable idUtilisateur);
+	
 
 	
 	

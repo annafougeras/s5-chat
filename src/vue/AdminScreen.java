@@ -5,21 +5,21 @@
  */
 package vue;
 
-import controleur.CtrlAdmin;
-import controleur.CtrlVue;
-import controleur.ICtrlAdmin;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Observable;
+
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import modele.Groupe;
+import modele.Ticket;
 import modele.Utilisateur;
+import controleur.ICtrlAdmin;
 
 /**
  *
@@ -126,11 +126,34 @@ public class AdminScreen extends BaseScreenAdmin {
         addDialog.pack();
         addDialog.setVisible(true);
     }//GEN-LAST:event_addGroupButtonActionPerformed
+    
+    
+    
+    
+    private void showGroupDetails(Groupe groupe) {
+    	JDialog detailsGroupeDialog = new JDialog(this, "Détails du groupe", true);
+        DetailsGroupePanel detailsGroupePanel = new DetailsGroupePanel(this.ctrlAdmin, groupe);
+        detailsGroupeDialog.add(detailsGroupePanel);
+        detailsGroupeDialog.pack();
+        detailsGroupeDialog.setVisible(true);
+    }
 
 
     @Override
     public void update(Observable o, Object o1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        userList.setModel(new javax.swing.AbstractListModel<Utilisateur>() {
+            List<Utilisateur> users = new ArrayList<>(ctrlAdmin.getUtilisateurs());
+            public int getSize() { return users.size(); }
+            public Utilisateur getElementAt(int i) { return users.get(i); }
+        });
+
+
+        groupList.setModel(new javax.swing.AbstractListModel<Groupe>() {
+            List<Groupe> groupes = new ArrayList<>(ctrlAdmin.getGroupes());
+            public int getSize() { return groupes.size(); }
+            public Groupe getElementAt(int i) { return groupes.get(i); }
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -153,10 +176,8 @@ public class AdminScreen extends BaseScreenAdmin {
                 if (groupList.getSelectedIndex() == -1) {
                     //No selection, do nothing
                 } else {
-                    //Selection, open the group's details
-                    
-                    System.out.println("Ouvrir les détails du groupe (dans un modal comportant les mêmes éléments que dans la maquette)");
-                    
+                	Groupe g = groupList.getModel().getElementAt(groupList.getSelectedIndex());
+                	showGroupDetails(g);
                 }
             }
         }

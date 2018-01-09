@@ -16,25 +16,23 @@ import modele.Groupe;
  *
  * @author Vincent Fougeras
  */
-public class GroupeTableModel extends AbstractTableModel
+public class UserOrGroupeTableModel<T> extends AbstractTableModel
 {
+
+    private List<T> usersOrGroupes;
     
-    private ICtrlAdmin ctrlAdmin;
-    private List<Groupe> groupes;
-    
-    public GroupeTableModel(ICtrlAdmin ctrlAdmin){
-        this.ctrlAdmin = ctrlAdmin;
-        this.groupes = new ArrayList<>(ctrlAdmin.getGroupes());
+    public UserOrGroupeTableModel(List<T> usersOrGroupes){
+        this.usersOrGroupes = usersOrGroupes;
     }
 
     @Override
     public int getRowCount() {
-        return groupes.size();
+        return usersOrGroupes.size();
     }
 
     @Override
     public int getColumnCount() {
-        return 3; // Group name, Details, Retirer
+        return 3; // User/Group name, Details, Retirer
     }
 
     @Override
@@ -42,7 +40,7 @@ public class GroupeTableModel extends AbstractTableModel
         Object returnedObject;
         switch (col) {
             case 0 :
-                returnedObject = groupes.get(row);
+                returnedObject = usersOrGroupes.get(row);
                 break;
             case 1 :
                 returnedObject = "Details";
@@ -51,12 +49,5 @@ public class GroupeTableModel extends AbstractTableModel
                 returnedObject = "Retirer";
         }
         return returnedObject;
-    }
-    
-    public void update(){
-        this.groupes.clear();
-        this.groupes.addAll(this.ctrlAdmin.getGroupes());
-        fireTableDataChanged();
-    }
-    
+    }    
 }
