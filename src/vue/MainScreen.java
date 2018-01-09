@@ -5,17 +5,28 @@
  */
 package vue;
 
-import controleur.CtrlVue;
-import controleur.ICtrlVue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.NavigableSet;
 import java.util.Observable;
-import java.util.Observer;
+
 import javax.swing.JDialog;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+
 import modele.Groupe;
+import modele.Identifiable;
+import modele.KeyIdentifiable;
+import modele.Message;
+import modele.Ticket;
+import controleur.CtrlVue;
+import controleur.ICtrlVue;
+import java.util.ArrayList;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import modele.Groupe;
+import modele.Message;
 import modele.Ticket;
 
 /**
@@ -23,6 +34,11 @@ import modele.Ticket;
  * @author Vincent Fougeras
  */
 public class MainScreen extends BaseScreen {
+	
+	
+	private Ticket ticketAffiche = null;
+	
+	
 
     /**
      * Creates new form MainScreen
@@ -104,10 +120,14 @@ public class MainScreen extends BaseScreen {
 
         jScrollPane2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        messageList.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+        messageList.setModel(new MessageListModel(new ArrayList<Message>()));
+        messageList.setCellRenderer(new MessageListCellRenderer());
+
+        messageList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        messageList.addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent e) {
+                openMessageDetailsModal();
+            }
         });
         jScrollPane2.setViewportView(messageList);
 
@@ -122,9 +142,15 @@ public class MainScreen extends BaseScreen {
         jScrollPane1.setMinimumSize(new java.awt.Dimension(200, 23));
 
         ticketTree.setMaximumSize(null);
+        ticketTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                ticketTreeValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(ticketTree);
         ticketTree.setRootVisible(false);
         ticketTree.setShowsRootHandles(true);
+        ticketTree.setCellRenderer(new GroupeTreeCellRenderer());
 
         jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
@@ -182,6 +208,54 @@ public class MainScreen extends BaseScreen {
         this.ctrlVue.deconnecter();
     }//GEN-LAST:event_deconnectionMenuItemActionPerformed
 
+    /**
+     * Agit en fonction de l'item sélectionné dans le JTree (déroule le groupe, ou ouvre le ticket)
+     * @param evt 
+     */ 
+    private void ticketTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {                                        
+        if(ticketTree.getLastSelectedPathComponent() instanceof Groupe){
+            ticketTree.expandPath(evt.getNewLeadSelectionPath()); /* Ne marche pas tout le temps mais on a le double-click + le "plus" qui marchent tout le temps */
+        } else if (ticketTree.getLastSelectedPathComponent() instanceof Ticket){
+            Ticket ticket = (Ticket) ticketTree.getLastSelectedPathComponent();
+            
+            /* 
+                Ouvrir le ticket dans le panel de droite 
+            */
+            this.ctrlVue.getRemoteMessages(ticket); // Demander au controleur de mettre a jour le ticket
+            
+            // J'utilisais cette fonction auparavant pour mettre à jour les messages mais 
+            // c'est surement mieux de faire comme tu as fait (en utilisant des CtrlVue.Notification)
+            this.updateMessageList(ticket); // Afficher les messages du ticket
+        }
+    }
+    
+
+	/**
+     * Retourne le ticket actuellement selectionne dans le JTree
+     * @return le ticket actuellement selectionne ou null
+     */
+    private Ticket getSelectedTicket(){
+        if (ticketTree.getLastSelectedPathComponent() instanceof Ticket){
+            Ticket ticket = (Ticket) ticketTree.getLastSelectedPathComponent();
+            return ticket;
+        }
+        return null;
+    }
+    
+    private void openMessageDetailsModal(){
+        // Récupérer la sélection
+        Message message = messageList.getSelectedValue();
+        
+        if(message != null){
+            // Ouvrir le modal
+            JDialog detailsDialog = new JDialog(this, "Détails du message", true);
+            MessageDetailsPanel detailsPanel = new MessageDetailsPanel(message);
+            detailsDialog.add(detailsPanel);
+
+            detailsDialog.pack();
+            detailsDialog.setVisible(true);
+        }        
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTicketButton;
@@ -197,14 +271,61 @@ public class MainScreen extends BaseScreen {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JList<String> messageList;
+    private javax.swing.JList<Message> messageList;
     private javax.swing.JTree ticketTree;
     // End of variables declaration//GEN-END:variables
 
+    
+    
+    
+    
+    
+    
+
+    /**
+	 * @param ticket
+	 */
+	private void updateMessageList(final Ticket ticket) {
+		ticketAffiche = ticket;
+		if (ticket.estComplet()){
+			System.out.println(ticket.getMessages());
+			NavigableSet<Message> set = ticket.getMessages();
+		
+                        messageList.setModel(new MessageListModel(new ArrayList<>(ticketAffiche.getMessages())));
+                        
+                        // Code de Pierre
+                        /*messageList.setModel(new javax.swing.AbstractListModel<String>() {
+                            public int getSize() { return ticketAffiche.getMessages().size(); }
+                            public String getElementAt(int i) { return ticketAffiche.getMessages().toArray()[i].toString(); }
+                        });*/
+		}
+                else {
+                        messageList.setModel(new MessageListModel(new ArrayList<Message>()));
+                        
+                        // Code de Pierre
+                        /*messageList.setModel(new javax.swing.AbstractListModel<String>() {
+                            public int getSize() { return 1; }
+                            public String getElementAt(int i) { return "Patientez..."; }
+                        });*/
+                }
+	}
+    
+	private void updateMessageList(){
+		if (ticketAffiche instanceof Ticket)
+			updateMessageList((Ticket) ticketAffiche);
+	}
+    
+	private void updateTicketTree(){
+		ticketTree.setModel(new GroupeTreeModel(ctrlVue.getModel()));
+		ticketTree.updateUI();
+		// On doit pouvoir réouvrir le noeud du JTree, sachant this.ticketAffiche
+	}
+    
     @Override
     public void update(Observable o, Object o1) {
         // Unable to know which object has been updated -> update everything
         // Update ticketTree, messageList (with currently selected ticket)
+    	
        /*
         NavigableSet<Groupe> groupes = this.ctrlVue.getModel();
         
@@ -214,7 +335,32 @@ public class MainScreen extends BaseScreen {
         
         this.updateMessageList(selectedTicket);*/
                 
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	
+    	if (o1 instanceof CtrlVue.Notification){
+    		CtrlVue.Notification notification = (CtrlVue.Notification) o1;
+    		switch (notification){
+    		case UPDATE_JTREE:
+    			updateTicketTree();
+    			break;
+    		case UPDATE_MESSAGES:
+    			updateMessageList();
+    			break;
+    			
+    		default:
+    			System.err.println("Notification non traitée : " + notification);
+    			
+    		}
+    	}
+    	else if (o1 instanceof Ticket){
+    		Ticket notification = (Ticket) o1;
+    		updateTicketTree();
+    		if (notification.equals(ticketAffiche))
+    			updateMessageList(notification);
+    	}
+    	else
+    		System.err.println("Notification non traitée : " + o1);
+    	
     }
     
 }

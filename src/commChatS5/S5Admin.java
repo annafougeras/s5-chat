@@ -7,6 +7,8 @@
  */
 package commChatS5;
 
+import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 
 import modele.Groupe;
@@ -85,6 +87,12 @@ public interface S5Admin {
 	 */
 	public void recevoirGroupe(Set<Groupe> tousLesGroupes);
 	
+	/**
+	 * Recevoir la Map<Groupe,Utilisateur> 
+	 * @param map
+	 */
+	public void recevoirUtilisateurParGroupe(Map<Groupe, NavigableSet<Utilisateur>> map);
+	
 	
 	/**
 	 * Recevoir un message invalide
@@ -95,5 +103,9 @@ public interface S5Admin {
 	
 	@Deprecated
 	public void recevoirReponseSQL(String reponse);
+
+
+
+
 	
 }

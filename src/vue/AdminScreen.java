@@ -5,8 +5,21 @@
  */
 package vue;
 
-import controleur.ICtrlAdmin;
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import modele.Groupe;
+import modele.Ticket;
+import modele.Utilisateur;
+import controleur.ICtrlAdmin;
 
 /**
  *
@@ -33,60 +46,157 @@ public class AdminScreen extends BaseScreenAdmin {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        groupList = new javax.swing.JList<>();
+        addGroupButton = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        groupeTable = new javax.swing.JTable();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        utilisateurTable = new javax.swing.JTable();
+        userList = new javax.swing.JList<>();
+        addUserButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle(Environment.APP_NAME);
+        setMinimumSize(new java.awt.Dimension(700, 500));
 
-        groupeTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        groupList.setModel(new javax.swing.AbstractListModel<Groupe>() {
+            List<Groupe> groupes = new ArrayList<>(ctrlAdmin.getGroupes());
+            public int getSize() { return groupes.size(); }
+            public Groupe getElementAt(int i) { return groupes.get(i); }
+        });
+        groupList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+
+        groupList.addListSelectionListener(new GroupListSelectionListener());
+        jScrollPane4.setViewportView(groupList);
+
+        jPanel1.add(jScrollPane4, java.awt.BorderLayout.CENTER);
+
+        addGroupButton.setText("Ajouter un groupe");
+        addGroupButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addGroupButtonActionPerformed(evt);
             }
-        ));
-        jScrollPane1.setViewportView(groupeTable);
+        });
+        jPanel1.add(addGroupButton, java.awt.BorderLayout.PAGE_END);
 
-        jTabbedPane1.addTab("Groupes", jScrollPane1);
+        jTabbedPane1.addTab("Groupes", jPanel1);
 
-        utilisateurTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        userList.setModel(new javax.swing.AbstractListModel<Utilisateur>() {
+            List<Utilisateur> users = new ArrayList<>(ctrlAdmin.getUtilisateurs());
+            public int getSize() { return users.size(); }
+            public Utilisateur getElementAt(int i) { return users.get(i); }
+        });
+        userList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        userList.addListSelectionListener(new UserListSelectionListener());
+        jScrollPane1.setViewportView(userList);
+
+        jPanel2.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        addUserButton.setText("Ajouter un utilisateur");
+        addUserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addUserButtonActionPerformed(evt);
             }
-        ));
-        jScrollPane2.setViewportView(utilisateurTable);
+        });
+        jPanel2.add(addUserButton, java.awt.BorderLayout.PAGE_END);
 
-        jTabbedPane1.addTab("Utilisateurs", jScrollPane2);
+        jTabbedPane1.addTab("Utilisateurs", jPanel2);
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void addUserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUserButtonActionPerformed
+        JDialog addDialog = new JDialog(this, "Créer un utilisateur", true);
+        AddUserPanel addUserPanel = new AddUserPanel(this.ctrlAdmin);
+        addDialog.add(addUserPanel);
+        addDialog.pack();
+        addDialog.setVisible(true);
+    }//GEN-LAST:event_addUserButtonActionPerformed
+
+    private void addGroupButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addGroupButtonActionPerformed
+        JDialog addDialog = new JDialog(this, "Créer un utilisateur", true);
+        AddGroupPanel addGroupPanel = new AddGroupPanel(this.ctrlAdmin);
+        addDialog.add(addGroupPanel);
+        addDialog.pack();
+        addDialog.setVisible(true);
+    }//GEN-LAST:event_addGroupButtonActionPerformed
+    
+    
+    
+    
+    private void showGroupDetails(Groupe groupe) {
+    	JDialog detailsGroupeDialog = new JDialog(this, "Détails du groupe", true);
+        DetailsGroupePanel detailsGroupePanel = new DetailsGroupePanel(this.ctrlAdmin, groupe);
+        detailsGroupeDialog.add(detailsGroupePanel);
+        detailsGroupeDialog.pack();
+        detailsGroupeDialog.setVisible(true);
+    }
+
 
     @Override
     public void update(Observable o, Object o1) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+        userList.setModel(new javax.swing.AbstractListModel<Utilisateur>() {
+            List<Utilisateur> users = new ArrayList<>(ctrlAdmin.getUtilisateurs());
+            public int getSize() { return users.size(); }
+            public Utilisateur getElementAt(int i) { return users.get(i); }
+        });
+
+
+        groupList.setModel(new javax.swing.AbstractListModel<Groupe>() {
+            List<Groupe> groupes = new ArrayList<>(ctrlAdmin.getGroupes());
+            public int getSize() { return groupes.size(); }
+            public Groupe getElementAt(int i) { return groupes.get(i); }
+        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable groupeTable;
+    private javax.swing.JButton addGroupButton;
+    private javax.swing.JButton addUserButton;
+    private javax.swing.JList<Groupe> groupList;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable utilisateurTable;
+    private javax.swing.JList<Utilisateur> userList;
     // End of variables declaration//GEN-END:variables
+
+
+    private class GroupListSelectionListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent lse) {
+            if (lse.getValueIsAdjusting() == false) {
+                if (groupList.getSelectedIndex() == -1) {
+                    //No selection, do nothing
+                } else {
+                	Groupe g = groupList.getModel().getElementAt(groupList.getSelectedIndex());
+                	showGroupDetails(g);
+                }
+            }
+        }
+    }
+    
+    private class UserListSelectionListener implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent lse) {
+            if (lse.getValueIsAdjusting() == false) {
+                if (userList.getSelectedIndex() == -1) {
+                    //No selection, do nothing
+                } else {
+                    //Selection, open the group's details
+                    
+                    System.out.println("Ouvrir les détails de l'utilisateur (dans un modal comportant les mêmes éléments que dans la maquette)");
+                    
+                }
+            }
+        }
+    }
+
 }

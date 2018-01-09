@@ -10,7 +10,7 @@ package modele;
 /**
  * 
  */
-public class KeyIdentifiable extends AbstractIdentifiable {
+public class KeyIdentifiable extends AbstractIdentifiable implements Comparable<Identifiable> {
 
 	private static final long serialVersionUID = 2413861824016851475L;
 
@@ -26,6 +26,18 @@ public class KeyIdentifiable extends AbstractIdentifiable {
 	 */
 	public KeyIdentifiable(String uniqueId) {
 		super(uniqueId);
+	}
+	
+	/**
+	 * @param obj Objet identifiable dont on copie l'id
+	 */
+	public KeyIdentifiable(Identifiable obj){
+		this(obj.getIdentifiantUnique());
+	}
+
+	@Override
+	public int compareTo(Identifiable arg0) {
+		return new IdentifiableComparator().compare(this, arg0);
 	}
 
 }

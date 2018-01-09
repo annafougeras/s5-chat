@@ -5,31 +5,70 @@
  */
 package controleur;
 
-import commChatS5.ICtrlComClient;
 import java.util.Comparator;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
+
 import modele.Groupe;
+import modele.Identifiable;
+import modele.KeyIdentifiable;
 import modele.Message;
 import modele.Ticket;
 import vue.BaseScreen;
 import vue.ConnectionScreen;
 import vue.MainScreen;
+import app.ClientApp;
+
+import commChatS5.CtrlComClient;
+import commChatS5.ICtrlComClient;
+import commChatS5.Identifiants;
 
 /**
  *
  * @author Vincent Fougeras
  */
 public class CtrlVue extends Observable implements ICtrlVue {
+	
+	
+	public enum Notification {
+		UPDATE_JTREE,
+		UPDATE_MESSAGES;
+	}
+	
+	public class RunnableNotification implements Runnable {
+
+		private Observable emetteur;
+		private Object notification;
+		
+		public RunnableNotification(Observable emetteur, Object notification){
+			this.emetteur = emetteur;
+			this.notification = notification;
+		}
+		
+		@Override
+		public void run() {
+			currentScreen.update(emetteur, notification);
+		}
+	}
+	
+	
 
     ICtrlComClient ctrlComClient;
     BaseScreen currentScreen;
     NavigableSet<Groupe> model; /* Liste des groupes liés à l'utilisateur, qui contiennent des tickets, qui contiennent des messages ... */
     NavigableSet<Groupe> groupes; /* Liste de tous les groupes existants */
+    
+    Map<KeyIdentifiable,Groupe> groupesParId;
+    Map<KeyIdentifiable,Ticket> ticketsParId;
+    
+    
+    
+    
     
     /*
     @Override
@@ -50,7 +89,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     public CtrlVue(/*ComAdresse serverAddr*/){
         // Crée le ctrlCom
-        /*ctrlComClient = new CtrlComClient(this, serverAddr);*/
+        ctrlComClient = new CtrlComClient(this, ClientApp.ADRESSE_SERVEUR);
         
         // Crée le modèle
         this.model = new TreeSet<>(new Comparator<Groupe>() {
@@ -67,11 +106,6 @@ public class CtrlVue extends Observable implements ICtrlVue {
             }
         });
         
-        // TODO : tests perso
-        NavigableSet<Ticket> tickets = new TreeSet<Ticket>();
-        tickets.add(new Ticket(222, "Un ticket", 3, new Date()));
-        model.add(new Groupe(111, "Info 3A", tickets));
-        groupes.add(new Groupe(111, "Info 3A", tickets));
         
         // Crée la vue
         currentScreen = new ConnectionScreen(this);
@@ -83,6 +117,23 @@ public class CtrlVue extends Observable implements ICtrlVue {
             }
         });
     }
+    
+    
+    
+    private void majGroupes(Set<Groupe> nouveauxGroupes){
+    	groupes = new TreeSet<>();
+    	groupesParId = new HashMap<>();
+    	ticketsParId = new HashMap<>();
+    	groupes.addAll(nouveauxGroupes);
+    	for (Groupe g: groupes){
+    		groupesParId.put(new KeyIdentifiable(g.getIdentifiantUnique()), g);
+    		for (Ticket t: g.getTicketsConnus())
+    			ticketsParId.put(new KeyIdentifiable(t.getIdentifiantUnique()), t);
+    	}
+    }
+    
+    
+    
 
     /* 
         Méthodes de ICtrlVue
@@ -90,11 +141,25 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     @Override
     public NavigableSet<Groupe> getModel(){
-        return this.model;
+    	
+    	// Le modèle est constitué des groupes ayant au moins un ticket visible
+    	if (groupes.size() == 0)
+    		getRemoteGroupes();
+    	
+    	model = new TreeSet<>();
+    	Iterator<Groupe> iter = groupes.iterator();
+    	for (;iter.hasNext();){
+    		Groupe g = iter.next();
+    		if (g.getTicketsConnus().size() > 0)
+    			model.add(g);
+    	}
+    	return model;
     }
     
     @Override
     public NavigableSet<Groupe> getGroupes(){
+    	if (groupes.size() == 0)
+    		getRemoteGroupes();
         return this.groupes;
     }
     
@@ -105,40 +170,51 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     @Override
     public void getRemoteMessages(Ticket ticket) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	if (!ticket.estComplet())
+    		ctrlComClient.demanderTicket(ticket);
     }
     
     @Override
     public void getRemoteGroupes() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	// Demande maintenant : bloquant
+    	majGroupes(ctrlComClient.demanderTousLesGroupesBloquant());
     }
 
     @Override
-    public void addTicket(Groupe destination, String content, String title) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addTicket(Groupe destination, String title, String content) {
+    	ctrlComClient.creerTicket(destination, title, content);
     }
 
     @Override
     public void addMessage(Ticket ticket, String message) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	ctrlComClient.creerMessage(ticket, message);
     }
 
     @Override
     public boolean connecter(String idUser, String password) {
-        boolean connecte = true;
-        
-        if(connecte){
+    	
+    	System.out.println("Patientez...");
+
+    	Identifiants identifiants = new Identifiants(idUser, password);
+    	boolean connecte = false;
+    	
+    	connecte = ctrlComClient.etablirConnexionBloquant(identifiants);
+    	
+    	System.out.println("Connexion établie : " + connecte);
+    	        
+        if(connecte)
             this.changeScreen(new MainScreen(this));            
-            return true;
-        }
-        else {
-            return false;
-        }
+ 
+        return connecte;
+
     }
 
 
     @Override
     public void deconnecter() {
+    	ctrlComClient.deconnecter();
+    	groupes = new TreeSet<Groupe>();
+    	model = new TreeSet<Groupe>();
         this.changeScreen(new ConnectionScreen(this));
     }
     
@@ -149,9 +225,14 @@ public class CtrlVue extends Observable implements ICtrlVue {
             public void run() {
                 currentScreen.setVisible(false);
                 deleteObserver(currentScreen);
+                
+                // En séquence, sinon on risque de deleteObserver après changé currentScreen ?
+                currentScreen = newScreen;
+                addObserver(currentScreen);
+                currentScreen.setVisible(true);
             }
         }); 
-        
+        /*
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -160,6 +241,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
                 currentScreen.setVisible(true);
             }
         });
+        */
     }
     
     
@@ -170,14 +252,51 @@ public class CtrlVue extends Observable implements ICtrlVue {
     */
     @Override
     public void recevoir(Ticket ticketRecu) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	
+    	System.out.println("Ticket reçu : " + ticketRecu);
+    	
+    	Identifiable groupeParent = new KeyIdentifiable(ticketRecu.getParent());
+    	Identifiable ticket = new KeyIdentifiable(ticketRecu);
+    	
+    	// Le groupe parent est déjà connu
+    	if (groupesParId.containsKey(groupeParent)) {
+    		
+    		Groupe grp = groupesParId.get(groupeParent);
+    		
+    		// Le ticket existe déjà : on le supprime
+    		if (ticketsParId.containsKey(ticket)) {
+    			grp.getTicketsConnus().remove(ticketsParId.get(ticket));
+    			ticketsParId.remove(ticket);
+    		}
+    		
+    		// On ajoute le nouveau ticket
+    		grp.getTicketsConnus().add(ticketRecu);
+    		ticketsParId.put(new KeyIdentifiable(ticketRecu), ticketRecu);
+    		
+        	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+        	//notifyObservers(Notification.UPDATE_JTREE);
+            java.awt.EventQueue.invokeLater(new RunnableNotification(this, ticketRecu));
+    
+    	}
+    	
+    	// Le groupe est inconnu, on demande la liste des groupes
+    	else {
+    		System.out.println("Groupe inconnu -> demandé");
+    		ctrlComClient.demanderTousLesGroupes();
+    	}
         
-        //this.notifyObservers();
     }
 
     @Override
     public void recevoir(Set<Groupe> listeDesGroupes) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	// Reçoit une nouvelle liste de groupes (à tout moment)
+    	System.out.println("Liste des groupes reçue");
+    	majGroupes(listeDesGroupes);
+
+    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+    	//notifyObservers(Notification.UPDATE_JTREE);
+        java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_JTREE));
+
     }
 
     @Override
@@ -187,13 +306,43 @@ public class CtrlVue extends Observable implements ICtrlVue {
 
     @Override
     public void recevoir(Message messageRecu) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	System.out.println("Message reçu : " + messageRecu);
+    	Identifiable ticketParent = messageRecu.getParent();
+    	Identifiable groupeParent = ticketParent.getParent();
+    	
+    	if (groupesParId.containsKey(groupeParent)){
+    		
+    		if (ticketsParId.containsKey(ticketParent)){
+    			
+    			Ticket t = ticketsParId.get(ticketParent);
+    			t.addMessage(messageRecu);
+    			
+    	    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+    	    	//notifyObservers(Notification.UPDATE_JTREE);
+    	        java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_MESSAGES));
+    		}
+    		else {
+    			System.out.println("Ticket inconnu -> demandé");
+    			ctrlComClient.demanderTicket(ticketParent);
+    		}
+    	}
+    	else {
+    		System.out.println("Groupe inconnu -> demandé");
+    		System.out.println(groupesParId);
+    		ctrlComClient.demanderTousLesGroupes();
+    	}
+    	
     }
 
     @Override
     public void recevoir(Object messageInconnu) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    	//TODO Faire plus ?
+    	System.err.println("Message inconnu reçu : " + messageInconnu);
     }
 
+    
+    
+
+    
     
 }

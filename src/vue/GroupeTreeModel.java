@@ -95,7 +95,7 @@ public class GroupeTreeModel implements TreeModel {
 
     @Override
     public void removeTreeModelListener(TreeModelListener tl) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

@@ -53,7 +53,9 @@ public class TestS5Serveur {
 		 * @param port Port d'écoute (local)
 		 */
 		public Serveur(int port){
-			controleur = new CtrlComServeur(this, port);
+			System.err.println("Ce test ne fonctionne plus depuis que le serveur doit gérer les admins");
+			// ci-dessous : null au lieu de this
+			controleur = new CtrlComServeur(null, port);
 		}
 		
 		

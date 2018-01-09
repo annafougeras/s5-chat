@@ -75,12 +75,15 @@ public class AbstractIdentifiable implements Identifiable {
 	
 
 	
-	
+	@Override
+	public int hashCode(){
+		return getIdentifiantUnique().hashCode();
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj.getClass().equals(getClass()))
-			return getIdentifiantUnique() == ((Identifiable)obj).getIdentifiantUnique();
+		if (obj instanceof Identifiable)
+			return getIdentifiantUnique().equals(((Identifiable)obj).getIdentifiantUnique());
 		return false;
 	}
 	

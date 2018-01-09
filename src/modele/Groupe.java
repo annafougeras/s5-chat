@@ -120,7 +120,11 @@ public class Groupe extends AbstractIdentifiable implements Comparable<Groupe> {
 	
 	@Override
 	public String toString() {
-		return super.toString("nom="+nom);
+                int nbMessagesNonLus = 0;
+                for(Ticket t : this.ticketsConnus){
+                    nbMessagesNonLus += t.getNbMessagesNonLus();
+                }
+		return "(" + nbMessagesNonLus + ") " + nom;
 	}
 	
 
