@@ -26,6 +26,8 @@ import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
+import serveur.Sha256;
+
 public class Instance implements IInstance {
 	
 	static final String JDBC_DRIVER = "mysql.src.com.mysql.jdbc.Driver";  
@@ -434,13 +436,11 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlInsertGroupe(String nom) throws SQLException {
 
-	    Statement statement = conn.createStatement();
-	    String query;
-	   	query = "INSERT INTO groupe (id_groupe, nom_groupe) VALUES (NULL, "+ nom +")";
-	  	statement.executeUpdate(query);	
-		
-		//TODO récupérer l'id
-		return 0;
+		Statement statement = conn.createStatement();
+		String query = "INSERT INTO groupe (id_groupe, nom_groupe) VALUES (NULL, \""+ nom +"\")";
+		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
+		ResultSet rs = statement.getGeneratedKeys();
+		return rs.getInt(1);
 	}
 
 
@@ -454,11 +454,10 @@ public class Instance implements IInstance {
 			String pass) throws SQLException {
 	    Statement statement = conn.createStatement();
 		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
-				+ "VALUES (NULL, NULL,'"+nickname+"', '"+nom+"', "+prenom+")";
-		statement.executeUpdate(query);
-		
-		//TODO récupérer l'id
-		return 0;
+				+ "VALUES (NULL, '"+sha256(pass)+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
+		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
+		ResultSet rs = statement.getGeneratedKeys();
+		return rs.getInt(1);
 	}
 
 
