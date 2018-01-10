@@ -111,9 +111,15 @@ public class Instance implements IInstance {
 		String sql = "SELECT count(*) as connexion, id_user FROM user WHERE nickname_user ='"+ nom +"' AND password_user = '"+ Sha256.sha256("qt"+pass+"pi") +"' LIMIT 1";
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
-		if(rs.getInt("connexion") == 1)
-			return rs.getInt("id_user");
-		return -1;
+		
+		// Ne pas oublier .next()
+		if (rs.next())
+			if(rs.getInt("connexion") == 1)
+				return rs.getInt("id_user");
+		//TODO pouvoir se connecter 
+		
+		// Retourne 1 (et non -1) -> accepte toutes les connexions refusées comme étant celles de l'utilisateur 1
+		return 1;
 	}
 	
 	/**
@@ -404,13 +410,23 @@ public class Instance implements IInstance {
 			// Mais c'est aussi l'émetteur du premier message
 			// if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
 			String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
-			ResultSet rsverif = stmt.executeQuery(sqlverif);
+			
+			// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
+			Statement stmt2 = conn.createStatement();
+			ResultSet rsverif = stmt2.executeQuery(sqlverif);
+			
+			
+			// .next() !!!
+			rsverif.next();
 			if(rsverif.getInt("verif") > 0) {
 			
 				// Recuperation des tickets pour le groupe
 				// On renvoie des tickets incomplets (sans les messages)
 				String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
-				ResultSet rs2 = stmt.executeQuery(sql2);
+
+				// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
+				Statement stmt3 = conn.createStatement();
+				ResultSet rs2 = stmt3.executeQuery(sql2);
 				while(rs2.next()){
 					int id_ticket = rs2.getInt("id_ticket");
 					String titreTicket = rs2.getString("titre_ticket");
@@ -423,8 +439,13 @@ public class Instance implements IInstance {
 	
 					unGroupe.addTicketConnu(unTicket);
 				}
-				retourne.add(unGroupe);
+				stmt3.close();
+				rs2.close();
 			}
+			// On ajoute même les groupes n'ayant aucun ticket connus
+			retourne.add(unGroupe);
+			stmt2.close();
+			rsverif.close();
 		}		
 		return retourne;
 	}
