@@ -328,7 +328,6 @@ public class CtrlVue extends Observable implements ICtrlVue {
     	}
     	else {
     		System.out.println("Groupe inconnu -> demandé");
-    		System.out.println(groupesParId);
     		ctrlComClient.demanderTousLesGroupes();
     	}
     	
