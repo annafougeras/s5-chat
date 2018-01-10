@@ -8,7 +8,8 @@ INSERT INTO `groupe` (`id_groupe`, `nom_groupe`) VALUES
 INSERT INTO `user` (`id_user`, `nickname_user`, `password_user`, `nom_user`, `prenom_user`) VALUES
 (1, 'pipo1118m', 'faaf32985c1f39ca41c28786d4695c77d1d25d6a47d93fc9bc8032f2b49e0e36', 'Paumerai', 'Peter'),
 (2, 'vifo0077i', 'faaf32985c1f39ca41c28786d4695c77d1d25d6a47d93fc9bc8032f2b49e0e36',  'Fougere', 'Vins'),
-(3, 'cuma0340a', 'faaf32985c1f39ca41c28786d4695c77d1d25d6a47d93fc9bc8032f2b49e0e36',  'Marty', 'Hubert');
+(3, 'cuma0340a', 'faaf32985c1f39ca41c28786d4695c77d1d25d6a47d93fc9bc8032f2b49e0e36',  'Marty', 'Hubert'),
+(4, 'aze', 'faaf32985c1f39ca41c28786d4695c77d1d25d6a47d93fc9bc8032f2b49e0e36',  'Doe', 'John');
 
 -- table `appartenance`
 INSERT INTO `appartenance` (`id_user`, `id_groupe`, `inscription`) VALUES

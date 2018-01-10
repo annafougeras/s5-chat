@@ -124,7 +124,6 @@ public class ConnectionScreen extends BaseScreen {
         String password = "";
         for (char c: passwordPasswordField.getPassword())
         	password += c;
-        System.out.println(password);
         if(! this.ctrlVue.connecter(identifiant, password)){
             connectionStatus.setVisible(true);
         }

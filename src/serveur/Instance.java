@@ -303,19 +303,13 @@ public class Instance implements IInstance {
 	 */
 	
 	public Ticket sqlSelectTicket(int idTicket, int idUser) throws SQLException {
-		
-		// TODO marche pas !!!
 		String sqlverif = "select count(*) as verif FROM user,ticket,appartenance WHERE appartenance.id_groupe = ticket.id_groupe AND appartenance.id_user = "+idUser+" AND ticket.id_ticket = "+idTicket;
 		Statement stmt = conn.createStatement();
 		ResultSet rsverif = stmt.executeQuery(sqlverif);
-		
-		// Encore !
 		rsverif.next();
-		
 		if(rsverif.getInt("verif") > 0)
 			return sqlSelectTicket(idTicket);
 		else
-			//return null;
 			return sqlSelectTicket(idTicket);
 	}
 
@@ -440,12 +434,8 @@ public class Instance implements IInstance {
 			int id_groupe = rs.getInt("id_groupe");
 			String nom_groupe = rs.getString("nom_groupe");
 			
+			// Plus simple de créer avec le constructeur (et pareil tout le long)
 			Groupe unGroupe = new Groupe(id_groupe, nom_groupe);
-			
-			
-			/*
-			 * Ca ça ne marche pas :-(
-			 * 
 
 
 			// On ajoute les tickets si l'utilisateur appartient au groupe
@@ -453,16 +443,24 @@ public class Instance implements IInstance {
 			// On aurait dû garder le champ 'créateur_ticket', ç'aurait été plus simple :-)
 			// Mais c'est aussi l'émetteur du premier message
 			// if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
-			String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
-			
-			// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
-			Statement stmt2 = conn.createStatement();
-			ResultSet rsverif = stmt2.executeQuery(sqlverif);
-			
-			
-			// .next() !!!
-			rsverif.next();
-			if(rsverif.getInt("verif") > 0) {
+			boolean verif;
+			if (idUser < 0)
+				verif = true;
+			else {
+				String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
+				
+				// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
+				Statement stmt2 = conn.createStatement();
+				ResultSet rsverif = stmt2.executeQuery(sqlverif);
+				
+				
+				// .next() !!!
+				rsverif.next();
+				verif = (rsverif.getInt("verif") > 0);
+				stmt2.close();
+				rsverif.close();
+			}
+			if (verif) {
 			
 				// Recuperation des tickets pour le groupe
 				// On renvoie des tickets incomplets (sans les messages)
@@ -487,63 +485,6 @@ public class Instance implements IInstance {
 				rs2.close();
 			}
 			// On ajoute même les groupes n'ayant aucun ticket connus
-			retourne.add(unGroupe);
-			stmt2.close();
-			rsverif.close();
-			*/
-			
-			
-
-			
-			boolean appartientAuGroupe = false;
-			boolean emetteurDuTicket = false;
-			
-			if (idUser < 0) {
-				appartientAuGroupe = true;
-			}
-			else {
-				String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
-				Statement stmtverif = conn.createStatement();
-				ResultSet rsverif = stmtverif.executeQuery(sqlverif);
-				
-				rsverif.next();
-				appartientAuGroupe = (rsverif.getInt("verif") > 0);
-			}
-			
-
-			// Boucle sur les tickets
-			String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
-			Statement stmt2 = conn.createStatement();
-			ResultSet rs2 = stmt2.executeQuery(sql2);
-			while(rs2.next()){
-				int id_ticket = rs2.getInt("id_ticket");
-				
-				
-				// Si l'utilisateur n'est pas de ce groupe, on vérifie s'il est l'émetteur du ticket
-				if (!appartientAuGroupe) {
-					String sqlverif2 = "select count(*) as verif FROM message WHERE id_ticket = '"+ id_ticket+"' AND id_user = "+ idUser +" LIMIT 1";
-					Statement stmtverif2 = conn.createStatement();
-					ResultSet rsverif2 = stmtverif2.executeQuery(sqlverif2);
-					
-					rsverif2.next();
-					emetteurDuTicket = (rsverif2.getInt("verif") > 0);
-				}
-				
-				
-				// Si le ticket est visible
-				if (appartientAuGroupe || emetteurDuTicket) {
-					
-					String titreTicket = rs2.getString("titre_ticket");
-					
-					//TODO SQL : nombre de messages non lus, date dernier message
-					int nb_msg_non_lus = 0;
-					Date date_dernier_message = new Date();
-	
-					Ticket unTicket = new Ticket(id_ticket,titreTicket, nb_msg_non_lus, date_dernier_message);
-	
-					unGroupe.addTicketConnu(unTicket);
-				}
-			}
 			retourne.add(unGroupe);
 		}		
 		return retourne;
