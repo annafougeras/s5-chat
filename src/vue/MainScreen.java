@@ -22,12 +22,18 @@ import modele.Ticket;
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import modele.Groupe;
 import modele.Message;
+import modele.StatutDeLecture;
 import modele.Ticket;
+import modele.Utilisateur;
 
 /**
  *
@@ -88,6 +94,7 @@ public class MainScreen extends BaseScreen {
         jScrollPane3 = new javax.swing.JScrollPane();
         newMessageTextArea = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
+        jPanel4 = new javax.swing.JPanel();
         messageList = new javax.swing.JList<>();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -125,6 +132,8 @@ public class MainScreen extends BaseScreen {
 
         jScrollPane2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
+        jPanel4.setLayout(new java.awt.BorderLayout());
+
         messageList.setModel(new MessageListModel(new ArrayList<Message>()));
         messageList.setCellRenderer(new MessageListCellRenderer());
 
@@ -134,7 +143,9 @@ public class MainScreen extends BaseScreen {
                 openMessageDetailsModal();
             }
         });
-        jScrollPane2.setViewportView(messageList);
+        jPanel4.add(messageList, java.awt.BorderLayout.SOUTH);
+
+        jScrollPane2.setViewportView(jPanel4);
 
         scrollDown(jScrollPane2);
 
@@ -217,10 +228,21 @@ public class MainScreen extends BaseScreen {
         String texte = newMessageTextArea.getText();
         
         if(!texte.isEmpty() && ticketAffiche != null){
+            newMessageTextArea.setText("");
+            
             // Envoyer le message au ticket courant
             this.ctrlVue.addMessage(ticketAffiche, texte);
             
-            // TODO : le message doit pouvoir s'afficher avant que le serveur ait répondu (dans ce cas le message a le statut ENVOYE)
+            // Le message doit pouvoir s'afficher avant que le serveur ait répondu (dans ce cas le message a le statut NON_ENVOYE)
+            List<Message> updatedList = new ArrayList<>(ticketAffiche.getMessages());
+            NavigableMap<Utilisateur, StatutDeLecture> fakeStatuts = new TreeMap<>();
+            
+            // TODO : connaitre l'utilisateur courant dans le controleur
+            fakeStatuts.put(new Utilisateur("0", "TODO", "todo"), StatutDeLecture.NON_ENVOYE);
+            
+            updatedList.add(new Message(1, null, texte, new Date(), fakeStatuts));
+            messageList.setModel(new MessageListModel(updatedList));
+            
             // Mettre à jour les messages
             this.ctrlVue.getRemoteMessages(ticketAffiche);
         }
@@ -284,6 +306,7 @@ public class MainScreen extends BaseScreen {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
