@@ -175,6 +175,39 @@ public class Instance implements IInstance {
 
 	@Override
 	public TreeMap<Groupe, NavigableSet<Utilisateur>> sqlSelectUtilisateursParGroupe() throws SQLException {
+		
+		TreeMap<Groupe, NavigableSet<Utilisateur>> map = new TreeMap<>();
+		
+		String sql1 = "SELECT * FROM groupe";
+		Statement stmt1 = conn.createStatement();
+		ResultSet rs1 = stmt1.executeQuery(sql1);
+		
+		while (rs1.next()) {
+			int idGroupe = rs1.getInt("id_groupe");
+			String nomGroupe = rs1.getString("nom_groupe");
+			Groupe groupe = new Groupe(idGroupe, nomGroupe);
+			TreeSet<Utilisateur> set = new TreeSet<>();
+			map.put(groupe, set);
+			
+			String sql2 = "SELECT id_user FROM appartenance WHERE id_groupe = " + idGroupe;
+			Statement stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(sql2);
+			while (rs2.next()) {
+				int idUser = rs2.getInt("id_user");
+				Utilisateur u = sqlSelectUtilisateur(idUser);
+				set.add(u);
+			}
+			stmt2.close();
+			rs2.close();
+		}
+		stmt1.close();
+		rs1.close();
+		
+		return map;
+		
+		/*
+		 * Ancienne version (ne fonctionne pas !)
+		 * 
 		String sql = "SELECT * FROM appartenance GROUP BY id_groupe";
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
@@ -197,6 +230,7 @@ public class Instance implements IInstance {
 			listeUtilisateurs.add(new Utilisateur(rs.getString("id_user"), rs3.getString("nom_user"), rs3.getString("prenom_user")));		
 		}
 		return retourne;
+		*/
 	}
 
 	
