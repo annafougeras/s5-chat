@@ -158,7 +158,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	public void rejoindreGroupe(Identifiable groupe, Identifiable utilisateur) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(
-						TypeMessage.REQUETE_ADMIN, 
+						TypeMessage.INFORM_ADMIN, 
 						TypeMessageAdmin.REJOINDRE_GROUPE,
 						groupe,
 						utilisateur
@@ -169,7 +169,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	public void quitterGroupe(Identifiable groupe, Identifiable utilisateur) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(
-						TypeMessage.REQUETE_ADMIN, 
+						TypeMessage.INFORM_ADMIN, 
 						TypeMessageAdmin.QUITTER_GROUPE,
 						groupe,
 						utilisateur
@@ -180,7 +180,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	public void supprimerUtilisateur(Identifiable element) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(
-						TypeMessage.REQUETE_ADMIN, 
+						TypeMessage.INFORM_ADMIN, 
 						TypeMessageAdmin.SUPP_UTILISATEUR,
 						element
 						));	
@@ -190,7 +190,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	public void supprimerMessage(Identifiable element) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(
-						TypeMessage.REQUETE_ADMIN, 
+						TypeMessage.INFORM_ADMIN, 
 						TypeMessageAdmin.SUPP_MESSAGE,
 						element
 						));	
@@ -200,7 +200,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	public void supprimerTicket(Identifiable element) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(
-						TypeMessage.REQUETE_ADMIN, 
+						TypeMessage.INFORM_ADMIN, 
 						TypeMessageAdmin.SUPP_TICKET,
 						element
 						));	
@@ -210,7 +210,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 	public void supprimerGroupe(Identifiable element) {
 		controleur.demander(
 				new SimpleMessage.SimpleMessageDemande(
-						TypeMessage.REQUETE_ADMIN, 
+						TypeMessage.INFORM_ADMIN, 
 						TypeMessageAdmin.SUPP_GROUPE,
 						element
 						));	
@@ -367,9 +367,6 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 			TypeMessageAdmin typeAdm = (TypeMessageAdmin) args[1];
 			
 			switch (typeAdm){
-			case UTILISATEUR:
-				observateur.recevoirUtilisateur((Utilisateur) args[2]);
-				break;
 			case MESSAGE:
 				observateur.recevoirMessage((Message) args[2]);
 				break;
@@ -380,7 +377,7 @@ public class CtrlComAdmin implements ICtrlComAdmin, ICtrlComAdmin2, ObservateurC
 				observateur.recevoirGroupe((Groupe) args[2]);
 				break;
 			case TOUS_UTILISATEURS:
-				observateur.recevoirUtilisateur((Set<Utilisateur>) args[2]);
+				observateur.recevoirUtilisateurs((NavigableSet<Utilisateur>) args[2]);
 				break;
 			case TOUS_UTILISATEURS_PAR_GROUPE:
 				observateur.recevoirUtilisateurParGroupe((Map<Groupe,NavigableSet<Utilisateur>>) args[2]);

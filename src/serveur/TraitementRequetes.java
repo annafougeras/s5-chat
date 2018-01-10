@@ -342,13 +342,13 @@ public class TraitementRequetes implements S5Serveur {
 						utilisateur.getNom(), 
 						utilisateur.getPrenom(), 
 						utilisateur.getNickname(), 
-						null);
+						"root1");
 			else
 				idUtilisateur = sql.sqlInsertUtilisateur(
 						utilisateur.getNom(), 
 						utilisateur.getPrenom(), 
 						utilisateur.getNickname(), 
-						null);
+						"root1");
 			if (idUtilisateur > 0)
 				u = sql.sqlSelectUtilisateur(idUtilisateur);
 		} 
@@ -440,8 +440,16 @@ public class TraitementRequetes implements S5Serveur {
 				idGroupe = sql.sqlUpdateGroupe(idGroupe, groupe.getNom());
 			else
 				idGroupe = sql.sqlInsertGroupe(groupe.getNom());
-			if (idGroupe > 0)
-				g = sql.sqlSelectGroupe(idGroupe, -1);
+			
+			if (idGroupe > 0) {
+				//TODO En attendant l'implémentation de sqlSelectGroupe
+				//g = sql.sqlSelectGroupe(idGroupe, -1);
+				
+				NavigableSet<Groupe> groupes = sql.sqlSelectGroupes(-1);
+				for (Groupe grp: groupes)
+					if (grp.getIdentifiantNumeriqueUnique() == idGroupe)
+						g = grp;	
+			}
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();

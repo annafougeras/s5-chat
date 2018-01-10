@@ -120,7 +120,11 @@ public class ConnectionScreen extends BaseScreen {
     private void connectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionButtonActionPerformed
         connectionStatus.setVisible(false);
         String identifiant = identifiantTextField.getText();
-        String password = Arrays.toString(passwordPasswordField.getPassword());
+        //MARCHE PAS String password = Arrays.toString(passwordPasswordField.getPassword());
+        String password = "";
+        for (char c: passwordPasswordField.getPassword())
+        	password += c;
+        System.out.println(password);
         if(! this.ctrlVue.connecter(identifiant, password)){
             connectionStatus.setVisible(true);
         }

@@ -14,6 +14,7 @@ import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -42,7 +43,11 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
         ((CtrlAdmin)this.ctrlAdmin).addObserver(this);
         
         initComponents();
-        
+
+        // Cette fonction fait des trucs que si ils étaient faits par netbeans 
+        // ils seraient dans initComponents(). En bon français.
+        initComponentsBis();
+
         groupeNameLabel.setText("Détails du groupe " + groupe.getNom());
     }
     
@@ -144,6 +149,64 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
         add(jPanel2, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+	 * Celle-là c'est moi qui l'a fait on peut y toucher sans problème...
+	 */
+	private void initComponentsBis() {
+		supprimerGroupeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	int dialogResult = JOptionPane.showConfirmDialog (
+            			null, 
+            			"Supprimer le groupe ?",
+            			"Confirmation",
+            			JOptionPane.YES_NO_OPTION
+            			);
+            	if(dialogResult == JOptionPane.YES_OPTION){
+	            	ctrlAdmin.supprimerGroupe(groupe);
+	            	closeParentDialog();
+            	}
+            }
+        });
+		modifierGroupeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	String nouveau_nom = JOptionPane.showInputDialog(
+            	        null, 
+            	        "Donner un nouveau nom au groupe : ", 
+            	        "Nouveau nom", 
+            	        JOptionPane.QUESTION_MESSAGE
+            	    );
+            	if (nouveau_nom != null)
+            		if (nouveau_nom.length() > 1)
+            			ctrlAdmin.insererGroupe(new Groupe(
+            					groupe.getIdentifiantNumeriqueUnique(), 
+            					nouveau_nom
+            					));
+            	//TODO update panel
+            }
+        });
+		addUserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {  
+            	NavigableSet<Utilisateur> utilisateurs = ctrlAdmin.getUtilisateurs();
+            	Utilisateur[] tab = new Utilisateur[utilisateurs.size()];
+            	int i = 0;
+            	for (Utilisateur u: utilisateurs)
+            		tab[i++] = u;
+            	
+            	Utilisateur u = (Utilisateur) JOptionPane.showInputDialog(
+            			null, 
+            			"Quel utilisateur ?",
+            			"Un utilisateur rejoint le groupe",
+            			JOptionPane.QUESTION_MESSAGE, 
+            			null, 
+            			tab,
+            			tab[0]
+            		);
+            	System.out.println(u);
+            	ctrlAdmin.addUtilisateurToGroupe(u, groupe);
+            	//TODO update panel
+            }
+        });
+	}
     private void annulerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annulerButtonActionPerformed
         this.closeParentDialog();
     }//GEN-LAST:event_annulerButtonActionPerformed

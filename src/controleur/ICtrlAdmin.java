@@ -10,9 +10,7 @@ import java.util.NavigableSet;
 import modele.Groupe;
 import modele.Utilisateur;
 
-import commChatS5.Identifiants;
 import commChatS5.S5Admin;
-import communication.ComAdresse;
 
 /**
  *
@@ -84,12 +82,15 @@ public interface ICtrlAdmin extends S5Admin {
     * @param utilisateur L'utilisateur modifié / nouveau (remplace si id existant, crée sinon)
     */
     public void insererUtilisateur(Utilisateur utilisateur);
+    public void insererUtilisateur(String nom, String prenom, String idUnique);
+    
 
     /**
     * Insère un groupe
     * @param groupe Le groupe modifié / nouveau (remplace si id existant, crée sinon)
     */
     public void insererGroupe(Groupe groupe);
+    public void insererGroupe(String nom);
 
 
     

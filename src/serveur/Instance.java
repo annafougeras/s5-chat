@@ -119,7 +119,7 @@ public class Instance implements IInstance {
 		//TODO pouvoir se connecter 
 		
 		// Retourne 1 (et non -1) -> accepte toutes les connexions refusées comme étant celles de l'utilisateur 1
-		return 1;
+		return -1;
 	}
 	
 	/**
@@ -426,7 +426,6 @@ public class Instance implements IInstance {
 		System.out.println(" ** Select groupes ** ");
 		stmt = conn.createStatement();
 		String sql = "SELECT id_groupe, nom_groupe FROM groupe";
-		System.out.println("Execute query...");
 		ResultSet rs = stmt.executeQuery(sql);
 		
 		while(rs.next()){
@@ -498,6 +497,8 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlInsertGroupe(String nom) throws SQLException {
 
+		System.out.println(" ** Insert groupes ** ");
+		
 		Statement statement = conn.createStatement();
 		String query = "INSERT INTO groupe (id_groupe, nom_groupe) VALUES (NULL, \""+ nom +"\")";
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
@@ -516,6 +517,9 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlInsertUtilisateur(String nom, String prenom, String nickname,
 			String pass) throws SQLException {
+		
+		System.out.println(" ** Insert utilisateur ** ");
+		
 	    Statement statement = conn.createStatement();
 		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
 				+ "VALUES (NULL, '"+Sha256.sha256("qt"+pass+"pi")+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
@@ -660,7 +664,8 @@ public class Instance implements IInstance {
 	public void sqlRejoindreGroupe(int idUser, int idGroupe)
 			throws SQLException {
 		// TODO Auto-generated method stub
-		
+
+		System.out.println(" ** Rejoindre groupes (non implémenté) ** ");
 	}
 
 
@@ -668,6 +673,8 @@ public class Instance implements IInstance {
 	@Override
 	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException {
 		// TODO Auto-generated method stub
+
+		System.out.println(" ** Quitter groupes (non implémenté) ** ");
 		
 	}
 
@@ -676,7 +683,7 @@ public class Instance implements IInstance {
 	@Override
 	public void deleteGroupe(int id) throws SQLException {
 	    Statement statement = conn.createStatement();
-		String query = "DELETE FROM groupe WHERE id_groupee = "+id+" LIMIT 1";
+		String query = "DELETE FROM groupe WHERE id_groupe = "+id+" LIMIT 1";
 		statement.executeUpdate(query);
 	}
 

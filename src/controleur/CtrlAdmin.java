@@ -38,6 +38,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 	private Map<KeyIdentifiable,Groupe> groupeParId;
     private NavigableMap<Groupe, NavigableSet<Utilisateur>> mapGroupeUser;
     private NavigableMap<Utilisateur, NavigableSet<Groupe>> mapUserGroupe;
+    private NavigableSet<Utilisateur> utilisateurs;
     BaseScreenAdmin currentScreen;
     private ICtrlComAdmin ctrlComAdmin;
     
@@ -49,6 +50,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
         modele = new TreeSet<>();
         mapGroupeUser = new TreeMap<>();
         mapUserGroupe = new TreeMap<>();
+        utilisateurs = new TreeSet<>();
            
         // Crée la vue
         currentScreen = new AdminScreen(this);
@@ -72,6 +74,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
  		boolean cnx = ctrlComAdmin.etablirConnexionBloquant(new Identifiants("admin", passAdmin));
  		if (cnx) {
 	 		ctrlComAdmin.demanderGroupes();
+	 		ctrlComAdmin.demanderUtilisateurs();
 	 		ctrlComAdmin.demanderUtilisateursParGroupe();
  		}
  		return cnx;
@@ -126,7 +129,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
     @Override
     public NavigableSet<Utilisateur> getUtilisateurs() {
-    	return new TreeSet<Utilisateur>(mapUserGroupe.keySet());
+    	return utilisateurs;
     	
     }
 
@@ -164,26 +167,43 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     			new KeyIdentifiable(utilisateur)
     			);
     	ctrlComAdmin.demanderUtilisateursParGroupe();
-    	}
+    }
 
     @Override
     public void insererUtilisateur(Utilisateur utilisateur) {
     	ctrlComAdmin.insererUtilisateur(utilisateur);
+    	ctrlComAdmin.demanderUtilisateurs();
     }
+
+	@Override
+	public void insererUtilisateur(String nom, String prenom, String idUnique) {
+		Utilisateur u = new Utilisateur(idUnique, nom, prenom);
+		insererUtilisateur(u);
+	}
 
     @Override
     public void insererGroupe(Groupe groupe) {
     	ctrlComAdmin.insererGroupe(groupe);
+    	ctrlComAdmin.demanderGroupes();
     }
+
+	@Override
+	public void insererGroupe(String nom) {
+		Groupe g = new Groupe(0, nom);
+		insererGroupe(g);
+	}
 
     @Override
     public void supprimerUtilisateur(Utilisateur utilisateur) {
     	ctrlComAdmin.supprimerUtilisateur(utilisateur);
+    	ctrlComAdmin.demanderUtilisateurs();
+    	ctrlComAdmin.demanderUtilisateursParGroupe();
     }
 
     @Override
     public void supprimerGroupe(Groupe groupe) {
     	ctrlComAdmin.supprimerGroupe(groupe);
+    	ctrlComAdmin.demanderGroupes();
     }
 
     
@@ -215,8 +235,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     
     
     @Override
-    public void recevoirUtilisateur(Utilisateur utilisateur) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void recevoirUtilisateurs(NavigableSet<Utilisateur> utilisateurs) {
+    	this.utilisateurs = utilisateurs;
+		currentScreen.update(this, null);
     }
     
     @Override
@@ -271,6 +292,11 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     public void recevoirMessageInvalide(Object messageInvalide) {
     	//System.err.println("Message invalide reçu: " + messageInvalide);
     }
+
+
+
+
+
 
 
 

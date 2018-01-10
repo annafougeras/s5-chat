@@ -316,6 +316,7 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 							(Identifiable) args[2], 
 							(Identifiable) args[3]
 									);
+					break;
 
 					
 				case QUITTER_GROUPE:
@@ -324,9 +325,10 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 							(Identifiable) args[2], 
 							(Identifiable) args[3]
 									);
+					break;
 					
 				default:
-					System.out.println("Ce message n'est pas traité : " + type + "-" + typeAdmin);
+					System.out.println("Ce message n'est pas traité : " + type + " - " + typeAdmin);
 					reponse = new SimpleMessage.SimpleMessageInformation(TypeMessage.INCONNU);
 					break;
 				}

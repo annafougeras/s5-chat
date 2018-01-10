@@ -33,10 +33,10 @@ public interface S5Admin {
 	
 	
 	/**
-	 * Recevoir un utilisateur
+	 * Recevoir les utilisateurs
 	 * @param utilisateur
 	 */
-	public void recevoirUtilisateur(Utilisateur utilisateur);
+	public void recevoirUtilisateurs(NavigableSet<Utilisateur> utilisateurs);
 	
 	/**
 	 * Recevoir tous les utilisateurs

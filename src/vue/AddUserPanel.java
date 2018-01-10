@@ -153,9 +153,9 @@ public class AddUserPanel extends javax.swing.JPanel {
     private void creerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_creerButtonActionPerformed
         String nom = this.nomTextField.getText();
         String prenom = this.prenomTextField.getText();
-        // TODO : how to generate uniqueID ? how about the password ?
-        Random rand = new Random();
-        Utilisateur user = new Utilisateur(String.valueOf(rand.nextInt()), nom, prenom);
+        String nickname = nom;
+        
+        Utilisateur user = new Utilisateur("", nom, prenom, nickname);
         
         this.ctrlAdmin.insererUtilisateur(user);
                

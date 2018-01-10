@@ -280,7 +280,8 @@ public class SimpleControleurServeur extends AbstractSimpleControleur
 					case DEMANDE:
 						SimpleMessage reponse = (SimpleMessage) observateur.ctrlCom_recevoir(
 								adresseClient, message);
-						envoyerMessage(socket, reponse);
+						if (reponse != null)
+							envoyerMessage(socket, reponse);
 						break;
 					default:
 						throw new ComException.TypeMessageException(
