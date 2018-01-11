@@ -674,7 +674,9 @@ public class Instance implements IInstance {
 	@Override
 	public void sqlRejoindreGroupe(int idUser, int idGroupe) throws SQLException {
 		Statement statement = conn.createStatement();
-		String query = "INSERT INTO appartenance (id_groupe, id_user) VALUES ("+idGroupe+","+idUser+")";
+		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
+		String query = "INSERT INTO appartenance (id_groupe, id_user, inscription) VALUES ("+idGroupe+","+idUser+",'"+dateCurrent+"')";
+		System.out.println(query);
 		statement.executeUpdate(query);	
 	}
 

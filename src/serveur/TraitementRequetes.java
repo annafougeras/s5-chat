@@ -468,8 +468,8 @@ public class TraitementRequetes implements S5Serveur {
 	@Override
 	public void adminRejoindreGroupe(ComAdresse admin, Identifiable idGroupe,
 			Identifiable idUtilisateur) {
-		int idUser = idUtilisateur.getIdentifiantNumeriqueUnique();
-		int idGrp = idGroupe.getIdentifiantNumeriqueUnique();
+		int idUser = Integer.parseInt(idUtilisateur.getIdentifiantUnique());
+		int idGrp = Integer.parseInt(idGroupe.getIdentifiantUnique());
 		try {
 			sql.sqlRejoindreGroupe(idUser, idGrp);
 		} catch (SQLException e) {

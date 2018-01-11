@@ -185,6 +185,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     public void insererGroupe(Groupe groupe) {
     	ctrlComAdmin.insererGroupe(groupe);
     	ctrlComAdmin.demanderGroupes();
+		ctrlComAdmin.demanderUtilisateursParGroupe();
     }
 
 	@Override
