@@ -202,7 +202,7 @@ public class Ticket extends AbstractPotentiellementLacunaire implements Comparab
 	
 	@Override
 	public String toString() {
-		return "(" + nbMessagesNonLus + ") " + titre;
+		return titre;
 	}
 
 }

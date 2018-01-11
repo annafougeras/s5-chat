@@ -113,5 +113,10 @@ public class Utilisateur extends AbstractIdentifiable implements Comparable<Util
 			cmp = new IdentifiableComparator().compare(this, autre);
 		return cmp;
 	}
+        
+        @Override
+        public String toString(){
+            return this.prenom + " " + this.nom;
+        }
 
 }

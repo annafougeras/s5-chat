@@ -37,12 +37,13 @@ public class GroupeTreeCellRenderer extends DefaultTreeCellRenderer {
         
         if(nbNonLus > 0){
             setFont(new Font("Sans", Font.BOLD, 12));
+            setText("(" + nbNonLus + ") " + value.toString());
         }
         else {
            setFont(new Font("Sans", Font.PLAIN, 12));
+           setText(value.toString());
         }
-        
-        setText(value.toString());
+                
         return this;
     }
     
