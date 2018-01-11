@@ -26,8 +26,6 @@ import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
-import serveur.Sha256;
-
 public class Instance implements IInstance {
 	
 	static final String JDBC_DRIVER = "mysql.src.com.mysql.jdbc.Driver";  
@@ -258,8 +256,14 @@ public class Instance implements IInstance {
 		
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
+		
+		// One more
+		rs.next();
+		
 		Utilisateur u = new Utilisateur(rs.getString("id_user"),"nom","prenom");
 		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), null);
+		retourne.setParent(new KeyIdentifiable(rs.getInt("id_ticket")));
+		
 		return retourne;
 	}
 	
@@ -589,6 +593,9 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlInsertMessage(String contenu, int idUser, int idTicket)
 			throws SQLException {	
+		
+		System.out.println(" ** Insert message ** ");
+		
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
 		

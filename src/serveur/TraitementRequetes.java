@@ -78,8 +78,10 @@ public class TraitementRequetes implements S5Serveur {
 			if (nom.equals("admin")){
 				estAdmin = (sql.sqlConnexionAdmin(pass) >= 0);
 			}
-			else
-				ok = (sql.sqlConnexion(nom, pass) >= 0);
+			else { 
+				idUser = sql.sqlConnexion(nom, pass);
+				ok = (idUser >= 0);
+			}
 		}
 		catch (SQLException e){
 			e.printStackTrace();
@@ -140,6 +142,8 @@ public class TraitementRequetes implements S5Serveur {
 		int idGroupe = groupe.getIdentifiantNumeriqueUnique();
 		int idTicket;
 		Ticket t = null;
+		
+		System.out.println("TR.creationTicket - idUser="+idUser);
 		
 		try {
 			idTicket = sql.sqlInsertTicket(titre, premierMessage, idUser, idGroupe);

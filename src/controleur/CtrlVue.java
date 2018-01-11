@@ -308,28 +308,23 @@ public class CtrlVue extends Observable implements ICtrlVue {
     public void recevoir(Message messageRecu) {
     	System.out.println("Message reçu : " + messageRecu);
     	Identifiable ticketParent = messageRecu.getParent();
-    	Identifiable groupeParent = ticketParent.getParent();
-    	
-    	if (groupesParId.containsKey(groupeParent)){
-    		
-    		if (ticketsParId.containsKey(ticketParent)){
-    			
-    			Ticket t = ticketsParId.get(ticketParent);
-    			t.addMessage(messageRecu);
-    			
-    	    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
-    	    	//notifyObservers(Notification.UPDATE_JTREE);
-    	        java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_MESSAGES));
-    		}
-    		else {
-    			System.out.println("Ticket inconnu -> demandé");
-    			ctrlComClient.demanderTicket(ticketParent);
-    		}
-    	}
-    	else {
-    		System.out.println("Groupe inconnu -> demandé");
-    		ctrlComClient.demanderTousLesGroupes();
-    	}
+	    
+		
+		if (ticketsParId.containsKey(ticketParent)){
+			
+			Ticket t = ticketsParId.get(ticketParent);
+			System.out.println("ticketParent="+ticketParent);
+			System.out.println("t="+t);
+			t.addMessage(messageRecu);
+			
+	    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
+	    	//notifyObservers(Notification.UPDATE_JTREE);
+	        java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_MESSAGES));
+		}
+		else {
+			System.out.println("Ticket inconnu -> demandé");
+			ctrlComClient.demanderTicket(ticketParent);
+		}
     	
     }
 
