@@ -26,8 +26,6 @@ import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
-import serveur.Sha256;
-
 public class Instance implements IInstance {
 	
 	static final String JDBC_DRIVER = "mysql.src.com.mysql.jdbc.Driver";  
@@ -44,7 +42,7 @@ public class Instance implements IInstance {
 	static final String USER_LOCAL = "s5";
 	static final String PASS_LOCAL = "s5";
 	
-	// DB retenue Ã  l'instanciation
+	// DB retenue à l'instanciation
 	private static String DB_URL;
 	private static String USER;
 	private static String PASS;
@@ -71,7 +69,7 @@ public class Instance implements IInstance {
 			PASS = PASS_DISTANT;
 		}
 		
-		// Connexion Ã  la db : une seule fois Ã  l'instanciation ?
+		// Connexion à la db : une seule fois à l'instanciation ?
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("Connecting to database...");
@@ -80,16 +78,16 @@ public class Instance implements IInstance {
 		}
 		catch (ClassNotFoundException e){
 			System.err.println("Impossible de charger le driver mysql");
-			System.err.println("Placez mysql-connector-java-5.1.44-bin.jar dans le mÃªme dossier que cet exÃ©cutable");
+			System.err.println("Placez mysql-connector-java-5.1.44-bin.jar dans le même dossier que cet exécutable");
 			System.exit(1);
 		}
 		catch (SQLException e){
-			System.err.println("Impossible de se connecter Ã  la base de donnÃ©es");
+			System.err.println("Impossible de se connecter à la base de données");
 			e.printStackTrace();
 			System.exit(2);
 		}
 		
-		System.out.println("Connexion avec la base de donnÃ©es rÃ©ussie");
+		System.out.println("Connexion avec la base de données réussie");
 	}
 	
 	
@@ -101,16 +99,14 @@ public class Instance implements IInstance {
 	/* FONCTIONS PUREMENT SQL */
 	
 	/**
-	 * VÃ©rifie un couple d'identifiants pour la connexion, renvoie l'id de l'utilisateur ou -1
+	 * Vérifie un couple d'identifiants pour la connexion, renvoie l'id de l'utilisateur ou -1
 	 * @param nom
 	 * @param pass
-	 * @return -1 si connexion refusÃ©e, l'identifiant numÃ©rique de l'utilisateur si connexion acceptÃ©e
+	 * @return -1 si connexion refusée, l'identifiant numérique de l'utilisateur si connexion acceptée
 	 * @throws SQLException
 	 */
 	public int sqlConnexion(String nom, String pass) throws SQLException {
-		// SELECT count(*) as connexion, id_user FROM user WHERE nickname_user ='pipo1118m' AND password_user = 'faaf32985c1f39ca41c28786d4695c77d1d25d6a47d93fc9bc8032f2b49e0e36' LIMIT 1
-		String sql = "SELECT count(*) as connexion, id_user FROM user WHERE nickname_user ='"+ nom +"' AND password_user = '"+ Sha256.sha256("qtroot1pi") +"' LIMIT 1";
-		System.out.println(sql);
+		String sql = "SELECT count(*) as connexion, id_user FROM user WHERE nickname_user ='"+ nom +"' AND password_user = '"+ Sha256.sha256("qt"+pass+"pi") +"' LIMIT 1";
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		
@@ -118,16 +114,14 @@ public class Instance implements IInstance {
 		if (rs.next())
 			if(rs.getInt("connexion") == 1)
 				return rs.getInt("id_user");
-		//TODO pouvoir se connecter 
-
 		return -1;
 	}
 	
 	/**
-	 * VÃ©rifie un couple d'identifiants pour la connexion ADMIN, renvoie l'id de l'utilisateur ou -1
+	 * Vérifie un couple d'identifiants pour la connexion ADMIN, renvoie l'id de l'utilisateur ou -1
 	 * @param nom
 	 * @param pass
-	 * @return -1 si connexion refusÃ©e, l'identifiant numÃ©rique de l'utilisateur si connexion acceptÃ©e
+	 * @return -1 si connexion refusée, l'identifiant numérique de l'utilisateur si connexion acceptée
 	 * @throws SQLException
 	 */
 	public int sqlConnexionAdmin(String pass) throws SQLException {
@@ -136,7 +130,7 @@ public class Instance implements IInstance {
 	}
 	
 	/**
-	 * Construit un utilisateur d'aprÃ¨s son id numÃ©rique
+	 * Construit un utilisateur d'après son id numérique
 	 * @param id Identifiant de l'utilisateur
 	 * @return Utilisateur
 	 * @throws SQLException
@@ -218,14 +212,14 @@ public class Instance implements IInstance {
 		int currentGroupe = 1;
 		while(rs.next()) {
 			if(rs.getInt("id_groupe") != currentGroupe) {
-				// retourne le nom du groupe concernÃ©
+				// retourne le nom du groupe concerné
 				String sql2 = "SELECT nom_groupe FROM groupe WHERE id_groupe = "+ rs.getInt("id_groupe") +" LIMIT 1";
 				ResultSet rs2 = stmt.executeQuery(sql2);
 				retourne.put(new Groupe(rs.getInt("id_groupe"), rs2.getString("nom_groupe"), null), listeUtilisateurs);
 				listeUtilisateurs.clear();
 			}
 
-			// retourne l'utilisateur concernÃ©
+			// retourne l'utilisateur concerné
 			String sql3 = "SELECT nom_user, prenom_user FROM user WHERE id_user = "+ rs.getInt("id_user") +" LIMIT 1";
 			ResultSet rs3 = stmt.executeQuery(sql3);
 			listeUtilisateurs.add(new Utilisateur(rs.getString("id_user"), rs3.getString("nom_user"), rs3.getString("prenom_user")));		
@@ -238,20 +232,20 @@ public class Instance implements IInstance {
 	
 	
 	/**
-	 * Construit un message d'aprÃ¨s son id aprÃ¨s avoir vÃ©rifiÃ© que l'utilisateur peut le consulter
+	 * Construit un message d'après son id après avoir vérifié que l'utilisateur peut le consulter
 	 * @param idMsg Id du message
-	 * @return Le message demandÃ©, ou null
+	 * @return Le message demandé, ou null
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg, int idUser) throws SQLException {
-		return null; // ne sert Ã  rien on fait dÃ©jÃ  l'autorisation sur le ticket
+		return null; // ne sert à rien on fait déjà l'autorisation sur le ticket
 	}
 	
 	/**
-	 * Construit un message d'aprÃ¨s son id
+	 * Construit un message d'après son id
 	 * @param idMsg Id du message
-	 * @param idUser Id de l'utilisateur faisant la requÃªte
-	 * @return Le message demandÃ©, ou null
+	 * @param idUser Id de l'utilisateur faisant la requête
+	 * @return Le message demandé, ou null
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg) throws SQLException {
@@ -259,8 +253,14 @@ public class Instance implements IInstance {
 		
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
+		
+		// One more
+		rs.next();
+		
 		Utilisateur u = new Utilisateur(rs.getString("id_user"),"nom","prenom");
 		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), null);
+		retourne.setParent(new KeyIdentifiable(rs.getInt("id_ticket")));
+		
 		return retourne;
 	}
 	
@@ -307,6 +307,7 @@ public class Instance implements IInstance {
 		String sqlverif = "select count(*) as verif FROM user,ticket,appartenance WHERE appartenance.id_groupe = ticket.id_groupe AND appartenance.id_user = "+idUser+" AND ticket.id_ticket = "+idTicket;
 		Statement stmt = conn.createStatement();
 		ResultSet rsverif = stmt.executeQuery(sqlverif);
+		rsverif.next();
 		if(rsverif.getInt("verif") > 0)
 			return sqlSelectTicket(idTicket);
 		else
@@ -351,7 +352,7 @@ public class Instance implements IInstance {
 			}
 			rs2.close();
 			
-			// On crÃ©e le ticket
+			// On crée le ticket
 			t = new Ticket(idTicket, titreTicket, messages, dateCreationTicket);
 
 			// On renseigne son parent
@@ -381,7 +382,7 @@ public class Instance implements IInstance {
 		
 		
 		while(rs.next()) {
-			// Recuperation des messages pour chaque ticket (juste l'id suffit pour cette mÃ©thode)
+			// Recuperation des messages pour chaque ticket (juste l'id suffit pour cette méthode)
 			NavigableSet<Message> messages = new TreeSet<Message>();
 			String sql2 = "SELECT id_message FROM message WHERE id_ticket = " + rs.getShort("id_ticket") + " LIMIT 1";
 	
@@ -405,18 +406,18 @@ public class Instance implements IInstance {
 	 * Construit un groupe incomplet (contenant des tickets incomplets)
 	 * @param idGroupe Id du groupe
 	 * @param nomGroupe Nom du groupe
-	 * @param idUser Id de l'utilisateur faisant la requÃªte (ou -1)
+	 * @param idUser Id de l'utilisateur faisant la requête (ou -1)
 	 * @return Le groupe, ou null
 	 * @throws SQLException
 	 */
 	public Groupe sqlSelectGroupe(int idGroupe, int idUser) throws SQLException {
-		System.err.println("Non implÃ©mentÃ©");
+		System.err.println("Non implémenté");
 		return null;
 	}
 	
 	/**
 	 * Construit la liste de tous les groupes (incomplets)
-	 * @param idUser Id de l'utilisateur faisant la requÃªte (ou -1)
+	 * @param idUser Id de l'utilisateur faisant la requête (ou -1)
 	 * @return
 	 * @throws SQLException
 	 */
@@ -427,37 +428,46 @@ public class Instance implements IInstance {
 		System.out.println(" ** Select groupes ** ");
 		stmt = conn.createStatement();
 		String sql = "SELECT id_groupe, nom_groupe FROM groupe";
-		System.out.println("Execute query...");
 		ResultSet rs = stmt.executeQuery(sql);
 		
 		while(rs.next()){
 			
 			int id_groupe = rs.getInt("id_groupe");
 			String nom_groupe = rs.getString("nom_groupe");
-
+			
+			// Plus simple de créer avec le constructeur (et pareil tout le long)
 			Groupe unGroupe = new Groupe(id_groupe, nom_groupe);
 
+
 			// On ajoute les tickets si l'utilisateur appartient au groupe
-			// ou s'il a crÃ©Ã© le ticket.
-			// On aurait dÃ» garder le champ 'crÃ©ateur_ticket', Ã§'aurait Ã©tÃ© plus simple :-)
-			// Mais c'est aussi l'Ã©metteur du premier message
+			// ou s'il a créé le ticket.
+			// On aurait dû garder le champ 'créateur_ticket', ç'aurait été plus simple :-)
+			// Mais c'est aussi l'émetteur du premier message
 			// if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
-			String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
-			System.out.println(sqlverif);
-			// Nouveau statement Ã  chaque fois, sinon Ã§a ne marche pas. Pourquoi ?
-			Statement stmt2 = conn.createStatement();
-			ResultSet rsverif = stmt2.executeQuery(sqlverif);
-			
-			
-			// .next() !!!
-			rsverif.next();
-			if(rsverif.getInt("verif") > 0) {
+			boolean verif;
+			if (idUser < 0)
+				verif = true;
+			else {
+				String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
+				
+				// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
+				Statement stmt2 = conn.createStatement();
+				ResultSet rsverif = stmt2.executeQuery(sqlverif);
+				
+				
+				// .next() !!!
+				rsverif.next();
+				verif = (rsverif.getInt("verif") > 0);
+				stmt2.close();
+				rsverif.close();
+			}
+			if (verif) {
 			
 				// Recuperation des tickets pour le groupe
 				// On renvoie des tickets incomplets (sans les messages)
 				String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
-				System.out.println(sql2);
-				// Nouveau statement Ã  chaque fois, sinon Ã§a ne marche pas. Pourquoi ?
+
+				// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
 				Statement stmt3 = conn.createStatement();
 				ResultSet rs2 = stmt3.executeQuery(sql2);
 				while(rs2.next()){
@@ -475,10 +485,8 @@ public class Instance implements IInstance {
 				stmt3.close();
 				rs2.close();
 			}
-			// On ajoute mÃªme les groupes n'ayant aucun ticket connus
+			// On ajoute même les groupes n'ayant aucun ticket connus
 			retourne.add(unGroupe);
-			stmt2.close();
-			rsverif.close();
 		}		
 		return retourne;
 	}
@@ -496,6 +504,9 @@ public class Instance implements IInstance {
 
 	@Override
 	public int sqlInsertGroupe(String nom) throws SQLException {
+
+		System.out.println(" ** Insert groupes ** ");
+		
 		Statement statement = conn.createStatement();
 		String query = "INSERT INTO groupe (id_groupe, nom_groupe) VALUES (NULL, \""+ nom +"\")";
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
@@ -514,6 +525,9 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlInsertUtilisateur(String nom, String prenom, String nickname,
 			String pass) throws SQLException {
+		
+		System.out.println(" ** Insert utilisateur ** ");
+		
 	    Statement statement = conn.createStatement();
 		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
 				+ "VALUES (NULL, '"+Sha256.sha256("qt"+pass+"pi")+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
@@ -541,7 +555,7 @@ public class Instance implements IInstance {
 	    statement = conn.createStatement();
 		String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, '"+titre+"', '"+dateCurrent+"', "+idGroupe+")";
 		
-		// On demande de renvoyer les clÃ©s gÃ©nÃ©rÃ©es
+		// On demande de renvoyer les clés générées
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
 
 		ResultSet rs = statement.getGeneratedKeys();
@@ -576,6 +590,9 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlInsertMessage(String contenu, int idUser, int idTicket)
 			throws SQLException {	
+		
+		System.out.println(" ** Insert message ** ");
+		
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
 		
@@ -594,8 +611,8 @@ public class Instance implements IInstance {
 		return idMsg;
 		
 /*
- * Fait le mÃªme travail ?
-		@Override // manque l'id du ticket concernÃ© (manque trop d'infos ou alors j'ai pas compris ce qu'elle doit faire)
+ * Fait le même travail ?
+		@Override // manque l'id du ticket concerné (manque trop d'infos ou alors j'ai pas compris ce qu'elle doit faire)
 		public void adminSetMessage(ComAdresse admin, Message message) {
 		    java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		    Statement statement = conn.createStatement();
@@ -675,7 +692,7 @@ public class Instance implements IInstance {
 	@Override
 	public void deleteGroupe(int id) throws SQLException {
 	    Statement statement = conn.createStatement();
-		String query = "DELETE FROM groupe WHERE id_groupee = "+id+" LIMIT 1";
+		String query = "DELETE FROM groupe WHERE id_groupe = "+id+" LIMIT 1";
 		statement.executeUpdate(query);
 	}
 
@@ -704,6 +721,9 @@ public class Instance implements IInstance {
 		String query = "DELETE FROM user WHERE id_user = "+id+" LIMIT 1";
 		statement.executeUpdate(query);
 	}
+
+
+
 
 
 	
