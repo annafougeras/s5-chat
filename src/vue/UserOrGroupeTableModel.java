@@ -50,4 +50,23 @@ public class UserOrGroupeTableModel<T> extends AbstractTableModel
         }
         return returnedObject;
     }    
+    
+    @Override
+    public String getColumnName(int col) {
+        String name;
+        switch (col){
+            case 0 : if(usersOrGroupes != null && ! usersOrGroupes.isEmpty() 
+                            && usersOrGroupes.get(0) instanceof Groupe){
+                        name = "Groupe";
+                     } else {
+                        name = "Utilisateur";
+                     }
+                     break;
+            case 1 : name = "Détails";
+                     break;
+            default : name = "Retirer";
+                      break;
+        }
+        return name;
+    }
 }

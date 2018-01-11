@@ -52,5 +52,17 @@ public class StatusTableModel extends AbstractTableModel
                 returnedObject = statuts.get(row);
         }
         return returnedObject;
-    }    
+    }
+    
+    @Override
+    public String getColumnName(int col) {
+        String name;
+        switch (col){
+            case 0 : name = "Utilisateur";
+                     break;
+            default : name = "Statut";
+                      break;
+        }
+        return name;
+    }
 }

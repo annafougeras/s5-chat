@@ -137,6 +137,14 @@ public class AdminScreen extends BaseScreenAdmin {
         detailsGroupeDialog.pack();
         detailsGroupeDialog.setVisible(true);
     }
+    
+     private void showUserDetails(Utilisateur user) {
+    	JDialog detailsUserDialog = new JDialog(this, "Détails de l'utilisateur", true);
+        DetailsUserPanel detailsUserPanel = new DetailsUserPanel(this.ctrlAdmin, user);
+        detailsUserDialog.add(detailsUserPanel);
+        detailsUserDialog.pack();
+        detailsUserDialog.setVisible(true);
+    }
 
 
     @Override
@@ -190,10 +198,9 @@ public class AdminScreen extends BaseScreenAdmin {
                 if (userList.getSelectedIndex() == -1) {
                     //No selection, do nothing
                 } else {
-                    //Selection, open the group's details
-                    
-                    System.out.println("Ouvrir les détails de l'utilisateur (dans un modal comportant les mêmes éléments que dans la maquette)");
-                    
+                    //Selection, open the user's details
+                    Utilisateur user = userList.getModel().getElementAt(userList.getSelectedIndex());
+                    showUserDetails(user);
                 }
             }
         }

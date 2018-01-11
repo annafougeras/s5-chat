@@ -9,12 +9,15 @@ import controleur.CtrlAdmin;
 import controleur.CtrlVue;
 import controleur.ICtrlAdmin;
 import controleur.ICtrlVue;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -88,8 +91,9 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         userTable.setModel(new UserOrGroupeTableModel<Utilisateur>(new ArrayList<Utilisateur>(this.users)));
+        userTable.setCellSelectionEnabled(true);
         userTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        userTable.getSelectionModel().addListSelectionListener(new UserTableSelectionListener());
+        userTable.addMouseListener(new UserTableSelectionListener());
         jScrollPane1.setViewportView(userTable);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -244,24 +248,38 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
         userTable.setModel(new UserOrGroupeTableModel<>(new ArrayList<>(this.users)));
     }
     
-    private class UserTableSelectionListener implements ListSelectionListener {
-
+    private class UserTableSelectionListener extends MouseAdapter {
+        
         @Override
-        public void valueChanged(ListSelectionEvent lse) {
-            int row = userTable.getSelectedRow();
-            int col = userTable.getSelectedColumn();
-            if(row >= 0 && col >= 0){
-                switch (col){
-                    case 0 :
-                    case 1 :
-                        Utilisateur user = (new ArrayList<>(users)).get(row);
-                        // TODO : Fermer le JDialog, et ouvrir le JDialog de cet user
-                        break;
-                    default :
-                        // TODO : Retirer l'utilisateur à ce groupe
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 1) {
+                int row = userTable.getSelectedRow();
+                int col = userTable.getSelectedColumn();
+                
+                if(row >= 0 && col >= 0){
+                    Utilisateur user = (new ArrayList<>(users)).get(row);
+                    
+                    switch (col){
+                        case 0 :
+                        case 1 :
+                            // Fermer le JDialog, et ouvrir le JDialog de cet user
+                            closeParentDialog();
+                            showUserDetails(user);
+                            break;
+                        default :
+                            // Retirer l'utilisateur de ce groupe
+                            ctrlAdmin.removeUtilisateurFromGroupe(user, groupe);
+                    }
                 }
             }
-        }
-        
+        }      
+    }
+    
+     private void showUserDetails(Utilisateur user) {
+    	JDialog detailsUserDialog = new JDialog(this.getParentDialog(), "Détails de l'utilisateur", true);
+        DetailsUserPanel detailsUserPanel = new DetailsUserPanel(this.ctrlAdmin, user);
+        detailsUserDialog.add(detailsUserPanel);
+        detailsUserDialog.pack();
+        detailsUserDialog.setVisible(true);
     }
 }

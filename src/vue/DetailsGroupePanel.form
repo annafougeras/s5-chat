@@ -55,7 +55,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="userTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);&#xa;userTable.getSelectionModel().addListSelectionListener(new UserTableSelectionListener());"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="userTable.setCellSelectionEnabled(true);&#xa;userTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);&#xa;userTable.addMouseListener(new UserTableSelectionListener());"/>
               </AuxValues>
             </Component>
           </SubComponents>

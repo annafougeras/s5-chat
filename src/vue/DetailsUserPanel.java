@@ -9,6 +9,8 @@ import controleur.CtrlAdmin;
 import controleur.CtrlVue;
 import controleur.ICtrlAdmin;
 import controleur.ICtrlVue;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.NavigableSet;
 import java.util.Observable;
@@ -84,7 +86,7 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
 
         groupTable.setModel(new UserOrGroupeTableModel<Groupe>(new ArrayList<Groupe>(this.groupes)));
         groupTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        groupTable.getSelectionModel().addListSelectionListener(new GroupTableSelectionListener());
+        groupTable.addMouseListener(new GroupTableSelectionListener());
         jScrollPane1.setViewportView(groupTable);
 
         jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
@@ -181,24 +183,36 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
         groupTable.setModel(new UserOrGroupeTableModel<>(new ArrayList<>(this.groupes)));
     }
     
-    private class GroupTableSelectionListener implements ListSelectionListener {
+    private class GroupTableSelectionListener extends MouseAdapter {
 
         @Override
-        public void valueChanged(ListSelectionEvent lse) {
-            int row = groupTable.getSelectedRow();
-            int col = groupTable.getSelectedColumn();
-            if(row >= 0 && col >= 0){
-                switch (col){
-                    case 0 :
-                    case 1 :
-                        Groupe groupe = (new ArrayList<>(groupes)).get(row);
-                        // TODO : Fermer le JDialog, et ouvrir le JDialog de ce groupe
-                        break;
-                    default :
-                        // TODO : Retirer l'utilisateur à ce groupe
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 1) {
+                int row = groupTable.getSelectedRow();
+                int col = groupTable.getSelectedColumn();
+                if(row >= 0 && col >= 0){
+                    Groupe groupe = (new ArrayList<>(groupes)).get(row);
+                    switch (col){
+                        case 0 :
+                        case 1 :
+                            // Fermer le JDialog, et ouvrir le JDialog de ce groupe
+                            closeParentDialog();
+                            showGroupDetails(groupe);
+                            break;
+                        default :
+                            // Retirer l'utilisateur de ce groupe
+                            ctrlAdmin.removeUtilisateurFromGroupe(user, groupe);
+                    }
                 }
             }
-        }
-        
+        }        
+    }
+    
+    private void showGroupDetails(Groupe groupe) {
+    	JDialog detailsGroupeDialog = new JDialog(this.getParentDialog(), "Détails du groupe", true);
+        DetailsGroupePanel detailsGroupePanel = new DetailsGroupePanel(this.ctrlAdmin, groupe);
+        detailsGroupeDialog.add(detailsGroupePanel);
+        detailsGroupeDialog.pack();
+        detailsGroupeDialog.setVisible(true);
     }
 }
