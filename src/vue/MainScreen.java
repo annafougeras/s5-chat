@@ -14,11 +14,6 @@ import javax.swing.JDialog;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-import modele.Groupe;
-import modele.Identifiable;
-import modele.KeyIdentifiable;
-import modele.Message;
-import modele.Ticket;
 import controleur.CtrlVue;
 import controleur.ICtrlVue;
 import java.util.ArrayList;

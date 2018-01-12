@@ -24,13 +24,13 @@ import modele.Utilisateur;
  */
 public class MessageListCellRenderer extends JLabel implements ListCellRenderer<Message> {
     
-    private DateFormat dateFormat = new SimpleDateFormat("hh:mm dd/mm");
+    private DateFormat dateFormat = new SimpleDateFormat("dd/mm");
     
     @Override
     public Component getListCellRendererComponent(JList<? extends Message> jlist, Message message, int index, boolean isSelected, boolean hasFocus) {
         
         // Allow multiline content
-        JTextArea renderer = new JTextArea(3,10);
+        JTextArea renderer = new JTextArea(1,10);
         renderer.setLineWrap(true);
         
         renderer.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
@@ -54,7 +54,7 @@ public class MessageListCellRenderer extends JLabel implements ListCellRenderer<
                 // Couleur du message
                 StatutDeLecture statut = StatutDeLecture.LU;
                 for(StatutDeLecture currentStatut : message.getStatuts().values()){
-                    if(currentStatut.compareTo(statut) > 0){
+                    if(currentStatut.compareTo(statut) < 0){
                         statut = currentStatut;
                     }
                 }
