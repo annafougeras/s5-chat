@@ -327,9 +327,9 @@ public class MainScreen extends BaseScreen {
 	 * @param ticket
 	 */
 	private void updateMessageList(final Ticket ticket) {
+		ctrlVue.informerLecture(ticket);
 		ticketAffiche = ticket;
 		if (ticket.estComplet()){
-			System.out.println(ticket.getMessages());
 			NavigableSet<Message> set = ticket.getMessages();
 		
                         messageList.setModel(new MessageListModel(new ArrayList<>(ticketAffiche.getMessages())));

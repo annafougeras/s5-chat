@@ -12,6 +12,7 @@ import java.util.Set;
 import modele.Groupe;
 import modele.Identifiable;
 import modele.Message;
+import modele.StatutDeLecture;
 import modele.Ticket;
 
 import communication.ComAdresse;
@@ -159,6 +160,15 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 				));
 	}
 
+	@Override
+	public void informerLecture(Identifiable ticket, StatutDeLecture statut) {
+		controleur.demander(new SimpleMessageDemande(
+				TypeMessage.INFORME_STATUT_DE_LECTURE,
+				ticket,
+				statut
+				));
+	}
+
 
 	
 	
@@ -216,6 +226,9 @@ public class CtrlComClient implements ICtrlComClient, ObservateurComClient<Simpl
 		}
 		
 	}
+
+
+
 
 
 
