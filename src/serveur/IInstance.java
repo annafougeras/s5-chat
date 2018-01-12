@@ -166,6 +166,10 @@ public interface IInstance {
 	public void sqlRejoindreGroupe(int idUser, int idGroupe) throws SQLException;
 	
 	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException;
+
+	
+	
+	public void sqlSetStatut(int idUser, int idTicket, int statut) throws SQLException;
 	
 	
 	

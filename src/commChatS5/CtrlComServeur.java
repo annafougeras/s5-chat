@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import modele.Groupe;
 import modele.Identifiable;
 import modele.Message;
+import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
@@ -173,6 +174,13 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 						TypeMessage.INFORME_TICKET,
 						observateur.creationTicket(client, idGroupe, titreTicket, contenuPremierMessage)
 						);
+				break;
+				
+			case INFORME_STATUT_DE_LECTURE:
+				Identifiable idMsg = (Identifiable) args[1];
+				StatutDeLecture statut = (StatutDeLecture) args[2];
+				observateur.informeStatutDeLecture(client, idMsg, statut);
+				reponse = null;
 				break;
 			
 			case REQUETE_ADMIN:

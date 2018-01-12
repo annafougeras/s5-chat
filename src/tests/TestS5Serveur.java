@@ -150,6 +150,14 @@ public class TestS5Serveur {
 			return msg;
 		}
 
+
+		@Override
+		public void informeStatutDeLecture(ComAdresse client,
+				Identifiable idMsg, StatutDeLecture statut) {
+			// TODO Auto-generated method stub
+			
+		}
+
 		
 	}
 	

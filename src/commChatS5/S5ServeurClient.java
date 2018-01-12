@@ -12,6 +12,7 @@ import java.util.Set;
 import modele.Groupe;
 import modele.Identifiable;
 import modele.Message;
+import modele.StatutDeLecture;
 import modele.Ticket;
 
 import communication.ComAdresse;
@@ -66,4 +67,11 @@ public interface S5ServeurClient {
 	 */
 	public Message creationMessage(ComAdresse client, Identifiable ticket, String message);
 	
+
+	/**
+	 * @param client
+	 * @param idMsg
+	 * @param statut
+	 */
+	void informeStatutDeLecture(ComAdresse client, Identifiable idTicket, StatutDeLecture statut);
 }

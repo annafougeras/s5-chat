@@ -69,7 +69,6 @@ public class Instance implements IInstance {
 			PASS = PASS_DISTANT;
 		}
 		
-		// Connexion à la db : une seule fois à l'instanciation ?
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("Connecting to database...");
@@ -93,10 +92,130 @@ public class Instance implements IInstance {
 	
 	
 	
+	/**
+	 * Tous les identifiants des utilisateurs pouvant consulter un ticket
+	 * @param idTicket
+	 * @return
+	 * @throws SQLException
+	 */
+	private Set<Integer> utilisateursPouvantConsulterUnTicket(int idTicket) throws SQLException {
+		Set<Integer> set = new TreeSet<>();
+
+		Statement stmt1 = conn.createStatement();
+		Statement stmt2 = conn.createStatement();
+		
+		// membres du groupe
+		ResultSet rs1= stmt1.executeQuery("select appartenance.id_user as id_user FROM ticket,appartenance WHERE appartenance.id_groupe = ticket.id_groupe");
+		while(rs1.next())
+			set.add(rs1.getInt("id_user"));
+
+		// émetteur du ticket
+		ResultSet rs2= stmt2.executeQuery("select message.id_user as id_user FROM ticket,message WHERE message.id_ticket = ticket.id_ticket AND ticket.id_ticket = "+idTicket);
+		while(rs2.next())
+			set.add(rs2.getInt("id_user"));
+		
+		return set;
+	}
 	
 	
 	
-	/* FONCTIONS PUREMENT SQL */
+	/**
+	 * Détermine si un ticket est consultable par un utilisateur
+	 * @param idTicket
+	 * @param idUser
+	 * @return
+	 * @throws SQLException
+	 */
+	private boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
+		return utilisateursPouvantConsulterUnTicket(idTicket).contains(new Integer(idUser));
+	}
+
+
+	/**
+	 * Met tous les statuts de lecture d'un message à 'envoyé'
+	 * @param idMsg
+	 * @throws SQLException
+	 */
+	private void initialiseStatutsDeLecture(int idMsg) throws SQLException {
+		Statement stmt1 = conn.createStatement();
+		Statement stmt2 = conn.createStatement();
+		String sql1;
+		String sql2;
+		
+		sql1 = "SELECT id_ticket FROM message WHERE id_message = " + idMsg;
+		ResultSet rs1= stmt1.executeQuery(sql1);
+		rs1.next();
+	
+		for (int idUser: utilisateursPouvantConsulterUnTicket(rs1.getInt("id_ticket"))){
+			sql2 = "INSERT INTO statut VALUES ("+idMsg+", "+idUser+", '"+StatutDeLecture.ENVOYE.toInt()+"')";
+			stmt2.executeUpdate(sql2);		
+		}
+		
+	}
+
+
+	/**
+	 * Donne les statuts de lecture d'un message
+	 * @param idMessage
+	 * @return
+	 * @throws SQLException
+	 */
+	private NavigableMap<Utilisateur,StatutDeLecture> statutsDeLecture(int idMessage) throws SQLException {
+		NavigableMap<Utilisateur,StatutDeLecture> statuts = new TreeMap<>();
+
+		Statement stmt1 = conn.createStatement();
+		ResultSet rs1= stmt1.executeQuery("SELECT id_user,statut FROM statut WHERE id_message = " + idMessage);
+		while (rs1.next()) {
+			int idUser = rs1.getInt("id_user");
+			int statut = rs1.getInt("statut");
+			
+			Utilisateur u = sqlSelectUtilisateur(idUser);
+			StatutDeLecture s = StatutDeLecture.fromInt(statut);
+			statuts.put(u, s);
+		}
+		return statuts;
+	}
+	
+	
+	/**
+	 * Donne le nombre de messages non lus par un utilisateur sur un ticket
+	 * @param idTicket
+	 * @param idUser
+	 * @return
+	 * @throws SQLException
+	 */
+	private int nbMessagesNonLus(int idTicket, int idUser) throws SQLException {
+
+		Statement stmt1 = conn.createStatement();
+		ResultSet rs1= stmt1.executeQuery("select count(*) as nb FROM statut,message WHERE statut.id_user = "+idUser+" AND statut.id_message = message.id_message AND message.id_ticket = "+idTicket);
+		rs1.next();
+		return rs1.getInt("nb");
+	
+	}
+	
+
+
+
+	/* Met à jour le statut d'un utilisateur pour tous les messages du ticket */
+	@Override
+	public void sqlSetStatut(int idUser, int idTicket, int statut) throws SQLException {
+	    Statement statement = conn.createStatement();
+	    String query = "UPDATE statut, message SET statut.statut = '"+ statut +"' WHERE statut.id_user = "+ idUser +" AND statut.id_message = message.id_message AND message.id_ticket = " + idTicket;
+		statement.executeUpdate(query);	
+		
+	}
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * Vérifie un couple d'identifiants pour la connexion, renvoie l'id de l'utilisateur ou -1
@@ -110,7 +229,6 @@ public class Instance implements IInstance {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		
-		// Ne pas oublier .next()
 		if (rs.next())
 			if(rs.getInt("connexion") == 1)
 				return rs.getInt("id_user");
@@ -125,7 +243,7 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public int sqlConnexionAdmin(String pass) throws SQLException {
-		// j'ai pas compris cette methode ou alors je pense qu'elle est pas utile
+		// Connexion admin toujours ok
 		return 1;
 	}
 	
@@ -200,32 +318,6 @@ public class Instance implements IInstance {
 		
 		return map;
 		
-		/*
-		 * Ancienne version (ne fonctionne pas !)
-		 * 
-		String sql = "SELECT * FROM appartenance GROUP BY id_groupe";
-		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-
-		TreeMap<Groupe, NavigableSet<Utilisateur>> retourne = new TreeMap<>();
-		NavigableSet<Utilisateur> listeUtilisateurs = new TreeSet<>();
-		int currentGroupe = 1;
-		while(rs.next()) {
-			if(rs.getInt("id_groupe") != currentGroupe) {
-				// retourne le nom du groupe concerné
-				String sql2 = "SELECT nom_groupe FROM groupe WHERE id_groupe = "+ rs.getInt("id_groupe") +" LIMIT 1";
-				ResultSet rs2 = stmt.executeQuery(sql2);
-				retourne.put(new Groupe(rs.getInt("id_groupe"), rs2.getString("nom_groupe"), null), listeUtilisateurs);
-				listeUtilisateurs.clear();
-			}
-
-			// retourne l'utilisateur concerné
-			String sql3 = "SELECT nom_user, prenom_user FROM user WHERE id_user = "+ rs.getInt("id_user") +" LIMIT 1";
-			ResultSet rs3 = stmt.executeQuery(sql3);
-			listeUtilisateurs.add(new Utilisateur(rs.getString("id_user"), rs3.getString("nom_user"), rs3.getString("prenom_user")));		
-		}
-		return retourne;
-		*/
 	}
 
 	
@@ -238,7 +330,7 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg, int idUser) throws SQLException {
-		return null; // ne sert à rien on fait déjà l'autorisation sur le ticket
+		return null;
 	}
 	
 	/**
@@ -254,11 +346,15 @@ public class Instance implements IInstance {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		
-		// One more
 		rs.next();
 		
 		Utilisateur u = new Utilisateur(rs.getString("id_user"),"nom","prenom");
-		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), null);
+		Message retourne = new Message(
+				rs.getInt("id_message"), 
+				u, 
+				rs.getString("contenu"), 
+				rs.getDate("date_message"), 
+				statutsDeLecture(rs.getInt("id_message")));	
 		retourne.setParent(new KeyIdentifiable(rs.getInt("id_ticket")));
 		
 		return retourne;
@@ -278,7 +374,12 @@ public class Instance implements IInstance {
 		ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
 			Utilisateur u = new Utilisateur(rs.getString("id_user"),"nom","prenom");
-			Message mess = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), null);	
+			Message mess = new Message(
+					rs.getInt("id_message"), 
+					u, 
+					rs.getString("contenu"), 
+					rs.getDate("date_message"), 
+					statutsDeLecture(rs.getInt("id_message")));	
 			retourne.add(mess);
 		}
 		return retourne;
@@ -304,11 +405,8 @@ public class Instance implements IInstance {
 	 */
 	
 	public Ticket sqlSelectTicket(int idTicket, int idUser) throws SQLException {
-		String sqlverif = "select count(*) as verif FROM user,ticket,appartenance WHERE appartenance.id_groupe = ticket.id_groupe AND appartenance.id_user = "+idUser+" AND ticket.id_ticket = "+idTicket;
-		Statement stmt = conn.createStatement();
-		ResultSet rsverif = stmt.executeQuery(sqlverif);
-		rsverif.next();
-		if(rsverif.getInt("verif") > 0)
+		boolean ok = ticketConsultable(idTicket, idUser);
+		if (ok)
 			return sqlSelectTicket(idTicket);
 		else
 			return null;
@@ -338,15 +436,15 @@ public class Instance implements IInstance {
 			ResultSet rs2 = stmt2.executeQuery(sql2);
 
 			while(rs2.next()){
+				int idMsg = rs2.getInt("id_message");
 				String contenuMsg = rs2.getString("contenu");
 				Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 				Date dateMsg = rs2.getDate("date_message");
 				
-				//TODO SQL Calcul des statuts de lecture pour les lecteurs du message
-				NavigableMap<Utilisateur, StatutDeLecture> statuts = new TreeMap<>();;
+				NavigableMap<Utilisateur, StatutDeLecture> statuts = statutsDeLecture(idMsg);
 
 				// Instanciation du message
-				Message unMessage = new Message(0, emetteur, contenuMsg, dateMsg, statuts);
+				Message unMessage = new Message(idMsg, emetteur, contenuMsg, dateMsg, statuts);
 				unMessage.setParent(new KeyIdentifiable(idTicket));
 				messages.add(unMessage);
 			}
@@ -354,8 +452,6 @@ public class Instance implements IInstance {
 			
 			// On crée le ticket
 			t = new Ticket(idTicket, titreTicket, messages, dateCreationTicket);
-
-			// On renseigne son parent
 			t.setParent(new KeyIdentifiable(id_groupe_parent));
 			
 		}
@@ -435,57 +531,26 @@ public class Instance implements IInstance {
 			int id_groupe = rs.getInt("id_groupe");
 			String nom_groupe = rs.getString("nom_groupe");
 			
-			// Plus simple de créer avec le constructeur (et pareil tout le long)
 			Groupe unGroupe = new Groupe(id_groupe, nom_groupe);
 
-
-			// On ajoute les tickets si l'utilisateur appartient au groupe
-			// ou s'il a créé le ticket.
-			// On aurait dû garder le champ 'créateur_ticket', ç'aurait été plus simple :-)
-			// Mais c'est aussi l'émetteur du premier message
-			// if est_dans_groupe(utilisateur) or nb_messages_dans_ticket(utilisateur) > 0
-			boolean verif;
-			if (idUser < 0)
-				verif = true;
-			else {
-				String sqlverif = "select count(*) as verif FROM appartenance WHERE id_groupe = '"+ id_groupe +"' AND id_user = "+ idUser +" LIMIT 1";
+			String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
+			Statement stmt3 = conn.createStatement();
+			ResultSet rs2 = stmt3.executeQuery(sql2);
+			while(rs2.next()){
+				int id_ticket = rs2.getInt("id_ticket");
 				
-				// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
-				Statement stmt2 = conn.createStatement();
-				ResultSet rsverif = stmt2.executeQuery(sqlverif);
-				
-				
-				// .next() !!!
-				rsverif.next();
-				verif = (rsverif.getInt("verif") > 0);
-				stmt2.close();
-				rsverif.close();
-			}
-			if (verif) {
-			
-				// Recuperation des tickets pour le groupe
-				// On renvoie des tickets incomplets (sans les messages)
-				String sql2 = "SELECT * FROM ticket WHERE id_groupe = " + id_groupe;
-
-				// Nouveau statement à chaque fois, sinon ça ne marche pas. Pourquoi ?
-				Statement stmt3 = conn.createStatement();
-				ResultSet rs2 = stmt3.executeQuery(sql2);
-				while(rs2.next()){
-					int id_ticket = rs2.getInt("id_ticket");
+				if (ticketConsultable(id_ticket, idUser)) {
 					String titreTicket = rs2.getString("titre_ticket");
 					
-					//TODO SQL : nombre de messages non lus, date dernier message
-					int nb_msg_non_lus = 0;
+					//TODO SQL : date dernier message
+					int nb_msg_non_lus = nbMessagesNonLus(id_ticket, idUser);
 					Date date_dernier_message = new Date();
 
 					Ticket unTicket = new Ticket(id_ticket,titreTicket, nb_msg_non_lus, date_dernier_message);
 	
 					unGroupe.addTicketConnu(unTicket);
 				}
-				stmt3.close();
-				rs2.close();
 			}
-			// On ajoute même les groupes n'ayant aucun ticket connus
 			retourne.add(unGroupe);
 		}		
 		return retourne;
@@ -562,20 +627,7 @@ public class Instance implements IInstance {
 		int id_ticket = 0;
 		if (rs.next()) {
 			id_ticket = rs.getInt(1);
-			
-			// sqlInsertMessage() ?
-		
-	
-			String query2 = "INSERT INTO message (id_message, id_ticket, id_user, contenu, date_message) VALUES (NULL, ?, ?, ?, ?)";
-	
-			PreparedStatement preparedStmt = conn.prepareStatement(query2);
-			preparedStmt.setInt (1, id_ticket);
-			preparedStmt.setInt (2, idUser);
-			preparedStmt.setString (3, premierMessage);
-			preparedStmt.setDate (4, dateCurrent);
-			preparedStmt.execute();
-	
-			
+			sqlInsertMessage(premierMessage,idUser, id_ticket);	
 		}
 
 		return id_ticket;
@@ -608,20 +660,14 @@ public class Instance implements IInstance {
 		if (rs.next())
 			idMsg = rs.getInt(1);
 		
-		return idMsg;
+		initialiseStatutsDeLecture(idMsg);
 		
-/*
- * Fait le même travail ?
-		@Override // manque l'id du ticket concerné (manque trop d'infos ou alors j'ai pas compris ce qu'elle doit faire)
-		public void adminSetMessage(ComAdresse admin, Message message) {
-		    java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
-		    Statement statement = conn.createStatement();
-			String query = "INSERT INTO user (id_message, id_ticket, id_user, contenu, date_message) "
-					+ "VALUES (NULL, NULL, NULL, '"+message.getTexte()+"', "+dateCurrent+")";
-			statement.executeUpdate(query);
-		}
-*/		
+		return idMsg;
+			
 	}
+
+
+
 
 
 
@@ -676,7 +722,6 @@ public class Instance implements IInstance {
 		Statement statement = conn.createStatement();
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO appartenance (id_groupe, id_user, inscription) VALUES ("+idGroupe+","+idUser+",'"+dateCurrent+"')";
-		System.out.println(query);
 		statement.executeUpdate(query);	
 	}
 

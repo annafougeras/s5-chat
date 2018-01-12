@@ -79,4 +79,7 @@ public interface ICtrlVue extends S5Client {
      * 
      */
     void deconnecter();
+    
+    
+    void informerLecture(Ticket ticket);
 }

@@ -18,6 +18,7 @@ import modele.Groupe;
 import modele.Identifiable;
 import modele.KeyIdentifiable;
 import modele.Message;
+import modele.StatutDeLecture;
 import modele.Ticket;
 import vue.BaseScreen;
 import vue.ConnectionScreen;
@@ -69,23 +70,6 @@ public class CtrlVue extends Observable implements ICtrlVue {
     
     
     
-    
-    /*
-    @Override
-    public void addObserver(Observer o){
-        super.addObserver(o);
-        System.out.println("Observer ajouté : " +  o);
-        System.out.println("nombre d'observers : " + this.countObservers());
-    }
-    
-    
-    @Override
-    public void deleteObserver(Observer o){
-        super.deleteObserver(o);
-        System.out.println("Observer supprimé : " +  o);
-        System.out.println("nombre d'observers : " + this.countObservers());
-    }
-    */
     
     public CtrlVue(/*ComAdresse serverAddr*/){
         // Crée le ctrlCom
@@ -218,6 +202,19 @@ public class CtrlVue extends Observable implements ICtrlVue {
         this.changeScreen(new ConnectionScreen(this));
     }
     
+
+
+	@Override
+	public void informerLecture(Ticket ticket) {
+		ctrlComClient.informerLecture(ticket, StatutDeLecture.LU);
+	}
+
+    
+    
+    
+    
+    
+    
         
     private void changeScreen(final BaseScreen newScreen){ // Peut être ne faire que des panel dans un seul JFrame ?
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -252,6 +249,8 @@ public class CtrlVue extends Observable implements ICtrlVue {
     */
     @Override
     public void recevoir(Ticket ticketRecu) {
+    	
+    	ctrlComClient.informerLecture(ticketRecu, StatutDeLecture.RECU);
     	
     	System.out.println("Ticket reçu : " + ticketRecu);
     	
@@ -292,6 +291,10 @@ public class CtrlVue extends Observable implements ICtrlVue {
     	// Reçoit une nouvelle liste de groupes (à tout moment)
     	System.out.println("Liste des groupes reçue");
     	majGroupes(listeDesGroupes);
+    	
+    	for (Groupe g: listeDesGroupes)
+    		for (Ticket t: g.getTicketsConnus())
+    	    	ctrlComClient.informerLecture(t, StatutDeLecture.RECU);
 
     	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
     	//notifyObservers(Notification.UPDATE_JTREE);
@@ -313,8 +316,6 @@ public class CtrlVue extends Observable implements ICtrlVue {
 		if (ticketsParId.containsKey(ticketParent)){
 			
 			Ticket t = ticketsParId.get(ticketParent);
-			System.out.println("ticketParent="+ticketParent);
-			System.out.println("t="+t);
 			t.addMessage(messageRecu);
 			
 	    	// Je n'ai pas su me servir de notifyObservers(), j'appelle directement update 
@@ -333,6 +334,7 @@ public class CtrlVue extends Observable implements ICtrlVue {
     	//TODO Faire plus ?
     	System.err.println("Message inconnu reçu : " + messageInconnu);
     }
+
 
     
     

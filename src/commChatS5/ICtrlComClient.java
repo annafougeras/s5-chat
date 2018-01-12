@@ -11,6 +11,7 @@ import java.util.Set;
 
 import modele.Groupe;
 import modele.Identifiable;
+import modele.StatutDeLecture;
 import modele.Ticket;
 
 /**
@@ -86,6 +87,14 @@ public interface ICtrlComClient {
 	 * @param message Contenu du message
 	 */
 	public void creerMessage(Identifiable ticket, String message);
+	
+	
+	/**
+	 * Informer de la lecture d'un message
+	 * @param Message
+	 * @param statut
+	 */
+	public void informerLecture(Identifiable Message, StatutDeLecture statut);
 	
 	
 	

@@ -19,7 +19,25 @@ public enum StatutDeLecture {
 	LU;
 	
 	public String toString() {
-		return "[Statut de lecture " + name().toLowerCase() + "]";
+		return "[" + name().toLowerCase() + "]";
 	}
 	
+	
+	public int toInt() {
+		switch (this) {
+		case ENVOYE: return 1;
+		case LU: return 2;
+		case RECU: return 3;
+		default: return 0;
+		}
+	}
+	
+	public static StatutDeLecture fromInt(int i){
+		switch (i) {
+		case 1: return StatutDeLecture.ENVOYE;
+		case 2: return StatutDeLecture.LU;
+		case 3: return StatutDeLecture.RECU;
+		default: return StatutDeLecture.NON_ENVOYE;
+		}
+	}
 }

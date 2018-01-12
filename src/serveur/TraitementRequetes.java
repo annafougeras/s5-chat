@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import modele.Groupe;
 import modele.Identifiable;
 import modele.Message;
+import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
@@ -143,8 +144,6 @@ public class TraitementRequetes implements S5Serveur {
 		int idTicket;
 		Ticket t = null;
 		
-		System.out.println("TR.creationTicket - idUser="+idUser);
-		
 		try {
 			idTicket = sql.sqlInsertTicket(titre, premierMessage, idUser, idGroupe);
 			if (idTicket >= 0)
@@ -178,6 +177,26 @@ public class TraitementRequetes implements S5Serveur {
 		return m;
 	
 	}
+
+	@Override
+	public void informeStatutDeLecture(ComAdresse client, Identifiable idTicket, StatutDeLecture statut) {
+		try {
+			int idUser = utilisateurs.get(client);
+			int idT = idTicket.getIdentifiantNumeriqueUnique();
+			int s = statut.toInt();
+			
+			sql.sqlSetStatut(idUser, idT, s);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
+	
 
 	@Override
 	public Utilisateur adminDemandeUtilisateur(ComAdresse admin, Identifiable idUtilisateur) {
