@@ -55,7 +55,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="groupTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);&#xa;groupTable.addMouseListener(new GroupTableSelectionListener());"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="groupTable.setCellSelectionEnabled(true);&#xa;groupTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);&#xa;groupTable.addMouseListener(new GroupTableSelectionListener());"/>
               </AuxValues>
             </Component>
           </SubComponents>

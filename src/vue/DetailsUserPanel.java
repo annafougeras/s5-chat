@@ -16,6 +16,7 @@ import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -44,6 +45,10 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
         ((CtrlAdmin)this.ctrlAdmin).addObserver(this);
         
         initComponents();
+        
+        // Cette fonction fait des trucs que si ils étaient faits par netbeans 
+        // ils seraient dans initComponents(). En bon français.
+        initComponentsBis();
         
         userNameLabel.setText("Détails de l'utilisateur " + user.getNom() + " " + user.getPrenom());
     }
@@ -85,6 +90,7 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         groupTable.setModel(new UserOrGroupeTableModel<Groupe>(new ArrayList<Groupe>(this.groupes)));
+        groupTable.setCellSelectionEnabled(true);
         groupTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         groupTable.addMouseListener(new GroupTableSelectionListener());
         jScrollPane1.setViewportView(groupTable);
@@ -215,4 +221,63 @@ public class DetailsUserPanel extends javax.swing.JPanel implements Observer {
         detailsGroupeDialog.pack();
         detailsGroupeDialog.setVisible(true);
     }
+    
+     /**
+	 * Celle-là c'est moi qui l'a fait on peut y toucher sans problème...
+	 */
+	private void initComponentsBis() {
+		supprimerUserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	int dialogResult = JOptionPane.showConfirmDialog (
+            			null, 
+            			"Supprimer l'utilisateur ?",
+            			"Confirmation",
+            			JOptionPane.YES_NO_OPTION
+            			);
+            	if(dialogResult == JOptionPane.YES_OPTION){
+	            	ctrlAdmin.supprimerUtilisateur(user);
+	            	closeParentDialog();
+            	}
+            }
+        });
+	/*	modifierUserButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	String nouveau_nom = JOptionPane.showInputDialog(
+            	        null, 
+            	        "Donner un nouveau nom à l'utilisateur : ", 
+            	        "Nouveau nom", 
+            	        JOptionPane.QUESTION_MESSAGE
+            	    );
+            	if (nouveau_nom != null)
+            		if (nouveau_nom.length() > 1)
+            			ctrlAdmin.insererUtilisateur(new Utilisateur(user.getIdentifiantNumeriqueUnique(), nouveau_nom, nouveau_prenom));
+            	
+            }
+        });*/
+		addGroupButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {  
+            	NavigableSet<Groupe> groupes = ctrlAdmin.getGroupes();
+            	Groupe[] tab = new Groupe[groupes.size()];
+            	int i = 0;
+            	for (Groupe g : groupes)
+            		tab[i++] = g;
+            	
+            	Groupe g = (Groupe) JOptionPane.showInputDialog(
+            			null, 
+            			"Quel groupe ?",
+            			"L'utilisateur rejoint un groupe",
+            			JOptionPane.QUESTION_MESSAGE, 
+            			null, 
+            			tab,
+            			tab[0]
+            		);
+                
+                if(g != null){
+                    System.out.println(g);
+                    ctrlAdmin.addUtilisateurToGroupe(user, g);
+                }
+            	
+            }
+        });
+	}
 }

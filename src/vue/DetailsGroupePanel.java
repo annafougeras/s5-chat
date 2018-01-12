@@ -205,8 +205,12 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
             			tab,
             			tab[0]
             		);
-            	System.out.println(u);
-            	ctrlAdmin.addUtilisateurToGroupe(u, groupe);
+                
+                if(u != null){
+                    System.out.println(u);
+                    ctrlAdmin.addUtilisateurToGroupe(u, groupe);
+                }
+            	
             	//TODO update panel
             }
         });
