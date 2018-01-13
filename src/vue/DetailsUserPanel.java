@@ -8,7 +8,10 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 import controleur.CtrlAdmin;
@@ -240,19 +243,28 @@ public class DetailsUserPanel extends BasePanel implements Observer {
             	}
             }
         });
-	/*	modifierUserButton.addActionListener(new java.awt.event.ActionListener() {
+		modifierUserButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	String nouveau_nom = JOptionPane.showInputDialog(
-            	        null, 
-            	        "Donner un nouveau nom à l'utilisateur : ", 
-            	        "Nouveau nom", 
-            	        JOptionPane.QUESTION_MESSAGE
-            	    );
-            	if (nouveau_nom != null)
-            		if (nouveau_nom.length() > 1)
-            			ctrlAdmin.insererUtilisateur(new Utilisateur(user.getIdentifiantNumeriqueUnique(), nouveau_nom, nouveau_prenom));
-            	
+            	// Création d'un JOptionPane contenant deux champs input
+            	JTextField prenomTextField = new JTextField(15);
+                JTextField nomTextField = new JTextField(15);
+
+                Object[] dialogInputs = {"Prénom", prenomTextField,
+                    					 "Nom", nomTextField};
+                
+                int result = JOptionPane.showConfirmDialog(
+                		null,
+                		dialogInputs,
+                		"Donner un nouveau nom à l'utilisateur : ", 
+                		JOptionPane.OK_CANCEL_OPTION
+                		);
+                
+                if (result == JOptionPane.OK_OPTION) {
+                	String nouveau_nom = nomTextField.getText();
+                	String nouveau_prenom = prenomTextField.getText();
+                	ctrlAdmin.insererUtilisateur(new Utilisateur(String.valueOf(user.getIdentifiantNumeriqueUnique()), nouveau_nom, nouveau_prenom));
+                }
             }
-        });*/
+        });
 	}
 }
