@@ -53,7 +53,9 @@ public class CtrlVue extends Observable implements ICtrlVue {
 		
 		@Override
 		public void run() {
-			currentScreen.update(emetteur, notification);
+			setChanged();
+                        notifyObservers(notification);
+                        //currentScreen.update(emetteur, notification);
 		}
 	}
 	

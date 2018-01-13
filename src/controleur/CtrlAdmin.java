@@ -62,8 +62,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
             }
         });
     }
-    
-     
+         
      
      
      
@@ -224,8 +223,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     @Override
     public void recevoirGroupe(Set<Groupe> tousLesGroupes) {
     	updateModele(tousLesGroupes);
-		currentScreen.update(this, null);
-    	
+		//currentScreen.update(this, null);
+        this.setChanged();
+    	this.notifyObservers();
     }
 
     
@@ -238,7 +238,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     @Override
     public void recevoirUtilisateurs(NavigableSet<Utilisateur> utilisateurs) {
     	this.utilisateurs = utilisateurs;
-		currentScreen.update(this, null);
+		//currentScreen.update(this, null);
+                this.setChanged();
+                this.notifyObservers();
     }
     
     @Override
@@ -259,7 +261,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     		groupe = groupeParId.get(idGroupe);
     		groupe.getTicketsConnus().remove(new KeyIdentifiable(ticket));
     		groupe.addTicketConnu(ticket);
-    		currentScreen.update(this, null);
+    		//currentScreen.update(this, null);
+                this.setChanged();
+                this.notifyObservers();
     	}
     	else
     		ctrlComAdmin.demanderGroupes();
@@ -273,13 +277,17 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
     @Override
     public void recevoirGroupe(Groupe groupe) {
     	modele.add(groupe);
-    	currentScreen.update(this, null);
+    	//currentScreen.update(this, null);
+        this.setChanged();
+        this.notifyObservers();
     }
     
 	@Override
 	public void recevoirUtilisateurParGroupe(Map<Groupe, NavigableSet<Utilisateur>> map) {
 		updateMaps(map);
-		currentScreen.update(this, null);
+		//currentScreen.update(this, null);
+                this.setChanged();
+                this.notifyObservers();
 	}
     
     @Override
