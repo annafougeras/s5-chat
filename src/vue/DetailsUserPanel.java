@@ -42,9 +42,6 @@ public class DetailsUserPanel extends BasePanel implements Observer {
         ((CtrlAdmin)this.ctrlAdmin).addObserver(this);
         
         initComponents();
-        
-        // Cette fonction fait des trucs que si ils étaient faits par netbeans 
-        // ils seraient dans initComponents(). En bon français.
         initComponentsBis();
         
         userNameLabel.setText("Détails de l'utilisateur " + user.getNom() + " " + user.getPrenom());
@@ -187,7 +184,7 @@ public class DetailsUserPanel extends BasePanel implements Observer {
     @Override
     public void update(Observable o, Object o1) {
         // Mettre à jour la liste des groupes existants
-        this.groupes = ctrlAdmin.getGroupes();
+        this.groupes = ctrlAdmin.getGroupes(this.user);
         // Changer la table de modèle
         groupTable.setModel(new UserOrGroupeTableModel<>(new ArrayList<>(this.groupes)));
     }
@@ -226,7 +223,7 @@ public class DetailsUserPanel extends BasePanel implements Observer {
     }
     
      /**
-	 * Celle-là c'est moi qui l'a fait on peut y toucher sans problème...
+	 *  Autres initialisations de composants (non modifiés par Netbeans)
 	 */
 	private void initComponentsBis() {
 		supprimerUserButton.addActionListener(new java.awt.event.ActionListener() {

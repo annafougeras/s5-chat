@@ -39,9 +39,6 @@ public class DetailsGroupePanel extends BasePanel implements Observer {
         ((CtrlAdmin)this.ctrlAdmin).addObserver(this);
         
         initComponents();
-
-        // Cette fonction fait des trucs que si ils étaient faits par netbeans 
-        // ils seraient dans initComponents(). En bon français.
         initComponentsBis();
 
         groupeNameLabel.setText("Détails du groupe " + groupe.getNom());
@@ -138,8 +135,9 @@ public class DetailsGroupePanel extends BasePanel implements Observer {
         add(jPanel2, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
+
     /**
-	 * Celle-là c'est moi qui l'a fait on peut y toucher sans problème...
+	 *  Autres initialisations de composants (non modifiés par Netbeans)
 	 */
 	private void initComponentsBis() {
 		supprimerGroupeButton.addActionListener(new java.awt.event.ActionListener() {
