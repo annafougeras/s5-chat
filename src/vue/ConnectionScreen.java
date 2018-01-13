@@ -1,11 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vue;
 
-import controleur.ICtrlVue;
+import controleur.ICtrlClient;
 import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
@@ -14,13 +9,13 @@ import java.util.Observer;
  *
  * @author Vincent Fougeras
  */
-public class ConnectionScreen extends BaseScreen {
+public class ConnectionScreen extends BaseScreenClient {
         
     /**
      * Creates new form ConnectionScreen
      */
-    public ConnectionScreen(ICtrlVue ctrlVue) {
-        super(ctrlVue);
+    public ConnectionScreen(ICtrlClient ctrlClient) {
+        super(ctrlClient);
         initComponents();
     }
 
@@ -114,17 +109,15 @@ public class ConnectionScreen extends BaseScreen {
     }// </editor-fold>//GEN-END:initComponents
 
     private void passwordPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passwordPasswordFieldActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_passwordPasswordFieldActionPerformed
 
     private void connectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectionButtonActionPerformed
         connectionStatus.setVisible(false);
         String identifiant = identifiantTextField.getText();
-        //MARCHE PAS String password = Arrays.toString(passwordPasswordField.getPassword());
         String password = "";
         for (char c: passwordPasswordField.getPassword())
         	password += c;
-        if(! this.ctrlVue.connecter(identifiant, password)){
+        if(! this.ctrlClient.connecter(identifiant, password)){
             connectionStatus.setVisible(true);
         }
     }//GEN-LAST:event_connectionButtonActionPerformed

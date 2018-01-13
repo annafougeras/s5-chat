@@ -1,44 +1,35 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vue;
 
-import controleur.CtrlVue;
-import controleur.ICtrlVue;
-import java.util.NavigableSet;
+import controleur.CtrlClient;
+import controleur.ICtrlClient;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.JDialog;
+
 import modele.Groupe;
 
 /**
  *
  * @author Vincent Fougeras
  */
-public class AddPanel extends javax.swing.JPanel implements Observer {
+@SuppressWarnings("serial")
+public class AddTicketPanel extends BasePanel implements Observer {
 
-    private ICtrlVue ctrlVue;
+    private ICtrlClient ctrlClient;
     private Groupe[] groupes;
     
     /**
      * Creates new form AddPanel
      */
-    public AddPanel(ICtrlVue ctrlVue) {
-        this.ctrlVue = ctrlVue;
-        this.groupes = ctrlVue.getGroupes().toArray(new Groupe[0]);
+    public AddTicketPanel(ICtrlClient ctrlClient) {
+        this.ctrlClient = ctrlClient;
+        this.groupes = ctrlClient.getGroupes().toArray(new Groupe[0]);
         
         // Il faut s'ajouter soi même au ctrlVue pour être notifié
-        ((CtrlVue)this.ctrlVue).addObserver(this);
+        ((CtrlClient)this.ctrlClient).addObserver(this);
         
         initComponents();
     }
     
-    private void closeParentDialog(){
-        ((JDialog)this.getParent().getParent().getParent().getParent()).dispose();
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -165,11 +156,9 @@ public class AddPanel extends javax.swing.JPanel implements Observer {
     }// </editor-fold>//GEN-END:initComponents
 
     private void titleTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_titleTextFieldActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_titleTextFieldActionPerformed
 
     private void groupeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_groupeComboBoxActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_groupeComboBoxActionPerformed
 
     private void annulerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annulerButtonActionPerformed
@@ -181,7 +170,7 @@ public class AddPanel extends javax.swing.JPanel implements Observer {
         String title = this.titleTextField.getText();
         String content = this.contentTextArea.getText();
         
-        this.ctrlVue.addTicket(groupe, title, content);
+        this.ctrlClient.addTicket(groupe, title, content);
                
         this.closeParentDialog();        
     }//GEN-LAST:event_creerButtonActionPerformed
@@ -205,7 +194,7 @@ public class AddPanel extends javax.swing.JPanel implements Observer {
     @Override
     public void update(Observable o, Object o1) {
         // Mettre à jour la liste des groupes existants
-        this.groupes = ctrlVue.getGroupes().toArray(new Groupe[0]);
+        this.groupes = ctrlClient.getGroupes().toArray(new Groupe[0]);
         groupeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(this.groupes));
     }
 }

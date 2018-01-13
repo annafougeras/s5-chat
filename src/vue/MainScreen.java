@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vue;
 
 import java.awt.event.WindowAdapter;
@@ -14,8 +9,8 @@ import javax.swing.JDialog;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-import controleur.CtrlVue;
-import controleur.ICtrlVue;
+import controleur.CtrlClient;
+import controleur.ICtrlClient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +29,7 @@ import modele.Utilisateur;
  *
  * @author Vincent Fougeras
  */
-public class MainScreen extends BaseScreen {
+public class MainScreen extends BaseScreenClient {
 	
 	
 	private Ticket ticketAffiche = null;
@@ -44,8 +39,8 @@ public class MainScreen extends BaseScreen {
     /**
      * Creates new form MainScreen
      */
-    public MainScreen(ICtrlVue ctrlVue) {
-        super(ctrlVue);
+    public MainScreen(ICtrlClient ctrlClient) {
+        super(ctrlClient);
         initComponents();
     }
     
@@ -93,7 +88,7 @@ public class MainScreen extends BaseScreen {
         messageList = new javax.swing.JList<>();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        ticketTree = new javax.swing.JTree(new GroupeTreeModel(this.ctrlVue.getModel()));
+        ticketTree = new javax.swing.JTree(new GroupeTreeModel(this.ctrlClient.getModel()));
         addTicketButton = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -196,19 +191,19 @@ public class MainScreen extends BaseScreen {
 
     private void addTicketButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTicketButtonActionPerformed
         JDialog addDialog = new JDialog(this, "Créer un ticket", true);
-        final AddPanel addPanel;
-        addPanel = new AddPanel(this.ctrlVue);
+        final AddTicketPanel addPanel;
+        addPanel = new AddTicketPanel(this.ctrlClient);
         addDialog.add(addPanel);
         addDialog.addWindowListener(new WindowAdapter() 
         {
           public void windowClosed(WindowEvent e)
           {
-            ((CtrlVue)ctrlVue).deleteObserver(addPanel);
+            ((CtrlClient)ctrlClient).deleteObserver(addPanel);
           }
 
           public void windowClosing(WindowEvent e)
           {
-            ((CtrlVue)ctrlVue).deleteObserver(addPanel);
+            ((CtrlClient)ctrlClient).deleteObserver(addPanel);
           }
         });
         addDialog.pack();
@@ -216,7 +211,7 @@ public class MainScreen extends BaseScreen {
     }//GEN-LAST:event_addTicketButtonActionPerformed
 
     private void deconnectionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deconnectionMenuItemActionPerformed
-        this.ctrlVue.deconnecter();
+        this.ctrlClient.deconnecter();
     }//GEN-LAST:event_deconnectionMenuItemActionPerformed
 
     private void envoyerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_envoyerButtonActionPerformed
@@ -226,7 +221,7 @@ public class MainScreen extends BaseScreen {
             newMessageTextArea.setText("");
             
             // Envoyer le message au ticket courant
-            this.ctrlVue.addMessage(ticketAffiche, texte);
+            this.ctrlClient.addMessage(ticketAffiche, texte);
             
             // Le message doit pouvoir s'afficher avant que le serveur ait répondu (dans ce cas le message a le statut NON_ENVOYE)
             List<Message> updatedList = new ArrayList<>(ticketAffiche.getMessages());
@@ -239,7 +234,7 @@ public class MainScreen extends BaseScreen {
             messageList.setModel(new MessageListModel(updatedList));
             
             // Mettre à jour les messages
-            this.ctrlVue.getRemoteMessages(ticketAffiche);
+            this.ctrlClient.getRemoteMessages(ticketAffiche);
         }
     }//GEN-LAST:event_envoyerButtonActionPerformed
 
@@ -256,7 +251,7 @@ public class MainScreen extends BaseScreen {
             /* 
                 Ouvrir le ticket dans le panel de droite 
             */
-            this.ctrlVue.getRemoteMessages(ticket); // Demander au controleur de mettre a jour le ticket
+            this.ctrlClient.getRemoteMessages(ticket); // Demander au controleur de mettre a jour le ticket
             
             // J'utilisais cette fonction auparavant pour mettre à jour les messages mais 
             // c'est surement mieux de faire comme tu as fait (en utilisant des CtrlVue.Notification)
@@ -284,7 +279,7 @@ public class MainScreen extends BaseScreen {
         if(message != null){
             // Ouvrir le modal
             JDialog detailsDialog = new JDialog(this, "Détails du message", true);
-            MessageDetailsPanel detailsPanel = new MessageDetailsPanel(message);
+            BasePanel detailsPanel = new MessageDetailsPanel(message);
             detailsDialog.add(detailsPanel);
 
             detailsDialog.pack();
@@ -322,7 +317,7 @@ public class MainScreen extends BaseScreen {
 	 * @param ticket
 	 */
 	private void updateMessageList(final Ticket ticket) {
-		ctrlVue.informerLecture(ticket);
+		ctrlClient.informerLecture(ticket);
 		ticketAffiche = ticket;
 		if (ticket.estComplet()){
 			NavigableSet<Message> set = ticket.getMessages();
@@ -352,7 +347,7 @@ public class MainScreen extends BaseScreen {
 	}
     
 	private void updateTicketTree(){
-		ticketTree.setModel(new GroupeTreeModel(ctrlVue.getModel()));
+		ticketTree.setModel(new GroupeTreeModel(ctrlClient.getModel()));
 		ticketTree.updateUI();
 		// On doit pouvoir réouvrir le noeud du JTree, sachant this.ticketAffiche
 	}
@@ -373,8 +368,8 @@ public class MainScreen extends BaseScreen {
                 
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     	
-    	if (o1 instanceof CtrlVue.Notification){
-    		CtrlVue.Notification notification = (CtrlVue.Notification) o1;
+    	if (o1 instanceof CtrlClient.Notification){
+    		CtrlClient.Notification notification = (CtrlClient.Notification) o1;
     		switch (notification){
     		case UPDATE_JTREE:
     			updateTicketTree();

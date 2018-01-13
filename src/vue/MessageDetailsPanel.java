@@ -1,21 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vue;
 
-import javax.swing.JDialog;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import modele.Message;
 
 /**
  *
  * @author Vincent Fougeras
  */
-public class MessageDetailsPanel extends javax.swing.JPanel {
+@SuppressWarnings("serial")
+public class MessageDetailsPanel extends BasePanel {
 
     private Message message;
     
@@ -23,7 +16,6 @@ public class MessageDetailsPanel extends javax.swing.JPanel {
      * Creates new form MessageDetailsPanel
      */
     public MessageDetailsPanel(Message message) {
-        
         this.message = message;
         
         initComponents();
@@ -83,14 +75,6 @@ public class MessageDetailsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_annulerButtonActionPerformed
 
     
-    private JDialog getParentDialog(){
-        return ((JDialog)this.getParent().getParent().getParent().getParent());
-    }
-    
-    private void closeParentDialog(){
-        getParentDialog().dispose();
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton annulerButton;
     private javax.swing.Box.Filler filler1;

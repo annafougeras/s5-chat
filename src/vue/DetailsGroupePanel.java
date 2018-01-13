@@ -1,26 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vue;
 
-import controleur.CtrlAdmin;
-import controleur.CtrlVue;
-import controleur.ICtrlAdmin;
-import controleur.ICtrlVue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.NavigableSet;
 import java.util.Observable;
 import java.util.Observer;
+
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+
+import controleur.CtrlAdmin;
+import controleur.ICtrlAdmin;
 import modele.Groupe;
 import modele.Utilisateur;
 
@@ -28,7 +20,8 @@ import modele.Utilisateur;
  *
  * @author Vincent Fougeras
  */
-public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
+@SuppressWarnings("serial")
+public class DetailsGroupePanel extends BasePanel implements Observer {
 
     private ICtrlAdmin ctrlAdmin;
     private Groupe groupe;
@@ -54,14 +47,6 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
         groupeNameLabel.setText("Détails du groupe " + groupe.getNom());
     }
     
-    private JDialog getParentDialog(){
-        return ((JDialog)this.getParent().getParent().getParent().getParent());
-    }
-    
-    private void closeParentDialog(){
-        getParentDialog().dispose();
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -179,39 +164,14 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
             	        "Nouveau nom", 
             	        JOptionPane.QUESTION_MESSAGE
             	    );
-            	if (nouveau_nom != null)
-            		if (nouveau_nom.length() > 1)
+            	if (nouveau_nom != null){
+            		if (nouveau_nom.length() > 1){
             			ctrlAdmin.insererGroupe(new Groupe(
             					groupe.getIdentifiantNumeriqueUnique(), 
             					nouveau_nom
-            					));
-            	//TODO update panel
-            }
-        });
-		addUserButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {  
-            	NavigableSet<Utilisateur> utilisateurs = ctrlAdmin.getUtilisateurs();
-            	Utilisateur[] tab = new Utilisateur[utilisateurs.size()];
-            	int i = 0;
-            	for (Utilisateur u: utilisateurs)
-            		tab[i++] = u;
-            	
-            	Utilisateur u = (Utilisateur) JOptionPane.showInputDialog(
-            			null, 
-            			"Quel utilisateur ?",
-            			"Un utilisateur rejoint le groupe",
-            			JOptionPane.QUESTION_MESSAGE, 
-            			null, 
-            			tab,
-            			tab[0]
-            		);
-                
-                if(u != null){
-                    System.out.println(u);
-                    ctrlAdmin.addUtilisateurToGroupe(u, groupe);
-                }
-            	
-            	//TODO update panel
+            					));            			
+            		}            		
+            	}
             }
         });
 	}
@@ -220,12 +180,26 @@ public class DetailsGroupePanel extends javax.swing.JPanel implements Observer {
     }//GEN-LAST:event_annulerButtonActionPerformed
 
     private void addUserButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUserButtonActionPerformed
-        JDialog addDialog = new JDialog(getParentDialog(), "Ajouter un groupe", true);
-        // TODO addGroupToUserPanel
-        //AddGroupPanel addGroupPanel = new AddGroupPanel(this.ctrlAdmin);
-        //addDialog.add(addGroupPanel);
-        //addDialog.pack();
-        //addDialog.setVisible(true);
+    	NavigableSet<Utilisateur> utilisateurs = ctrlAdmin.getUtilisateurs();
+    	Utilisateur[] tab = new Utilisateur[utilisateurs.size()];
+    	int i = 0;
+    	for (Utilisateur user: utilisateurs)
+    		tab[i++] = user;
+    	
+    	Utilisateur user = (Utilisateur) JOptionPane.showInputDialog(
+    			null, 
+    			"Quel utilisateur ?",
+    			"Un utilisateur rejoint le groupe",
+    			JOptionPane.QUESTION_MESSAGE, 
+    			null, 
+    			tab,
+    			tab[0]
+    		);
+        
+        if(user != null){
+            System.out.println(user);
+            ctrlAdmin.addUtilisateurToGroupe(user, groupe);
+        }
     }//GEN-LAST:event_addUserButtonActionPerformed
 
 

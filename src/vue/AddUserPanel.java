@@ -1,18 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vue;
 
-import controleur.CtrlVue;
 import controleur.ICtrlAdmin;
-import controleur.ICtrlVue;
-import java.util.NavigableSet;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Random;
-import javax.swing.JDialog;
 import modele.Groupe;
 import modele.Utilisateur;
 
@@ -20,10 +8,10 @@ import modele.Utilisateur;
  *
  * @author Vincent Fougeras
  */
-public class AddUserPanel extends javax.swing.JPanel {
+@SuppressWarnings("serial")
+public class AddUserPanel extends BasePanel {
 
     private ICtrlAdmin ctrlAdmin;
-    private Groupe[] groupes;
     
     /**
      * Creates new form AddPanel
@@ -36,10 +24,6 @@ public class AddUserPanel extends javax.swing.JPanel {
         initComponents();
     }
     
-    private void closeParentDialog(){
-        ((JDialog)this.getParent().getParent().getParent().getParent()).dispose();
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -143,7 +127,6 @@ public class AddUserPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void prenomTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prenomTextFieldActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_prenomTextFieldActionPerformed
 
     private void annulerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_annulerButtonActionPerformed
@@ -163,7 +146,6 @@ public class AddUserPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_creerButtonActionPerformed
 
     private void nomTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nomTextFieldActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_nomTextFieldActionPerformed
 
 

@@ -14,9 +14,6 @@ import java.util.Comparator;
  */
 public class IdentifiableComparator implements Comparator<Identifiable> {
 
-	/* (non-Javadoc)
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-	 */
 	@Override
 	public int compare(Identifiable arg0, Identifiable arg1) {
 		return arg0.getIdentifiantUnique().compareTo(arg1.getIdentifiantUnique());

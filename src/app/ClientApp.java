@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package app;
 
 import vue.ConnectionScreen;
@@ -10,8 +5,8 @@ import vue.ConnectionScreen;
 import communication.ComAdresse;
 import communication.simple.SimpleAdresse;
 
-import controleur.CtrlVue;
-import controleur.ICtrlVue;
+import controleur.CtrlClient;
+import controleur.ICtrlClient;
 
 /**
  *
@@ -41,7 +36,7 @@ public class ClientApp {
         }
 
         // Create the default controller
-        ICtrlVue ctrlVue = new CtrlVue();
+        new CtrlClient();
     }   
     
 }
