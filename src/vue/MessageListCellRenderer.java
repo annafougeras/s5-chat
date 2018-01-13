@@ -29,6 +29,7 @@ public class MessageListCellRenderer extends JLabel implements ListCellRenderer<
         renderer.setLineWrap(true);
         
         renderer.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+        renderer.setForeground(Color.black);
         
         if(index == 0 && message.getIdentifiantNumeriqueUnique() == 0 && message.getEmetteur() == null){
             // Aucun message
@@ -54,13 +55,13 @@ public class MessageListCellRenderer extends JLabel implements ListCellRenderer<
                     }
                 }
                 switch (statut){
-                    case NON_ENVOYE : renderer.setBackground(Color.LIGHT_GRAY);
+                    case NON_ENVOYE : renderer.setBackground(new Color(222, 222, 222)); // gray
                                       break;
-                    case ENVOYE : renderer.setBackground(Color.RED);
+                    case ENVOYE : renderer.setBackground(new Color(234, 108, 108)); // red
                                   break;
-                    case RECU : renderer.setBackground(Color.ORANGE);
+                    case RECU : renderer.setBackground(new Color(234, 150, 108)); // orange
                                 break;
-                    case LU : renderer.setBackground(Color.GREEN);
+                    case LU : renderer.setBackground(new Color(156, 234, 108)); // green
                 }
             }
             
