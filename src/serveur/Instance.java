@@ -42,7 +42,7 @@ public class Instance implements IInstance {
 	static final String USER_LOCAL = "s5";
 	static final String PASS_LOCAL = "s5";
 	
-	// DB retenue a  l'instanciation
+	// DB retenue à l'instanciation
 	private static String DB_URL;
 	private static String USER;
 	private static String PASS;
@@ -81,7 +81,7 @@ public class Instance implements IInstance {
 			System.exit(1);
 		}
 		catch (SQLException e){
-			System.err.println("Impossible de se connecter a  la base de donnees");
+			System.err.println("Impossible de se connecter à la base de donnees");
 			e.printStackTrace();
 			System.exit(2);
 		}
@@ -132,7 +132,7 @@ public class Instance implements IInstance {
 
 
 	/**
-	 * Met tous les statuts de lecture d'un message a  'envoye'
+	 * Met tous les statuts de lecture d'un message a 'envoye'
 	 * @param idMsg
 	 * @throws SQLException
 	 */
@@ -194,7 +194,7 @@ public class Instance implements IInstance {
 
 
 
-	/* Met a  jour le statut d'un utilisateur pour tous les messages du ticket */
+	/* Met a� jour le statut d'un utilisateur pour tous les messages du ticket */
 	@Override
 	public void sqlSetStatut(int idUser, int idTicket, int statut) throws SQLException {
 	    Statement statement = conn.createStatement();
@@ -215,10 +215,10 @@ public class Instance implements IInstance {
 	
 	
 	/**
-	 * Va©rifie un couple d'identifiants pour la connexion, renvoie l'id de l'utilisateur ou -1
+	 * Verifie un couple d'identifiants pour la connexion, renvoie l'id de l'utilisateur ou -1
 	 * @param nom
 	 * @param pass
-	 * @return -1 si connexion refusa©e, l'identifiant numa©rique de l'utilisateur si connexion accepta©e
+	 * @return -1 si connexion refusee, l'identifiant numerique de l'utilisateur si connexion acceptee
 	 * @throws SQLException
 	 */
 	public int sqlConnexion(String nom, String pass) throws SQLException {
@@ -233,10 +233,10 @@ public class Instance implements IInstance {
 	}
 	
 	/**
-	 * Va©rifie un couple d'identifiants pour la connexion ADMIN, renvoie l'id de l'utilisateur ou -1
+	 * Verifie un couple d'identifiants pour la connexion ADMIN, renvoie l'id de l'utilisateur ou -1
 	 * @param nom
 	 * @param pass
-	 * @return -1 si connexion refusa©e, l'identifiant numa©rique de l'utilisateur si connexion accepta©e
+	 * @return -1 si connexion refusee, l'identifiant numerique de l'utilisateur si connexion acceptee
 	 * @throws SQLException
 	 */
 	public int sqlConnexionAdmin(String pass) throws SQLException {
@@ -245,7 +245,7 @@ public class Instance implements IInstance {
 	}
 	
 	/**
-	 * Construit un utilisateur d'apra¨s son id numa©rique
+	 * Construit un utilisateur d'apres son id numerique
 	 * @param id Identifiant de l'utilisateur
 	 * @return Utilisateur
 	 * @throws SQLException
@@ -258,7 +258,7 @@ public class Instance implements IInstance {
 		ResultSet rs = stmt.executeQuery(sql);
 		
 		if (rs.next())
-			u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
+			u = new Utilisateur(rs.getInt("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
 	
 		return u;
 	}
@@ -275,7 +275,7 @@ public class Instance implements IInstance {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			Utilisateur u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
+			Utilisateur u = new Utilisateur(rs.getInt("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
 			retourne.add(u);
 		}
 		return retourne;
@@ -321,47 +321,65 @@ public class Instance implements IInstance {
 	
 	
 	/**
-	 * Construit un message d'apra¨s son id apra¨s avoir va©rifia© que l'utilisateur peut le consulter
+	 * Construit un message d'après son id après avoir vérifié que l'utilisateur peut le consulter
 	 * @param idMsg Id du message
-	 * @return Le message demanda©, ou null
+	 * @return Le message demandé, ou null
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg, int idUser) throws SQLException {
+		String sql = "SELECT * FROM message WHERE id_message ="+ idMsg +" LIMIT 1";
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		rs.next();
+
+		String sql4 = "SELECT id_groupe FROM ticket WHERE id_ticket = "+ rs.getInt("id_ticket") +" LIMIT 1";
+		Statement stmt4 = conn.createStatement();
+		ResultSet rs4 = stmt4.executeQuery(sql4);
+		rs4.next();
+
+		String sql3 = "SELECT count(*) as valid FROM appartenance WHERE id_user = "+ idUser +" AND id_groupe = "+ rs4.getInt("id_groupe") +" LIMIT 1";
+		Statement stmt3 = conn.createStatement();
+		ResultSet rs3 = stmt3.executeQuery(sql3);
+		rs3.next();
+
+		if(rs3.getInt("valid") > 0) { // si le message peut être lu par l'utilisateur, on construit le message
+			String sql2 = "SELECT * FROM user WHERE id_user = "+ rs.getString("id_user") +" LIMIT 1";
+			Statement stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(sql2);
+			rs2.next();
+			Utilisateur u = new Utilisateur(rs.getInt("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+			Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"),
+					statutsDeLecture(rs.getInt("id_message")));
+			return retourne;
+		}
 		return null;
 	}
-	
+
 	/**
-	 * Construit un message d'apra¨s son id
+	 * Construit un message d'aprés son id
 	 * @param idMsg Id du message
-	 * @param idUser Id de l'utilisateur faisant la requaªte
-	 * @return Le message demanda©, ou null
+	 * @return Le message demande, ou null
 	 * @throws SQLException
 	 */
 	public Message sqlSelectMessage(int idMsg) throws SQLException {
 		String sql = "SELECT * FROM message WHERE id_message ="+ idMsg +" LIMIT 1";
-		
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
-		
 		rs.next();
-		
-		String sql2 = "SELECT * FROM user WHERE id_user ="+ rs.getString("id_user") +" LIMIT 1";
+
+		String sql2 = "SELECT * FROM user WHERE id_user = "+ rs.getString("id_user") +" LIMIT 1";
 		Statement stmt2 = conn.createStatement();
 		ResultSet rs2 = stmt2.executeQuery(sql2);	
 		rs2.next();
-		Utilisateur u = new Utilisateur(rs.getString("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
-		Message retourne = new Message(
-				rs.getInt("id_message"), 
-				u, 
-				rs.getString("contenu"), 
-				rs.getDate("date_message"), 
+
+		Utilisateur u = new Utilisateur(rs.getInt("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
+		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), 
 				statutsDeLecture(rs.getInt("id_message")));	
 		retourne.setParent(new KeyIdentifiable(rs.getInt("id_ticket")));
-		
 		return retourne;
 	}
-	
-	
+
+
 	/**
 	 * Construit l'ensemble de tous les messages
 	 * @return
@@ -370,7 +388,7 @@ public class Instance implements IInstance {
 	public Set<Message> sqlSelectMessages() throws SQLException {
 		Set<Message> retourne = new TreeSet<>();
 		String sql = "SELECT * FROM message";
-		
+
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()){
@@ -378,7 +396,7 @@ public class Instance implements IInstance {
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(sql2);	
 			rs2.next();
-			Utilisateur u = new Utilisateur(rs.getString("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
+			Utilisateur u = new Utilisateur(rs.getInt("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
 			Message mess = new Message(
 					rs.getInt("id_message"), 
 					u, 
@@ -443,7 +461,7 @@ public class Instance implements IInstance {
 			while(rs2.next()){
 				int idMsg = rs2.getInt("id_message");
 				String contenuMsg = rs2.getString("contenu");
-				Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+				Utilisateur emetteur = new Utilisateur(rs2.getInt("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 				Date dateMsg = rs2.getDate("date_message");
 				
 				NavigableMap<Utilisateur, StatutDeLecture> statuts = statutsDeLecture(idMsg);
@@ -459,15 +477,11 @@ public class Instance implements IInstance {
 			t = new Ticket(idTicket, titreTicket, messages, dateCreationTicket);
 			t.setParent(new KeyIdentifiable(id_groupe_parent));
 			
-		}
-		else {
+		} else 
 			t = null;
-		}
-		
 		rs.close();
 		stmt.close();
-	
-		
+
 		return t;
 	}
 	
@@ -506,19 +520,36 @@ public class Instance implements IInstance {
 	/**
 	 * Construit un groupe incomplet (contenant des tickets incomplets)
 	 * @param idGroupe Id du groupe
-	 * @param nomGroupe Nom du groupe
-	 * @param idUser Id de l'utilisateur faisant la requaªte (ou -1)
+	 * @param idUser Id de l'utilisateur faisant la requète (ou -1)
 	 * @return Le groupe, ou null
 	 * @throws SQLException
 	 */
 	public Groupe sqlSelectGroupe(int idGroupe, int idUser) throws SQLException {
-		System.err.println("Non impla©menta©");
+		System.out.println(" ** Select UN groupe ** ");
+		Statement stmt = conn.createStatement();
+		String sql = "SELECT * FROM groupe WHERE id_groupe = "+idGroupe+" LIMIT 1";
+		ResultSet rs = stmt.executeQuery(sql);
+		Groupe unGroupe = null;		
+		if(rs.next()){
+			int id_groupe = rs.getInt("id_groupe");
+			String nom_groupe = rs.getString("nom_groupe");
+			unGroupe = new Groupe(id_groupe, nom_groupe);
+
+			String sql2 = "SELECT id_ticket, titre_ticket FROM ticket WHERE id_groupe = " + idGroupe;
+			Statement stmt3 = conn.createStatement();
+			ResultSet rs2 = stmt3.executeQuery(sql2);
+			while(rs2.next()){
+				Ticket unTicket = new Ticket(rs2.getInt("id_ticket"), rs2.getString("titre_ticket"), null, null);
+				unGroupe.addTicketConnu(unTicket);
+			}
+			return unGroupe;
+		}
 		return null;
 	}
 	
 	/**
 	 * Construit la liste de tous les groupes (incomplets)
-	 * @param idUser Id de l'utilisateur faisant la requaªte (ou -1)
+	 * @param idUser Id de l'utilisateur faisant la requète (ou -1)
 	 * @return
 	 * @throws SQLException
 	 */
@@ -677,7 +708,7 @@ public class Instance implements IInstance {
 	public int sqlUpdateGroupe(int id, String nom) throws SQLException {
 	    Statement statement = conn.createStatement();
 	    String query;
-    	query = "UPDATE groupe SET nom_groupe = \""+ nom +"\" WHERE id_groupe = "+ id +" LIMIT 1";
+    	query = "UPDATE groupe SET nom_groupe = '"+ nom +"' WHERE id_groupe = "+ id +" LIMIT 1";
 		statement.executeUpdate(query);	
 		return id;
 	}
@@ -691,7 +722,7 @@ public class Instance implements IInstance {
 	@Override
 	public int sqlUpdateUtilisateur(int id, String nom, String prenom,String nickname, String pass) throws SQLException {
 		Statement statement = conn.createStatement();
-		String query = "UPDATE user SET nom_user = '"+nom+"' AND prenom_user = '"+prenom+"' AND nickname_user = "+nickname+" AND password_user = '"+Sha256.sha256("qt"+pass+"pi")+"' WHERE id_user = "+id+" LIMIT 1";
+		String query = "UPDATE user SET nom_user = '"+nom+"' AND prenom_user = '"+prenom+"' AND nickname_user = '"+nickname+"' AND password_user = '"+Sha256.sha256("qt"+pass+"pi")+"' WHERE id_user = "+id+" LIMIT 1";
 		System.out.println(query);
 		statement.executeUpdate(query);
 		return id;
@@ -809,6 +840,10 @@ public class Instance implements IInstance {
 
 	@Override
 	public void deleteUtilisateur(int id) throws SQLException {
+		Statement statement4 = conn.createStatement();
+		String query4 = "DELETE FROM statut WHERE id_user = "+ id;
+		statement4.executeUpdate(query4);
+
 	    Statement statement2 = conn.createStatement();
 		String query2 = "DELETE FROM appartenance WHERE id_user = "+ id;
 		statement2.executeUpdate(query2);
@@ -820,5 +855,5 @@ public class Instance implements IInstance {
 	    Statement statement = conn.createStatement();
 		String query = "DELETE FROM user WHERE id_user = "+ id +" LIMIT 1";
 		statement.executeUpdate(query);
-	}
+	}	
 }

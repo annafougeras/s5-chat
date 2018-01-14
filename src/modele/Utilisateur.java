@@ -19,12 +19,12 @@ public class Utilisateur extends AbstractIdentifiable implements Comparable<Util
 	private String nickname;
 	
 	/**
-	 * @param uniqueId Identifiant unique au sein des utilisateurs
+	 * @param i Identifiant unique au sein des utilisateurs
 	 * @param nom Nom
 	 * @param prenom Prénom
 	 */
-	public Utilisateur(String uniqueId, String nom, String prenom) {
-		super(uniqueId);
+	public Utilisateur(int i, String nom, String prenom) {
+		super(i);
 		setNom(nom);
 		setPrenom(prenom);
 		setNickname(prenom);
