@@ -24,26 +24,25 @@ import commChatS5.Identifiants;
 import communication.ComAdresse;
 import communication.simple.SimpleAdresse;
 
-
 public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
 	public static final ComAdresse SERVEUR_LOCAL = new SimpleAdresse("localhost", 8888);
 
 	private NavigableSet<Groupe> modele;
-	private Map<KeyIdentifiable,Groupe> groupeParId;
+	private Map<KeyIdentifiable, Groupe> groupeParId;
 	private NavigableMap<Groupe, NavigableSet<Utilisateur>> mapGroupeUser;
 	private NavigableMap<Utilisateur, NavigableSet<Groupe>> mapUserGroupe;
 	private NavigableSet<Utilisateur> utilisateurs;
-
 
 	BaseScreenAdmin currentScreen;
 	private ICtrlComAdmin ctrlComAdmin;
 
 	/**
 	 * 
-	 * @param serverAddr l'adresse du serveur
+	 * @param serverAddr
+	 *            l'adresse du serveur
 	 */
-	public CtrlAdmin(ComAdresse serverAddr){
+	public CtrlAdmin(ComAdresse serverAddr) {
 		// Crée le ctrlCom
 		ctrlComAdmin = new CtrlComAdmin(this, serverAddr);
 
@@ -64,13 +63,9 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 		});
 	}
 
-
-	
-	
 	/*
-	 *	Méthodes de ICtrlAdmin 
+	 * Méthodes de ICtrlAdmin
 	 */
-
 
 	@Override
 	public boolean connecter(String passAdmin) {
@@ -83,12 +78,10 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 		return isConnecte;
 	}
 
-
 	@Override
 	public void deconnecter() {
 		ctrlComAdmin.deconnecter();
 	}
-
 
 	@Override
 	public NavigableSet<Groupe> getGroupes() {
@@ -128,19 +121,13 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 
 	@Override
 	public void removeUtilisateurFromGroupe(Utilisateur utilisateur, Groupe groupe) {
-		ctrlComAdmin.quitterGroupe(
-				new KeyIdentifiable(groupe), 
-				new KeyIdentifiable(utilisateur)
-				);
+		ctrlComAdmin.quitterGroupe(new KeyIdentifiable(groupe), new KeyIdentifiable(utilisateur));
 		ctrlComAdmin.demanderUtilisateursParGroupe();
 	}
 
 	@Override
 	public void addUtilisateurToGroupe(Utilisateur utilisateur, Groupe groupe) {
-		ctrlComAdmin.rejoindreGroupe(
-				new KeyIdentifiable(groupe), 
-				new KeyIdentifiable(utilisateur)
-				);
+		ctrlComAdmin.rejoindreGroupe(new KeyIdentifiable(groupe), new KeyIdentifiable(utilisateur));
 		ctrlComAdmin.demanderUtilisateursParGroupe();
 	}
 
@@ -151,7 +138,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 	}
 
 	@Override
-	public void insererUtilisateur(String nom, String prenom, String idUnique) {
+	public void insererUtilisateur(String nom, String prenom, int idUnique) {
 		Utilisateur user = new Utilisateur(idUnique, nom, prenom);
 		insererUtilisateur(user);
 	}
@@ -181,63 +168,52 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 		ctrlComAdmin.supprimerGroupe(groupe);
 		ctrlComAdmin.demanderGroupes();
 	}
-	
-	
-	
+
 	/*
 	 * Méthodes privées
 	 */
-	
-	private void updateModele(Set<Groupe> groupes){
+
+	private void updateModele(Set<Groupe> groupes) {
 		modele = new TreeSet<>();
 		groupeParId = new HashMap<>();
-		for (Groupe currGroupe: groupes) {
+		for (Groupe currGroupe : groupes) {
 			modele.add(currGroupe);
 			groupeParId.put(new KeyIdentifiable(currGroupe), currGroupe);
 		}
 	}
 
-
-	private void updateMaps(Map<Groupe,NavigableSet<Utilisateur>> newMap){
+	private void updateMaps(Map<Groupe, NavigableSet<Utilisateur>> newMap) {
 		mapGroupeUser = new TreeMap<>();
 		mapUserGroupe = new TreeMap<>();
 		mapGroupeUser.putAll(newMap);
-		for (Map.Entry<Groupe, NavigableSet<Utilisateur>> currEntry: newMap.entrySet()) {
-			for (Utilisateur currUser: currEntry.getValue()) {
+		for (Map.Entry<Groupe, NavigableSet<Utilisateur>> currEntry : newMap.entrySet()) {
+			for (Utilisateur currUser : currEntry.getValue()) {
 				if (!mapUserGroupe.containsKey(currUser))
 					mapUserGroupe.put(currUser, new TreeSet<Groupe>());
 				mapUserGroupe.get(currUser).add(currEntry.getKey());
 			}
 		}
 	}
-	
-	
-	
-	
-
 
 	/*
-        Méthodes de S5Admin
+	 * Méthodes de S5Admin
 	 */
 
 	@Override
 	public void recevoirGroupe(Set<Groupe> tousLesGroupes) {
 		updateModele(tousLesGroupes);
-		
+
 		this.setChanged();
 		this.notifyObservers();
 	}
-
 
 	@Override
 	public void recevoirUtilisateurs(NavigableSet<Utilisateur> utilisateurs) {
 		this.utilisateurs = utilisateurs;
-		
+
 		this.setChanged();
 		this.notifyObservers();
 	}
-	
-
 
 	@Override
 	public void recevoirTicket(Ticket ticket) {
@@ -247,18 +223,17 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 			groupe = groupeParId.get(idGroupe);
 			groupe.getTicketsConnus().remove(new KeyIdentifiable(ticket));
 			groupe.addTicketConnu(ticket);
-			
+
 			this.setChanged();
 			this.notifyObservers();
-		}
-		else
+		} else
 			ctrlComAdmin.demanderGroupes();
 	}
-	
+
 	@Override
 	public void recevoirGroupe(Groupe groupe) {
 		modele.add(groupe);
-		
+
 		this.setChanged();
 		this.notifyObservers();
 	}
@@ -266,48 +241,53 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 	@Override
 	public void recevoirUtilisateurParGroupe(Map<Groupe, NavigableSet<Utilisateur>> map) {
 		updateMaps(map);
-		
+
 		this.setChanged();
 		this.notifyObservers();
 	}
-	
+
 	// Méthodes dépréciées ou inutilisées
-	
+
 	@Override
 	public void recevoir(boolean accuseDeConnexion) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-	}   
+		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+																		// Tools | Templates.
+	}
 
 	@Override
 	public void recevoirUtilisateur(Set<Utilisateur> tousLesUtilisateurs) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+																		// Tools | Templates.
 	}
 
 	@Override
 	public void recevoirMessage(Message message) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+																		// Tools | Templates.
 	}
 
 	@Override
 	public void recevoirMessage(Set<Message> tousLesMessages) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+																		// Tools | Templates.
 	}
 
 	@Override
 	public void recevoirTicket(Set<Ticket> tousLesTickets) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+																		// Tools | Templates.
 	}
 
 	@Override
 	@Deprecated
 	public void recevoirReponseSQL(String reponse) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		throw new UnsupportedOperationException("Not supported yet."); // To change body of generated methods, choose
+																		// Tools | Templates.
 	}
 
 	@Override
 	public void recevoirMessageInvalide(Object messageInvalide) {
-		//System.err.println("Message invalide reçu: " + messageInvalide);
+		// System.err.println("Message invalide reçu: " + messageInvalide);
 	}
-
 
 }
