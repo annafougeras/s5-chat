@@ -47,8 +47,8 @@ public class TestModele {
 
 		groupes.add(g);
 
-		Utilisateur michel = new Utilisateur(20, "MACRIN", "Michel");
-		Utilisateur monique = new Utilisateur(21, "MONTECRISTO", "Monique");
+		Utilisateur michel = new Utilisateur("20", "MACRIN", "Michel");
+		Utilisateur monique = new Utilisateur("21", "MONTECRISTO", "Monique");
 
 		try {
 			g.addTicketsConnus(new Ticket(1, "ticket1", 4, df.parse("01/01/2017 12:05:42")),
