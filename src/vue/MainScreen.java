@@ -227,7 +227,7 @@ public class MainScreen extends BaseScreenClient {
 			List<Message> updatedList = new ArrayList<>(ticketAffiche.getMessages());
 			NavigableMap<Utilisateur, StatutDeLecture> fakeStatuts = new TreeMap<>();
 
-			fakeStatuts.put(new Utilisateur(0, "", ""), StatutDeLecture.NON_ENVOYE);
+			fakeStatuts.put(new Utilisateur("0", "", ""), StatutDeLecture.NON_ENVOYE);
 
 			updatedList.add(new Message(1, null, texte, new Date(), fakeStatuts));
 			messageList.setModel(new MessageListModel(updatedList));
