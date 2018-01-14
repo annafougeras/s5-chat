@@ -23,7 +23,7 @@ public class Utilisateur extends AbstractIdentifiable implements Comparable<Util
 	 * @param nom Nom
 	 * @param prenom Prénom
 	 */
-	public Utilisateur(int i, String nom, String prenom) {
+	public Utilisateur(String i, String nom, String prenom) {
 		super(i);
 		setNom(nom);
 		setPrenom(prenom);
