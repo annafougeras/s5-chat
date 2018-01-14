@@ -258,7 +258,7 @@ public class Instance implements IInstance {
 		ResultSet rs = stmt.executeQuery(sql);
 		
 		if (rs.next())
-			u = new Utilisateur(rs.getInt("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
+			u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
 	
 		return u;
 	}
@@ -275,7 +275,7 @@ public class Instance implements IInstance {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			Utilisateur u = new Utilisateur(rs.getInt("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
+			Utilisateur u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
 			retourne.add(u);
 		}
 		return retourne;
@@ -347,7 +347,7 @@ public class Instance implements IInstance {
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(sql2);
 			rs2.next();
-			Utilisateur u = new Utilisateur(rs.getInt("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+			Utilisateur u = new Utilisateur(rs.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 			Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"),
 					statutsDeLecture(rs.getInt("id_message")));
 			return retourne;
@@ -372,7 +372,7 @@ public class Instance implements IInstance {
 		ResultSet rs2 = stmt2.executeQuery(sql2);	
 		rs2.next();
 
-		Utilisateur u = new Utilisateur(rs.getInt("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
+		Utilisateur u = new Utilisateur(rs.getString("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
 		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), 
 				statutsDeLecture(rs.getInt("id_message")));	
 		retourne.setParent(new KeyIdentifiable(rs.getInt("id_ticket")));
@@ -396,7 +396,7 @@ public class Instance implements IInstance {
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(sql2);	
 			rs2.next();
-			Utilisateur u = new Utilisateur(rs.getInt("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
+			Utilisateur u = new Utilisateur(rs.getString("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
 			Message mess = new Message(
 					rs.getInt("id_message"), 
 					u, 
@@ -437,8 +437,10 @@ public class Instance implements IInstance {
 
 	@Override
 	public Ticket sqlSelectTicket(int idTicket) throws SQLException {
-		Ticket t;
 
+		Ticket t;
+		
+		
 		Statement stmt = null;
 		System.out.println(" ** Select ticket ** ");
 		stmt = conn.createStatement();
@@ -459,7 +461,7 @@ public class Instance implements IInstance {
 			while(rs2.next()){
 				int idMsg = rs2.getInt("id_message");
 				String contenuMsg = rs2.getString("contenu");
-				Utilisateur emetteur = new Utilisateur(rs2.getInt("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+				Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 				Date dateMsg = rs2.getDate("date_message");
 				
 				NavigableMap<Utilisateur, StatutDeLecture> statuts = statutsDeLecture(idMsg);
@@ -617,10 +619,12 @@ public class Instance implements IInstance {
 
 
 	@Override
-	public int sqlInsertUtilisateur(String nom, String prenom, String nickname, String pass) throws SQLException {
+	public int sqlInsertUtilisateur(String nom, String prenom, String nickname,
+			String pass) throws SQLException {
+		
 		System.out.println(" ** Insert utilisateur ** ");
 		
-	  	Statement statement = conn.createStatement();
+	    Statement statement = conn.createStatement();
 		String query = "INSERT INTO user (id_user, password_user, nickname_user, nom_user, prenom_user) "
 				+ "VALUES (NULL, '"+Sha256.sha256("qt"+pass+"pi")+"','"+nickname+"', '"+nom+"', '"+prenom+"')";
 		statement.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);	
@@ -637,12 +641,14 @@ public class Instance implements IInstance {
 
 
 	@Override
-	public int sqlInsertTicket(String titre, String premierMessage, int idUser, int idGroupe) throws SQLException {
+	public int sqlInsertTicket(String titre, String premierMessage, int idUser, int idGroupe)
+			throws SQLException {
+		
 		Statement statement = null;
 		System.out.println(" ** insert ticket ** ");
-		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
+	    java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 
-		statement = conn.createStatement();
+	    statement = conn.createStatement();
 		String query = "INSERT INTO ticket (id_ticket, titre_ticket, creation_ticket, id_groupe) VALUES (NULL, '"+titre+"', '"+dateCurrent+"', "+idGroupe+")";
 		
 		// On demande de renvoyer les clefs generees
@@ -665,7 +671,8 @@ public class Instance implements IInstance {
 
 
 	@Override
-	public int sqlInsertMessage(String contenu, int idUser, int idTicket) throws SQLException {	
+	public int sqlInsertMessage(String contenu, int idUser, int idTicket)
+			throws SQLException {	
 		
 		System.out.println(" ** Insert message ** ");
 		
@@ -699,9 +706,9 @@ public class Instance implements IInstance {
 
 	@Override
 	public int sqlUpdateGroupe(int id, String nom) throws SQLException {
-		Statement statement = conn.createStatement();
-		String query;
-    		query = "UPDATE groupe SET nom_groupe = '"+ nom +"' WHERE id_groupe = "+ id +" LIMIT 1";
+	    Statement statement = conn.createStatement();
+	    String query;
+    	query = "UPDATE groupe SET nom_groupe = '"+ nom +"' WHERE id_groupe = "+ id +" LIMIT 1";
 		statement.executeUpdate(query);	
 		return id;
 	}
@@ -747,6 +754,8 @@ public class Instance implements IInstance {
 
 	@Override
 	public void sqlRejoindreGroupe(int idUser, int idGroupe) throws SQLException {
+		idGroupe -= 48;
+		idUser -= 48;
 		Statement statement = conn.createStatement();
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO appartenance (id_groupe, id_user, inscription) VALUES ("+idGroupe+","+idUser+",'"+dateCurrent+"')";
@@ -758,6 +767,8 @@ public class Instance implements IInstance {
 
 	@Override
 	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException {
+		idGroupe -= 48;
+		idUser -= 48;
 		Statement statement = conn.createStatement();
 		String query = "DELETE FROM appartenance WHERE id_groupe = "+idGroupe+" AND id_user = "+idUser+" LIMIT 1";
 		System.out.println(query);
@@ -768,41 +779,41 @@ public class Instance implements IInstance {
 
 	@Override
 	public void deleteGroupe(int id) throws SQLException {
-		Statement statement2 = conn.createStatement();
+	    Statement statement2 = conn.createStatement();
 		String query2 = "DELETE FROM appartenance WHERE id_groupe = "+ id;
 		System.out.println(query2);
 		statement2.executeUpdate(query2);
 
-		Statement statement3 = conn.createStatement();
+	    Statement statement3 = conn.createStatement();
 		String query3 = "SELECT id_ticket FROM ticket WHERE id_groupe = "+ id;
 		System.out.println(query3);
 		ResultSet rs3 = statement3.executeQuery(query3);
 
 		while(rs3.next()) {
-			Statement statement6 = conn.createStatement();
+		    Statement statement6 = conn.createStatement();
 			String query6 = "SELECT id_message FROM message WHERE id_ticket = "+ rs3.getInt("id_ticket");
 			System.out.println(query6);
 			ResultSet rs6 = statement6.executeQuery(query6);
 
 			while(rs6.next()) {
-				Statement statement7 = conn.createStatement();
+			    Statement statement7 = conn.createStatement();
 				String query7 = "DELETE FROM statut WHERE id_message = "+ rs6.getInt("id_message");
 				System.out.println(query7);
 				statement7.executeUpdate(query7);	
 			}
 
-			Statement statement4 = conn.createStatement();
+		    Statement statement4 = conn.createStatement();
 			String query4 = "DELETE FROM message WHERE id_ticket = "+ rs3.getInt("id_ticket");
 			System.out.println(query4);
 			statement4.executeUpdate(query4);			
 		}
 
-		Statement statement5 = conn.createStatement();
+	    Statement statement5 = conn.createStatement();
 		String query5 = "DELETE FROM ticket WHERE id_groupe = "+ id;
 		System.out.println(query5);
 		statement5.executeUpdate(query5);			
 
-		Statement statement = conn.createStatement();
+	    Statement statement = conn.createStatement();
 		String query = "DELETE FROM groupe WHERE id_groupe = "+ id +" LIMIT 1";
 		System.out.println(query);
 		statement.executeUpdate(query);
