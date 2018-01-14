@@ -258,7 +258,7 @@ public class Instance implements IInstance {
 		ResultSet rs = stmt.executeQuery(sql);
 		
 		if (rs.next())
-			u = new Utilisateur(rs.getInt("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
+			u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));
 	
 		return u;
 	}
@@ -275,7 +275,7 @@ public class Instance implements IInstance {
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		while(rs.next()) {
-			Utilisateur u = new Utilisateur(rs.getInt("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
+			Utilisateur u = new Utilisateur(rs.getString("id_user"), rs.getString("nom_user"), rs.getString("prenom_user"));	
 			retourne.add(u);
 		}
 		return retourne;
@@ -347,7 +347,7 @@ public class Instance implements IInstance {
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(sql2);
 			rs2.next();
-			Utilisateur u = new Utilisateur(rs.getInt("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+			Utilisateur u = new Utilisateur(rs.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 			Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"),
 					statutsDeLecture(rs.getInt("id_message")));
 			return retourne;
@@ -372,7 +372,7 @@ public class Instance implements IInstance {
 		ResultSet rs2 = stmt2.executeQuery(sql2);	
 		rs2.next();
 
-		Utilisateur u = new Utilisateur(rs.getInt("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
+		Utilisateur u = new Utilisateur(rs.getString("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
 		Message retourne = new Message(rs.getInt("id_message"), u, rs.getString("contenu"), rs.getDate("date_message"), 
 				statutsDeLecture(rs.getInt("id_message")));	
 		retourne.setParent(new KeyIdentifiable(rs.getInt("id_ticket")));
@@ -396,7 +396,7 @@ public class Instance implements IInstance {
 			Statement stmt2 = conn.createStatement();
 			ResultSet rs2 = stmt2.executeQuery(sql2);	
 			rs2.next();
-			Utilisateur u = new Utilisateur(rs.getInt("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
+			Utilisateur u = new Utilisateur(rs.getString("id_user"),rs2.getString("nom_user"),rs2.getString("prenom_user"));
 			Message mess = new Message(
 					rs.getInt("id_message"), 
 					u, 
@@ -461,7 +461,7 @@ public class Instance implements IInstance {
 			while(rs2.next()){
 				int idMsg = rs2.getInt("id_message");
 				String contenuMsg = rs2.getString("contenu");
-				Utilisateur emetteur = new Utilisateur(rs2.getInt("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
+				Utilisateur emetteur = new Utilisateur(rs2.getString("id_user"), rs2.getString("nom_user"), rs2.getString("prenom_user"));
 				Date dateMsg = rs2.getDate("date_message");
 				
 				NavigableMap<Utilisateur, StatutDeLecture> statuts = statutsDeLecture(idMsg);
@@ -754,6 +754,8 @@ public class Instance implements IInstance {
 
 	@Override
 	public void sqlRejoindreGroupe(int idUser, int idGroupe) throws SQLException {
+		idGroupe -= 48;
+		idUser -= 48;
 		Statement statement = conn.createStatement();
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO appartenance (id_groupe, id_user, inscription) VALUES ("+idGroupe+","+idUser+",'"+dateCurrent+"')";
@@ -765,6 +767,8 @@ public class Instance implements IInstance {
 
 	@Override
 	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException {
+		idGroupe -= 48;
+		idUser -= 48;
 		Statement statement = conn.createStatement();
 		String query = "DELETE FROM appartenance WHERE id_groupe = "+idGroupe+" AND id_user = "+idUser+" LIMIT 1";
 		System.out.println(query);
