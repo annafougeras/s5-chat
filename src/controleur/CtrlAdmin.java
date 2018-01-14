@@ -138,7 +138,7 @@ public class CtrlAdmin extends Observable implements ICtrlAdmin {
 	}
 
 	@Override
-	public void insererUtilisateur(String nom, String prenom, int idUnique) {
+	public void insererUtilisateur(String nom, String prenom, String idUnique) {
 		Utilisateur user = new Utilisateur(idUnique, nom, prenom);
 		insererUtilisateur(user);
 	}
