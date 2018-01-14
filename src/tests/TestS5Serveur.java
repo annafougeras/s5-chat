@@ -68,7 +68,7 @@ public class TestS5Serveur {
 		@Override
 		public boolean demandeConnexion(ComAdresse client, Identifiants identifiants) {
 			System.out.println("Connexion demandée : " + client + " " + identifiants);
-			clients.put(client, new Utilisateur(cptClient, client.getAdresse(), "" + client.getPort()));
+			clients.put(client, new Utilisateur(""+cptClient, client.getAdresse(), "" + client.getPort()));
 			return true;
 		}
 
@@ -83,7 +83,7 @@ public class TestS5Serveur {
 		@Override
 		public Ticket demandeTicket(ComAdresse client, Identifiable idTicket) {
 			NavigableSet<Message> messages = new TreeSet<>();
-			messages.add(new Message(1, new Utilisateur(1, "Dupont", "Michel"), "Mon message", new Date(),
+			messages.add(new Message(1, new Utilisateur("1", "Dupont", "Michel"), "Mon message", new Date(),
 					new TreeMap<Utilisateur, StatutDeLecture>()));
 			return new Ticket(idTicket.getIdentifiantNumeriqueUnique(),
 					"Ticket " + idTicket.getIdentifiantNumeriqueUnique(), new TreeSet<Message>(), new Date());
