@@ -254,10 +254,13 @@ public class CtrlClient extends Observable implements ICtrlClient {
 	
 	@Override
 	public void recevoir(Ticket ticketRecu) {
+		
+		int nbMessageRecusPourLaPremiereFois = 0;
 
-		ctrlComClient.informerLecture(ticketRecu, StatutDeLecture.RECU);
+		if (ticketRecu.getNbMessagesNonLus() > 0)
+			ctrlComClient.informerLecture(ticketRecu, StatutDeLecture.RECU);
 
-		System.out.println("Ticket reçu : " + ticketRecu);
+		//System.out.println("Ticket reçu : " + ticketRecu);
 
 		Identifiable groupeParent = new KeyIdentifiable(ticketRecu.getParent());
 		Identifiable ticket = new KeyIdentifiable(ticketRecu);
@@ -282,7 +285,7 @@ public class CtrlClient extends Observable implements ICtrlClient {
 		}
 		else {
 			// Le groupe est inconnu, on demande la liste des groupes
-			System.out.println("Groupe inconnu -> demandé");
+			//System.out.println("Groupe inconnu -> demandé");
 			ctrlComClient.demanderTousLesGroupes();
 		}
 
@@ -291,7 +294,7 @@ public class CtrlClient extends Observable implements ICtrlClient {
 	@Override
 	public void recevoir(Set<Groupe> listeDesGroupes) {
 		// Reçoit une nouvelle liste de groupes (à tout moment)
-		System.out.println("Liste des groupes reçue");
+		//System.out.println("Liste des groupes reçue");
 		majGroupes(listeDesGroupes);
 
 		for (Groupe currGroupe: listeDesGroupes)
@@ -304,7 +307,7 @@ public class CtrlClient extends Observable implements ICtrlClient {
 
 	@Override
 	public void recevoir(Message messageRecu) {
-		System.out.println("Message reçu : " + messageRecu);
+		//System.out.println("Message reçu : " + messageRecu);
 		Identifiable ticketParent = messageRecu.getParent();
 
 
@@ -313,10 +316,12 @@ public class CtrlClient extends Observable implements ICtrlClient {
 			Ticket ticket = ticketsParId.get(ticketParent);
 			ticket.addMessage(messageRecu);
 
+			ctrlComClient.informerLecture(ticket, StatutDeLecture.RECU);
+
 			java.awt.EventQueue.invokeLater(new RunnableNotification(this, Notification.UPDATE_MESSAGES));
 		}
 		else {
-			System.out.println("Ticket inconnu -> demandé");
+			//System.out.println("Ticket inconnu -> demandé");
 			ctrlComClient.demanderTicket(ticketParent);
 		}
 

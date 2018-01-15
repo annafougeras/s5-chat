@@ -2,28 +2,27 @@ package vue;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.NavigableSet;
-import java.util.Observable;
-
-import javax.swing.JDialog;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-
-import controleur.CtrlClient;
-import controleur.ICtrlClient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Observable;
 import java.util.TreeMap;
+
+import javax.swing.JDialog;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import modele.Groupe;
 import modele.Message;
 import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
+import controleur.CtrlClient;
+import controleur.ICtrlClient;
 
 /**
  *
@@ -313,13 +312,14 @@ public class MainScreen extends BaseScreenClient {
 	/**
 	 * @param ticket
 	 */
+	@SuppressWarnings("unchecked")
 	private void updateMessageList(final Ticket ticket) {
-		ctrlClient.informerLecture(ticket);
+		if (ticket.getNbMessagesNonLus() > 0) {
+			ctrlClient.informerLecture(ticket);
+		}
 		ticketAffiche = ticket;
 		if (ticket.estComplet()){
-			NavigableSet<Message> set = ticket.getMessages();
-
-			messageList.setModel(new MessageListModel(new ArrayList<>(ticketAffiche.getMessages())));
+			messageList.setModel(new MessageListModel(new ArrayList<Message>(ticketAffiche.getMessages())));
 		}
 		else {
 			messageList.setModel(new MessageListModel(new ArrayList<Message>()));

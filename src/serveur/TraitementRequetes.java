@@ -131,7 +131,6 @@ public class TraitementRequetes implements S5Serveur {
 	@Override
 	public Ticket demandeTicket(ComAdresse client, Identifiable idTicket) {
 		
-		System.out.println("demandeTicket(" + client + ", " + idTicket + ")");
 
 		Ticket unTicket = null;
 		int utilisateur = utilisateurs.get(client);
@@ -209,6 +208,14 @@ public class TraitementRequetes implements S5Serveur {
 			int s = statut.toInt();
 			
 			sql.sqlSetStatut(idUser, idT, s);
+
+			
+			for (ComAdresse c: ctrlCom.getClientsConnectes())
+				if (c != client || statut == StatutDeLecture.LU)
+					if (sql.ticketConsultable(idT, utilisateurs.get(c))) {
+						Ticket t = sql.sqlSelectTicket(idT, utilisateurs.get(c));
+						ctrlCom.informer(c, t);	
+					}
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -512,7 +519,6 @@ public class TraitementRequetes implements S5Serveur {
 			Identifiable idUtilisateur) {
 		int idUser = Integer.parseInt(idUtilisateur.getIdentifiantUnique());
 		int idGrp = Integer.parseInt(idGroupe.getIdentifiantUnique());
-		System.out.println();
 		try {
 			sql.sqlRejoindreGroupe(idUser, idGrp);
 		} catch (SQLException e) {
@@ -544,7 +550,7 @@ public class TraitementRequetes implements S5Serveur {
 		}
 		else {
 			try {
-				sql.deleteGroupe(idUtilisateur.getIdentifiantNumeriqueUnique());
+				sql.deleteUtilisateur(Integer.parseInt(idUtilisateur.getIdentifiantUnique()));
 			}
 			catch (SQLException e) {
 				e.printStackTrace();

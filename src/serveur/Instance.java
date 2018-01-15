@@ -107,14 +107,14 @@ public class Instance implements IInstance {
 		// membres du groupe
 		String sql1 = "select id_user FROM ticket, appartenance WHERE appartenance.id_groupe = ticket.id_groupe AND ticket.id_ticket = "+ idTicket;
 		ResultSet rs1 = stmt1.executeQuery(sql1);
-		System.out.println(sql1);
+		//System.out.println(sql1);
 		while(rs1.next())
 			set.add(rs1.getInt("id_user"));
 
 		// emetteur du ticket
 		String sql2 = "select id_user FROM ticket, message WHERE message.id_ticket = ticket.id_ticket AND ticket.id_ticket = "+ idTicket +" LIMIT 1";
 		ResultSet rs2= stmt2.executeQuery(sql2);
-		System.out.println(sql2);
+		//System.out.println(sql2);
 		while(rs2.next())
 			set.add(rs2.getInt("id_user"));
 		
@@ -190,8 +190,10 @@ public class Instance implements IInstance {
 	 */
 	private int nbMessagesNonLus(int idTicket, int idUser) throws SQLException {
 		Statement stmt1 = conn.createStatement();
-		ResultSet rs1= stmt1.executeQuery("select count(*) as nb FROM statut,message WHERE statut.statut <= 1 AND statut.id_user = "+idUser+" AND statut.id_message = message.id_message AND message.id_ticket = "+idTicket);
+		String query = "select count(*) as nb FROM statut,message WHERE NOT statut.statut = '1' AND statut.id_user = "+idUser+" AND statut.id_message = message.id_message AND message.id_ticket = "+idTicket;
+		ResultSet rs1= stmt1.executeQuery(query);
 		rs1.next();
+		//System.out.println(query + "\n -> " + rs1.getInt("nb"));
 		return rs1.getInt("nb");
 	}
 	
@@ -202,8 +204,9 @@ public class Instance implements IInstance {
 	@Override
 	public void sqlSetStatut(int idUser, int idTicket, int statut) throws SQLException {
 	    Statement statement = conn.createStatement();
-	    String query = "UPDATE statut, message SET statut.statut = '"+ statut +"' WHERE statut.id_user = "+ idUser +" AND statut.id_message = message.id_message AND message.id_ticket = " + idTicket;
-		statement.executeUpdate(query);	
+	    String query = "UPDATE statut, message SET statut.statut = '"+ statut +"' WHERE statut.id_user = "+ idUser +" AND statut.id_message = message.id_message AND message.id_ticket = " + idTicket + " AND NOT statut.statut = '1'";
+		//System.out.println(query);
+	    statement.executeUpdate(query);	
 	}
 
 
@@ -444,7 +447,9 @@ public class Instance implements IInstance {
 				System.out.println(query);
 				statement.executeUpdate(query);
 			}*/
-			return sqlSelectTicket(idTicket);
+			Ticket t = sqlSelectTicket(idTicket);
+			t.setNbMessagesNonLus(nbMessagesNonLus(idTicket, idUser));
+			return t;
 		}
 		else
 			return null;
@@ -457,7 +462,7 @@ public class Instance implements IInstance {
 		
 		
 		Statement stmt = null;
-		System.out.println(" ** Select ticket ** ");
+		//System.out.println(" ** Select ticket ** ");
 		stmt = conn.createStatement();
 		String sql = "SELECT * FROM ticket WHERE id_ticket = " + idTicket + " LIMIT 1";
 		ResultSet rs = stmt.executeQuery(sql);
@@ -540,7 +545,7 @@ public class Instance implements IInstance {
 	 * @throws SQLException
 	 */
 	public Groupe sqlSelectGroupe(int idGroupe, int idUser) throws SQLException {
-		System.out.println(" ** Select UN groupe ** ");
+		//System.out.println(" ** Select UN groupe ** ");
 		Statement stmt = conn.createStatement();
 		String sql = "SELECT * FROM groupe WHERE id_groupe = "+idGroupe+" LIMIT 1";
 		ResultSet rs = stmt.executeQuery(sql);
@@ -572,7 +577,7 @@ public class Instance implements IInstance {
 		NavigableSet<Groupe> retourne = new TreeSet<>();
 		Statement stmt = null;
 		
-		System.out.println(" ** Select groupes ** ");
+		//System.out.println(" ** Select groupes ** ");
 		stmt = conn.createStatement();
 		String sql = "SELECT id_groupe, nom_groupe FROM groupe";
 		ResultSet rs = stmt.executeQuery(sql);
@@ -738,7 +743,7 @@ public class Instance implements IInstance {
 	public int sqlUpdateUtilisateur(int id, String nom, String prenom,String nickname, String pass) throws SQLException {
 		Statement statement = conn.createStatement();
 		String query = "UPDATE user SET nom_user = '"+nom+"' AND prenom_user = '"+prenom+"' AND nickname_user = '"+nickname+"' AND password_user = '"+Sha256.sha256("qt"+pass+"pi")+"' WHERE id_user = "+id+" LIMIT 1";
-		System.out.println(query);
+		//System.out.println(query);
 		statement.executeUpdate(query);
 		return id;
 	}
@@ -749,7 +754,7 @@ public class Instance implements IInstance {
 	public int sqlUpdateTicket(int idTicket, String titre, int idGroupe) throws SQLException {
 		Statement statement = conn.createStatement();
 		String query = "UPDATE ticket SET titre_ticket = '"+titre+"' AND id_groupe = '"+idGroupe+"' WHERE id_ticket = "+idTicket+" LIMIT 1";
-		System.out.println(query);
+		//System.out.println(query);
 		statement.executeUpdate(query);
 		return idTicket;
 	}
@@ -760,7 +765,7 @@ public class Instance implements IInstance {
 	public int updateMessage(int idMsg, String contenu, int idUser,	int idTicket) throws SQLException {
 		Statement statement = conn.createStatement();
 		String query = "UPDATE message SET contenu = '"+contenu+"' AND id_user = '"+idUser+"' AND id_ticket = '"+idTicket+"' WHERE id_message = "+idMsg+" LIMIT 1";
-		System.out.println(query);
+		//System.out.println(query);
 		statement.executeUpdate(query);
 		return idMsg;
 	}
@@ -772,7 +777,7 @@ public class Instance implements IInstance {
 		Statement statement = conn.createStatement();
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO appartenance (id_groupe, id_user, inscription) VALUES ("+idGroupe+","+idUser+",'"+dateCurrent+"')";
-		System.out.println(query);
+		//System.out.println(query);
 		statement.executeUpdate(query);
 	}
 
@@ -782,7 +787,7 @@ public class Instance implements IInstance {
 	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException {
 		Statement statement = conn.createStatement();
 		String query = "DELETE FROM appartenance WHERE id_groupe = "+idGroupe+" AND id_user = "+idUser+" LIMIT 1";
-		System.out.println(query);
+		//System.out.println(query);
 		statement.executeUpdate(query);
 	}
 
