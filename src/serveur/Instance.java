@@ -130,7 +130,7 @@ public class Instance implements IInstance {
 	 * @return
 	 * @throws SQLException
 	 */
-	public boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
+	private boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
 		return utilisateursPouvantConsulterUnTicket(idTicket).contains(new Integer(idUser));
 	}
 
@@ -190,7 +190,7 @@ public class Instance implements IInstance {
 	 */
 	private int nbMessagesNonLus(int idTicket, int idUser) throws SQLException {
 		Statement stmt1 = conn.createStatement();
-		ResultSet rs1= stmt1.executeQuery("select count(*) as nb FROM statut,message WHERE statut.id_user = "+idUser+" AND statut.id_message = message.id_message AND message.id_ticket = "+idTicket);
+		ResultSet rs1= stmt1.executeQuery("select count(*) as nb FROM statut,message WHERE statut.statut <= 1 AND statut.id_user = "+idUser+" AND statut.id_message = message.id_message AND message.id_ticket = "+idTicket);
 		rs1.next();
 		return rs1.getInt("nb");
 	}
@@ -433,8 +433,19 @@ public class Instance implements IInstance {
 	
 	public Ticket sqlSelectTicket(int idTicket, int idUser) throws SQLException {
 		boolean ok = ticketConsultable(idTicket, idUser);
-		if (ok)
+		if (ok) {
+			/* UPDATE STATUT RESSOURCE
+			 * String sql2 = "SELECT id_message FROM message WHERE id_ticket ="+ idTicket;
+			Statement stmt2 = conn.createStatement();
+			ResultSet rs2 = stmt2.executeQuery(sql2);	
+			while(rs2.next()) {
+				Statement statement = conn.createStatement();
+				String query = "UPDATE statut SET statut = 2 WHERE id_message = "+ rs2.getInt("id_message") +" AND id_user = "+ idUser +" LIMIT 1";
+				System.out.println(query);
+				statement.executeUpdate(query);
+			}*/
 			return sqlSelectTicket(idTicket);
+		}
 		else
 			return null;
 	}
