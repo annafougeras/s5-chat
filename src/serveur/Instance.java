@@ -130,7 +130,7 @@ public class Instance implements IInstance {
 	 * @return
 	 * @throws SQLException
 	 */
-	private boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
+	public boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
 		return utilisateursPouvantConsulterUnTicket(idTicket).contains(new Integer(idUser));
 	}
 
