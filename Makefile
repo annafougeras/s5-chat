@@ -76,12 +76,10 @@ demo: demo_local
 demo_local: $(JAR_CLIENT) $(JAR_ADMIN) $(JAR_SERVEUR)
 	xterm -ge 80x15+0+000 -e "java -jar $(JAR_SERVEUR) 8888 local" &
 	xterm -ge 80x15+0+230 -e "java -jar $(JAR_CLIENT)" &
-	xterm -ge 80x15+0+460 -e "java -jar $(JAR_ADMIN)" &
 
 demo_distant: $(JAR_CLIENT) $(JAR_ADMIN) $(JAR_SERVEUR)
 	xterm -ge 80x15+0+000 -e "java -jar $(JAR_SERVEUR) 8888 distant" &
 	xterm -ge 80x15+0+230 -e "java -jar $(JAR_CLIENT)" &
-	xterm -ge 80x15+0+460 -e "java -jar $(JAR_ADMIN)" &
 
 test_communication:
 	xterm -ge 80x15+0+000 -e "java -classpath $(BIN) tests.TestComSimpleServeur 8888" &

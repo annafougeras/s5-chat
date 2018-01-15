@@ -1,3 +1,12 @@
+
+***
+
+**[À l'attention du correcteur...](readme.txt)**
+
+***
+
+
+
 # s5-chat
 
 **s5-Chat** est une application de type client-serveur permettant a des *utilisateurs* d'écrire des *messages*.  
@@ -18,16 +27,19 @@ Les programmes sont écrit en Java, et offrent donc une compatibilité avec de n
 
 #### Application client
 
-Récupérez [l'application client](#make_jars), puis exécutez :
+Créez [l'application client](#make_jars), puis exécutez :
 
 	java -jar appli_client.jar [adresse_serveur port_serveur]
 
+(Par défaut, adresse=localhost et port=8888)
+
 #### Application administrateur
 
-Récupérez [l'application administrateur](#make_jars), puis exécutez :
+Créez [l'application administrateur](#make_jars), puis exécutez :
 
 	java -jar appli_admin.jar [adresse_serveur port_serveur]
 
+(Par défaut, adresse=localhost et port=8888)
 
 #### Serveur
 
@@ -35,7 +47,7 @@ Deux cas :
 
 **1. Le serveur dispose du SGDB mySQL**
 
-Récupérez [le serveur](#make_jars), puis exécutez :
+Créez [le serveur](#make_jars), puis exécutez :
 
 	# Installe la base de données (utilisateur 's5', mot de passe 's5)
 	make install_db
@@ -48,7 +60,7 @@ Récupérez [le serveur](#make_jars), puis exécutez :
 
 **2. Le serveur ne dispose pas du SGBD mySQL, mais possède une connexion internet**
 
-Récupérez [le serveur](#make_jars), puis exécutez :
+Créez [le serveur](#make_jars), puis exécutez :
 
 	# Démarre le serveur sur le port xxxx (habituellement 8888) en utilisant une base de données distante
 	java -jar serveur.jar xxxx distant
@@ -107,11 +119,11 @@ Base de donnée :
 
 Tests :
 
-	# Démonstration : lance le serveur et les applis (serveur local, db locale)
+	# Démonstration : lance le serveur et l'application client (serveur local, db locale)
 	make demo
 	make demo_local
 	
-	# Démonstration (serveur local, db distante)
+	# Démonstration : lance le serveur et l'application client (serveur local, db distante)
 	make demo_distant
 
 	# Communicateur réseau générique
@@ -130,3 +142,7 @@ Nettoyage :
 	
 	# Supprime tout ce qui peut être re-généré
 	make maxclean
+	
+	# Efface la base du serveur mysql local
+	make -C db uninstall
+	
