@@ -33,7 +33,7 @@ public class Serveur {
 	
 	public static int port;
 	public static ICtrlComServeur ctrlCom;
-	public static S5Serveur traitReq;
+	public static TraitementRequetes traitReq;
 	
 	public static void main(String args[]){
 		
@@ -58,6 +58,8 @@ public class Serveur {
 		port = Integer.parseInt(args[0]);
 		traitReq = new TraitementRequetes(local);
 		ctrlCom = new CtrlComServeur(traitReq, port);
+		
+		traitReq.setCtrlComServeur(ctrlCom);
 
 		ctrlCom.start();
 		System.out.println("Serveur démarré");

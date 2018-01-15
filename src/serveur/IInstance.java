@@ -173,4 +173,20 @@ public interface IInstance {
 	
 	
 	
+	
+	
+
+	/**
+	 * Determine si un ticket est consultable par un utilisateur
+	 * @param idTicket
+	 * @param idUser
+	 * @return
+	 * @throws SQLException
+	 */
+	public boolean ticketConsultable(int idTicket, int idUser) throws SQLException;
+
+	
+	
+	
+	
 }

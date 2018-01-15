@@ -105,12 +105,16 @@ public class Instance implements IInstance {
 		Statement stmt2 = conn.createStatement();
 		
 		// membres du groupe
-		ResultSet rs1= stmt1.executeQuery("select id_user FROM ticket,appartenance WHERE appartenance.id_groupe = ticket.id_groupe");
+		String sql1 = "select id_user FROM ticket, appartenance WHERE appartenance.id_groupe = ticket.id_groupe AND ticket.id_ticket = "+ idTicket;
+		ResultSet rs1 = stmt1.executeQuery(sql1);
+		System.out.println(sql1);
 		while(rs1.next())
 			set.add(rs1.getInt("id_user"));
 
 		// emetteur du ticket
-		ResultSet rs2= stmt2.executeQuery("select id_user FROM ticket,message WHERE message.id_ticket = ticket.id_ticket AND ticket.id_ticket = "+idTicket);
+		String sql2 = "select id_user FROM ticket, message WHERE message.id_ticket = ticket.id_ticket AND ticket.id_ticket = "+ idTicket +" LIMIT 1";
+		ResultSet rs2= stmt2.executeQuery(sql2);
+		System.out.println(sql2);
 		while(rs2.next())
 			set.add(rs2.getInt("id_user"));
 		
@@ -126,7 +130,7 @@ public class Instance implements IInstance {
 	 * @return
 	 * @throws SQLException
 	 */
-	private boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
+	public boolean ticketConsultable(int idTicket, int idUser) throws SQLException {
 		return utilisateursPouvantConsulterUnTicket(idTicket).contains(new Integer(idUser));
 	}
 

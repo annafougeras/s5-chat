@@ -22,6 +22,7 @@ import modele.StatutDeLecture;
 import modele.Ticket;
 import modele.Utilisateur;
 
+import commChatS5.ICtrlComServeur;
 import commChatS5.Identifiants;
 import commChatS5.S5Serveur;
 import communication.ComAdresse;
@@ -37,6 +38,7 @@ public class TraitementRequetes implements S5Serveur {
 	Map<ComAdresse,Integer> utilisateurs = new HashMap<>();
 	Set<ComAdresse> admins = new HashSet<>();
 	IInstance sql;
+	ICtrlComServeur ctrlCom;
 
 	
 	public TraitementRequetes(boolean local) {
@@ -56,6 +58,15 @@ public class TraitementRequetes implements S5Serveur {
 		return admins.contains(client);
 	}
 	
+	
+	
+	
+
+	/* Set ctrlcom */
+	
+	public void setCtrlComServeur(ICtrlComServeur ctrlCom) {
+		this.ctrlCom = ctrlCom;
+	}
 	
 	
 
@@ -119,6 +130,8 @@ public class TraitementRequetes implements S5Serveur {
 
 	@Override
 	public Ticket demandeTicket(ComAdresse client, Identifiable idTicket) {
+		
+		System.out.println("demandeTicket(" + client + ", " + idTicket + ")");
 
 		Ticket unTicket = null;
 		int utilisateur = utilisateurs.get(client);
@@ -148,7 +161,12 @@ public class TraitementRequetes implements S5Serveur {
 			idTicket = sql.sqlInsertTicket(titre, premierMessage, idUser, idGroupe);
 			if (idTicket >= 0)
 				t = sql.sqlSelectTicket(idTicket, idUser);
-			
+
+			if (t != null)
+				for (ComAdresse c: ctrlCom.getClientsConnectes())
+					if (c != client)
+						if (sql.ticketConsultable(t.getIdentifiantNumeriqueUnique(), utilisateurs.get(c)))
+							ctrlCom.informer(c, t);			
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -169,6 +187,11 @@ public class TraitementRequetes implements S5Serveur {
 			idMsg = sql.sqlInsertMessage(message, idUser, idTicket);
 			if (idMsg >= 0)
 				m = sql.sqlSelectMessage(idMsg);
+			if (m != null)
+				for (ComAdresse c: ctrlCom.getClientsConnectes())
+					if (c != client)
+						if (sql.ticketConsultable(m.getParent().getIdentifiantNumeriqueUnique(), utilisateurs.get(c)))
+							ctrlCom.informer(c, m, m.getParent());
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

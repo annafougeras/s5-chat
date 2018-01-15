@@ -161,15 +161,9 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 				Identifiable idTicket = (Identifiable) args[1];
 				String contenuMessage = (String) args[2];
 				
-				Message nouveauMessage = observateur.creationMessage(client, idTicket, contenuMessage);
-				if (nouveauMessage != null)
-					for (ComAdresse c: getClientsConnectes())
-						if (c != client)
-							informer(c, nouveauMessage, nouveauMessage.getParent());
-				
 				reponse = new SimpleMessage.SimpleMessageInformation(
 						TypeMessage.INFORME_MESSAGE,
-						nouveauMessage
+						observateur.creationMessage(client, idTicket, contenuMessage)
 						);
 				
 				
@@ -180,16 +174,9 @@ public class CtrlComServeur implements ICtrlComServeur, ObservateurComServeur<Si
 				String titreTicket = (String) args[2];
 				String contenuPremierMessage = (String) args[3];
 				
-				Ticket nouveauTicket = observateur.creationTicket(client, idGroupe, titreTicket, contenuPremierMessage);
-						
-				if (nouveauTicket != null)
-					for (ComAdresse c: getClientsConnectes())
-						if (c != client)
-							informer(c, nouveauTicket);
-				
 				reponse = new SimpleMessage.SimpleMessageInformation(
 						TypeMessage.INFORME_TICKET,
-						nouveauTicket
+						observateur.creationTicket(client, idGroupe, titreTicket, contenuPremierMessage)
 						);
 				break;
 				
