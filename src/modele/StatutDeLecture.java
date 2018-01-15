@@ -28,15 +28,15 @@ public enum StatutDeLecture {
 		case ENVOYE: return 0;
 		case LU: return 1;
 		case RECU: return 2;
-		default: return 0;
+		default: return 4;
 		}
 	}
 	
 	public static StatutDeLecture fromInt(int i){
 		switch (i) {
-		case 1: return StatutDeLecture.ENVOYE;
-		case 2: return StatutDeLecture.LU;
-		case 3: return StatutDeLecture.RECU;
+		case 0: return StatutDeLecture.ENVOYE;
+		case 1: return StatutDeLecture.LU;
+		case 2: return StatutDeLecture.RECU;
 		default: return StatutDeLecture.NON_ENVOYE;
 		}
 	}

@@ -754,8 +754,6 @@ public class Instance implements IInstance {
 
 	@Override
 	public void sqlRejoindreGroupe(int idUser, int idGroupe) throws SQLException {
-		idGroupe -= 48;
-		idUser -= 48;
 		Statement statement = conn.createStatement();
 		java.sql.Date dateCurrent = new java.sql.Date(new Date().getTime());
 		String query = "INSERT INTO appartenance (id_groupe, id_user, inscription) VALUES ("+idGroupe+","+idUser+",'"+dateCurrent+"')";
@@ -767,8 +765,6 @@ public class Instance implements IInstance {
 
 	@Override
 	public void sqlQuitterGroupe(int idUser, int idGroupe) throws SQLException {
-		idGroupe -= 48;
-		idUser -= 48;
 		Statement statement = conn.createStatement();
 		String query = "DELETE FROM appartenance WHERE id_groupe = "+idGroupe+" AND id_user = "+idUser+" LIMIT 1";
 		System.out.println(query);
